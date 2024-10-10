@@ -1,17 +1,8 @@
 import { Handle, Position } from "@xyflow/react";
-import { useEffect, useState } from "react";
 
 const PinModeNode = ({ data, isConnectable }) => {
-    const [pin, setPin] = useState(0);
-    const [mode, setMode] = useState("High");
 
-    useEffect(() => {
-        data.updateData(data.id, 'pinMode', {
-            pin: pin,
-            mode: mode
-        })
-    },[pin, mode]);
-    return ( 
+    return (
         <div className="react-flow__node-custom">
             <Handle
                 type="target"
@@ -20,22 +11,11 @@ const PinModeNode = ({ data, isConnectable }) => {
                 id="1"
             />
 
-            <p className="node-title">Pin Mode</p>
             <div className="node-body">
-            <input
-                type="number"
-                placeholder="Digital Pin"
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
-            />
-            <select 
-                value={mode}
-                onChange={(e) => setMode(e.target.value)}
-            >
-                <option value="Input">Input</option>
-                <option value="Output">Output</option>
-            </select>
+                <p className="node-title">Pin Mode</p>
+                <p className="node-content">{data.pin} ({data.pinMode})</p>
             </div>
+
             <Handle
                 type="source"
                 position={Position.Right}
@@ -43,7 +23,7 @@ const PinModeNode = ({ data, isConnectable }) => {
                 id="2"
             />
         </div>
-     );
+    );
 }
- 
+
 export default PinModeNode;

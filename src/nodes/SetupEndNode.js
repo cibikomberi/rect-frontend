@@ -1,8 +1,9 @@
+import { Power } from "@carbon/icons-react";
 import { Handle, Position } from "@xyflow/react";
 
 const SetupEndNode = ({ data, isConnectable }) => {
     return (
-        <div className="react-flow__node-custom">
+        <>
             <Handle
                 type="target"
                 position={Position.Left}
@@ -10,9 +11,12 @@ const SetupEndNode = ({ data, isConnectable }) => {
                 id="end"
             />
 
-            <p className="node-title">Setup End</p>
-
-        </div>
+            <Power />
+            
+            <div className="node-body">
+                <p className="node-title">Setup End</p>
+            </div>
+        </>
     );
 }
 

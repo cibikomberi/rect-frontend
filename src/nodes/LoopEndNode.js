@@ -1,8 +1,9 @@
+import { Repeat } from "@carbon/icons-react";
 import { Handle, Position } from "@xyflow/react";
 
 const LoopEndNode = ({ data, isConnectable }) => {
     return (
-        <div className="react-flow__node-custom">
+        <>
             <Handle
                 type="target"
                 position={Position.Left}
@@ -10,9 +11,12 @@ const LoopEndNode = ({ data, isConnectable }) => {
                 id="end"
             />
 
-            <p className="node-title">Loop End</p>
+            <Repeat />
 
-        </div>
+            <div className="node-body">
+                <p className="node-title">Loop End</p>
+            </div>
+        </>
     );
 }
 

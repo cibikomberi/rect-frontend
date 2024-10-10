@@ -1,10 +1,13 @@
+import { Repeat } from "@carbon/icons-react";
 import { Handle, Position } from "@xyflow/react";
 
 const LoopStartNode = ({ data, isConnectable }) => {
     return (
-        <div className="react-flow__node-custom">
-
-            <p className="node-title">Loop Start</p>
+        <>
+            <Repeat />
+            <div className="node-body">
+                <p className="node-title">Loop Start</p>
+            </div>
 
             <Handle
                 type="source"
@@ -12,7 +15,7 @@ const LoopStartNode = ({ data, isConnectable }) => {
                 isConnectable={isConnectable}
                 id="start"
             />
-        </div>
+        </>
     );
 }
 

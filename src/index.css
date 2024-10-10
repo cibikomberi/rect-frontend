@@ -25,6 +25,7 @@ code {
 .react-flow__node {
     border: none;
     border-left: solid #f6bf04 3px;
+    padding-left: 10px;
     background-color: #575151;
     width: 175px;
     height: 65px;

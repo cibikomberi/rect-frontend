@@ -7,7 +7,6 @@ const SetupStartNode = ({ data, isConnectable }) => {
             <Power />
             <div className="node-body">
                 <p className="node-title">Setup Start</p>
-                <p className="node-content">Setup Start</p>
             </div>
 
             <Handle

@@ -16,16 +16,18 @@ import SetupEndNode from '../Nodes/SetupEndNode';
 import LoopStartNode from '../Nodes/LoopStartNode';
 import LoopEndNode from '../Nodes/LoopEndNode';
 import PinModeNode from '../Nodes/PinModeNode';
-import { HeaderPanel, TextInput } from '@carbon/react';
+import ParametersForNodes from '../Nodes/ParametersForNodes';
+import { Button, HeaderPanel, Select, SelectItem, TextInput } from '@carbon/react';
+import { Close } from '@carbon/icons-react';
 
 
 const nodeTypes = { delay: DelayNode, digitalWrite: DigitalWriteNode, setupStart: SetupStartNode, setupEnd: SetupEndNode, loopStart: LoopStartNode, loopEnd: LoopEndNode, pinMode: PinModeNode }
 
 const initialNodes = [
-    { id: '1', position: { x: 0, y: 0 }, data: { label: '1' }, type: 'setupStart' },
-    { id: '3', position: { x: 200, y: 0 }, data: { label: '2' }, type: 'setupEnd' },
-    { id: '2', position: { x: 0, y: 200 }, data: { label: '2' }, type: 'loopStart' },
-    { id: '4', position: { x: 200, y: 200 }, data: { label: '2' }, type: 'loopEnd' }
+    { id: '1', position: { x: 0, y: 0 }, data: {}, type: 'setupStart' },
+    { id: '3', position: { x: 200, y: 0 }, data: {}, type: 'setupEnd' },
+    { id: '2', position: { x: 0, y: 200 }, data: {}, type: 'loopStart' },
+    { id: '4', position: { x: 200, y: 200 }, data: {}, type: 'loopEnd' }
 ];
 
 const initialEdges = [
@@ -41,20 +43,15 @@ const initialEdges = [
 ]
 
 const TemplateEdit = () => {
+
     const [k, setK] = useState(5);
     const [isPanelExpanded, setIsPanelExpanded] = useState(false);
     const [activeNode, setActiveNode] = useState(true);
-    const [data, setData] = useState([]);
+    const parametersForNodes = ParametersForNodes;
     const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-    const updateData = (id, type, values) => {
-        setData((data) => data.filter((a) => a.id !== id).concat({
-            id: id,
-            type: type,
-            data: values
-        }))
-    }
+    console.log(parametersForNodes);
 
     const onConnect = useCallback(
         (params) => setEdges((eds) => addEdge(params, eds)),
@@ -66,7 +63,7 @@ const TemplateEdit = () => {
         const newNode = {
             id: k.toString(),
             position: { x: 0, y: 0 },
-            data: { data: data, updateData: updateData, id: k },
+            data: { data: nodes, id: k.toString() },
             type: nodeType,
             origin: [0.5, 0.0],
         };
@@ -74,11 +71,11 @@ const TemplateEdit = () => {
         setNodes((nds) => nds.concat(newNode));
     }
     const listAll = () => {
-        console.log(data);
+        console.log(nodes);
         console.log(edges);
     }
 
-    const handleNodeClick = (_, node) =>{
+    const handleNodeClick = (_, node) => {
         setIsPanelExpanded(true);
         setActiveNode(node);
     }
@@ -87,7 +84,6 @@ const TemplateEdit = () => {
         console.log(JSON.stringify({
             nodes: nodes,
             edges: edges,
-            data: data
         }));
         const formData = new FormData();
         formData.append('data', new Blob([JSON.stringify({
@@ -97,11 +93,9 @@ const TemplateEdit = () => {
             method: "POST", headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
                 nodes: nodes,
                 edges: edges,
-                data: data
             })
         })
         console.log(res);
-
     }
 
     return (
@@ -132,10 +126,57 @@ const TemplateEdit = () => {
             </div>
             <HeaderPanel
                 expanded={isPanelExpanded}
-                children={<>
-                    {activeNode.id}
-                    <TextInput id="text-input-1" type="text" placeholder='Enter Value' style={{width: '80%', backgroundColor:'#262626'}} />
-                </>}
+                children={
+                    <>
+                        <Button renderIcon={Close} kind="ghost" hasIconOnly onClick={() => setIsPanelExpanded(false)} />
+                        {parametersForNodes.map((parameters) => {
+                            if (parameters.type === activeNode.type) {
+                                return parameters.inputs.map((inputs) => {
+                                    if (inputs.type === 'number') {
+                                        return <TextInput
+                                            type="number"
+                                            placeholder='Enter Value'
+                                            style={{ width: '80%', backgroundColor: '#262626' }}
+                                            onChange={(e) => {
+                                                setNodes((prevNodes) => {
+                                                    const newNodes = prevNodes.map((node) => {
+                                                        if (node.id === activeNode.id) {
+                                                            node.data[inputs.name] = e.target.value;
+                                                        }
+                                                        return node;
+                                                    });
+                                                    return newNodes;
+                                                })
+                                            }}
+                                        />
+                                    }
+                                    if (inputs.type === 'select') {
+                                        return <Select
+                                            id={`select-1`}
+                                            labelText="Select an option"
+                                            helperText="Optional helper text"
+                                            onChange={(e) => {
+                                                setNodes((prevNodes) => {
+                                                    const newNodes = prevNodes.map((node) => {
+                                                        if (node.id === activeNode.id) {
+                                                            node.data[inputs.name] = e.target.value;
+                                                        }
+                                                        return node;
+                                                    });
+                                                    return newNodes;
+                                                })
+                                            }}>
+                                                {inputs.values.map((val) => {
+
+                                                    return <SelectItem value={val} text={val} />
+                                                })}
+                                        </Select>
+                                    }
+                                })
+                            }
+                        })}
+
+                    </>}
             />
 
         </div>
