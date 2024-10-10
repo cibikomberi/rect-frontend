@@ -10,8 +10,8 @@ const DigitalWriteNode = ({ data, isConnectable }) => {
             pin: pin,
             pinState: pinState
         })
-    },[pin, pinState]);
-    return ( 
+    }, [pin, pinState]);
+    return (
         <div className="react-flow__node-custom">
             <Handle
                 type="target"
@@ -20,20 +20,23 @@ const DigitalWriteNode = ({ data, isConnectable }) => {
                 id="1"
             />
 
-            <p>Digital Write</p>
-            <input
-                type="number"
-                placeholder="Digital Pin"
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
-            />
-            <select 
-                value={pinState}
-                onChange={(e) => setPinState(e.target.value)}
-            >
-                <option value="High">High</option>
-                <option value="Low">Low</option>
-            </select>
+            <p className="node-title">Digital Write</p>
+
+            <div className="node-body">
+                <input
+                    type="number"
+                    placeholder="Digital Pin"
+                    value={pin}
+                    onChange={(e) => setPin(e.target.value)}
+                />
+                <select
+                    value={pinState}
+                    onChange={(e) => setPinState(e.target.value)}
+                >
+                    <option value="High">High</option>
+                    <option value="Low">Low</option>
+                </select>
+            </div>
             
             <Handle
                 type="source"
@@ -42,7 +45,7 @@ const DigitalWriteNode = ({ data, isConnectable }) => {
                 id="2"
             />
         </div>
-     );
+    );
 }
- 
+
 export default DigitalWriteNode;

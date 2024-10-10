@@ -4,7 +4,7 @@ const LoopStartNode = ({ data, isConnectable }) => {
     return (
         <div className="react-flow__node-custom">
 
-            <h3>Loop Start</h3>
+            <p className="node-title">Loop Start</p>
 
             <Handle
                 type="source"

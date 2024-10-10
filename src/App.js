@@ -1,10 +1,12 @@
 import { Theme } from '@carbon/react';
 import './App.scss'
-import MainLayout from './MainLayout';
+import MainLayout from './Layout/MainLayout';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
-import MyTemplates from './MyTemplates';
-import TemplatesList from './TemplatesList';
-import Templates from './Templates';
+import MyTemplates from './Templates/MyTemplates';
+import TemplatesList from './Templates/TemplatesList';
+import DevicesList from './Devices/DevicesList';
+import DeviceView from './Devices/DeviceView';
+import TemplateEdit from './Templates/TemplateEdit';
 
 function App() {
 
@@ -13,17 +15,23 @@ function App() {
 			<Route exact path='/' element={<MainLayout />}>
 				<Route path='my-templates' element={<MyTemplates />} />
 				<Route path='templates'>
-					<Route index  element={<TemplatesList />} />
-					<Route path='view'  element={<Templates />} />
-					<Route path='edit'  element={<Templates />} />
+					<Route index element={<TemplatesList />} />
+					<Route path='edit/:id' element={<TemplateEdit />} />
+				</Route>
+
+				<Route path='devices'>
+					<Route index element={<DevicesList />} />
+					<Route path='view/:id' element={<DeviceView />} />
 				</Route>
 			</Route>
 		)
 	)
 	return (
-			<Theme theme="g90">
+		<Theme theme="g90">
+			<code dir="auto" className="text-mono">
 				<RouterProvider router={routes} />
-			</Theme>
+			</code>
+		</Theme>
 	);
 }
 

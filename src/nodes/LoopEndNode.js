@@ -10,7 +10,7 @@ const LoopEndNode = ({ data, isConnectable }) => {
                 id="end"
             />
 
-            <h3>Loop End</h3>
+            <p className="node-title">Loop End</p>
 
         </div>
     );

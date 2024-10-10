@@ -10,7 +10,8 @@ const MainLayout = () => {
 
     let contentStyle = {}
     if (isEditPage) {
-        contentStyle.marginLeft = '0'
+        contentStyle.marginLeft = '0';
+        contentStyle.padding = '0';
     }
 
     return (
@@ -40,6 +41,9 @@ const MainLayout = () => {
                                 <SideNavMenuItem as={Link} to="/templates">
                                     Pre - generated
                                 </SideNavMenuItem>
+                                <SideNavMenuItem as={Link} to="/templates/edit">
+                                    Edit Pre - generated
+                                </SideNavMenuItem>
                             </SideNavMenu>
                             <SideNavLink renderIcon={Fade} as={Link} to="/devices">
                                 Devices
@@ -49,6 +53,7 @@ const MainLayout = () => {
                             </SideNavLink>
                         </SideNavItems>
                     </SideNav>
+                    
                 </Header>
             </Theme>
             

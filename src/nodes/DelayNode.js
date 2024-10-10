@@ -8,8 +8,8 @@ const DelayNode = ({ data, isConnectable }) => {
         data.updateData(data.id, 'delay', {
             delay: delay
         })
-    },[delay]);
-    
+    }, [delay]);
+
     return (
         <div className="react-flow__node-custom">
             <Handle
@@ -19,13 +19,15 @@ const DelayNode = ({ data, isConnectable }) => {
                 id="1"
             />
 
-            <p>Delay in ms</p>
-            <input
-                type="number"
-                value={delay}
-                onChange={(e) => setDelay(e.target.value)}
-            />
-
+            <p className="node-title">Delay</p>
+            
+            <div className="node-body">
+                <input
+                    type="number"
+                    value={delay}
+                    onChange={(e) => setDelay(e.target.value)}
+                />
+            </div>
             <Handle
                 type="source"
                 position={Position.Right}

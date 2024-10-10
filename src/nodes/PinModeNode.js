@@ -20,7 +20,8 @@ const PinModeNode = ({ data, isConnectable }) => {
                 id="1"
             />
 
-            <p>Pin Mode</p>
+            <p className="node-title">Pin Mode</p>
+            <div className="node-body">
             <input
                 type="number"
                 placeholder="Digital Pin"
@@ -34,7 +35,7 @@ const PinModeNode = ({ data, isConnectable }) => {
                 <option value="Input">Input</option>
                 <option value="Output">Output</option>
             </select>
-            
+            </div>
             <Handle
                 type="source"
                 position={Position.Right}

@@ -10,7 +10,7 @@ const SetupEndNode = ({ data, isConnectable }) => {
                 id="end"
             />
 
-            <h3>Setup End</h3>
+            <p className="node-title">Setup End</p>
 
         </div>
     );

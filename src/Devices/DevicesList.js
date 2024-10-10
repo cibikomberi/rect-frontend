@@ -1,21 +1,27 @@
+import { Add } from '@carbon/icons-react';
 import { DataTable, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, TableContainer, Button, TableToolbar, TableToolbarContent, TableToolbarSearch, TableToolbarMenu, TableToolbarAction } from '@carbon/react';
+import { Link, useNavigate } from 'react-router-dom';
 
-const TemplatesList = () => {
+const DevicesList = () => {
+    const navigate = useNavigate();
     const rows = [
         {
             id: 'a',
-            name: 'Load balancer 1',
-            status: 'Disabled',
+            name: 'Weather monitoring',
+            board: 'ESP32',
+            status: 'Online',
         },
         {
             id: 'b',
-            name: 'Load balancer 2',
-            status: 'Starting',
+            name: 'Irrigation System',
+            board: 'ESP32',
+            status: 'Offline',
         },
         {
             id: 'c',
-            name: 'Load balancer 3',
-            status: 'Active',
+            name: 'Bus Tracker',
+            board: 'ESP8266',
+            status: 'Offline',
         },
     ];
     const headers = [
@@ -24,19 +30,24 @@ const TemplatesList = () => {
             header: 'Name',
         },
         {
+            key: 'board',
+            header: 'Board',
+        },
+        {
             key: 'status',
             header: 'Status',
         },
     ];
+
     return (
         <>
-            <DataTable rows={rows} headers={headers}>
+            <DataTable rows={rows} headers={headers} isSortable>
                 {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
-                    <TableContainer title="DataTable" description="With filtering">
+                    <TableContainer title="Devices" description="With filtering">
                         <TableToolbar>
                             <TableToolbarContent>
                                 <TableToolbarSearch />
-                                <TableToolbarMenu>
+                                {/* <TableToolbarMenu>
                                     <TableToolbarAction>
                                         Action 1
                                     </TableToolbarAction>
@@ -46,13 +57,12 @@ const TemplatesList = () => {
                                     <TableToolbarAction>
                                         Action 3
                                     </TableToolbarAction>
-                                </TableToolbarMenu>
-                                <Button>Primary Button</Button>
+                                </TableToolbarMenu> */}
+                                <Button renderIcon={Add} as={Link} to={'new'}>New Device</Button>
                             </TableToolbarContent>
                         </TableToolbar>
                         <Table {...getTableProps()}>
                             <TableHead>
-
                                 <TableRow>
                                     {headers.map((header) => (
                                         <TableHeader {...getHeaderProps({ header })}>
@@ -63,7 +73,7 @@ const TemplatesList = () => {
                             </TableHead>
                             <TableBody>
                                 {rows.map((row) => (
-                                    <TableRow {...getRowProps({ row })}>
+                                    <TableRow {...getRowProps({ row })} onClick={() => navigate(`view/${row.id}`)}>
                                         {row.cells.map((cell) => (
                                             <TableCell key={cell.id}>{cell.value}</TableCell>
                                         ))}
@@ -78,4 +88,4 @@ const TemplatesList = () => {
     );
 }
 
-export default TemplatesList;
+export default DevicesList;
