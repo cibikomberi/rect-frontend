@@ -5,6 +5,8 @@ import { useState } from "react";
 
 
 const DatastreamsList = ({ dataStreams, setDatastreams }) => {
+    console.log(dataStreams);
+    
     const [searchKeyword, setSearchKeyword] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     
@@ -14,6 +16,7 @@ const DatastreamsList = ({ dataStreams, setDatastreams }) => {
     const [datastreamUnit, setDatastreamUnit] = useState('');
     
     const filteredDataStreams = dataStreams.filter((val) => val.name.includes(searchKeyword));
+    // const filteredDataStreams = dataStreams;
 
     const addNewDatastream = () => {
         setDatastreams((existing) => ([...existing, {

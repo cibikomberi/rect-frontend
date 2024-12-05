@@ -17,10 +17,10 @@ const MainLayout = () => {
     return (
         <>
             <Theme theme="g100">
-                <Header aria-label="IBM Platform Name">
+                <Header aria-label="Rect Platform Name">
                     <HeaderMenuButton aria-label={isSideNavExpanded ? 'Close menu' : 'Open menu'} onClick={() => setIsSideNavExpanded(!isSideNavExpanded)} isActive={isSideNavExpanded} aria-expanded={isSideNavExpanded} isCollapsible={isEditPage}/>
-                    <HeaderName href="#" prefix="My">
-                        IoT
+                    <HeaderName href="#" prefix=''>
+                        Rect
                     </HeaderName>
                     <HeaderGlobalBar>
                         <HeaderGlobalAction aria-label="Search" >

@@ -63,6 +63,22 @@ const TemplateConfigure = () => {
 
     // console.log(state);
 
+    const updateTemplateInfo = () => {
+        const info = {
+            name,
+            description
+        }
+        const metadata = {
+            datastreams,
+            accessControls
+        }
+        const data = new FormData();
+        data.append('info',new Blob([JSON.stringify(info)], { type: "application/json" }));
+        data.append('metadata',new Blob([JSON.stringify(metadata)], { type: "application/json" }));
+
+        axios.put(`template/${template.id}`,data).then(res => console.log(res))
+    }
+
     return (<>
 
 
@@ -89,7 +105,7 @@ const TemplateConfigure = () => {
                 </TabPanel>
 
                 <TabPanel>
-                    <DatastreamsList datastreams={datastreams} setDatastreams={setDatastreams} />
+                    <DatastreamsList dataStreams={datastreams} setDatastreams={setDatastreams} />
                 </TabPanel>
                 
                 <TabPanel>
@@ -98,7 +114,7 @@ const TemplateConfigure = () => {
             </TabPanels>
         </Tabs>
 
-        <Button renderIcon={Save}>Save</Button>
+        <Button renderIcon={Save} onClick={() => updateTemplateInfo()}>Save</Button>
         
     </>);
 }
