@@ -1,5 +1,5 @@
 import { Content, Header, HeaderGlobalAction, HeaderGlobalBar, HeaderMenuButton, HeaderName, SideNav, SideNavItems, SideNavLink, SideNavMenu, SideNavMenuItem, Theme } from '@carbon/react';
-import { Fade, Notification, Search } from '@carbon/icons-react';
+import { IotConnect, Notification, Search, Template, User } from '@carbon/icons-react';
 import { useState } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 
@@ -34,22 +34,16 @@ const MainLayout = () => {
 
                     <SideNav aria-label="Side navigation" expanded={isSideNavExpanded} onSideNavBlur={() => setIsSideNavExpanded(!isSideNavExpanded)} isFixedNav={isEditPage}>
                         <SideNavItems>
-                            <SideNavMenu renderIcon={Fade} title="Templates" tabIndex={0}>
-                                <SideNavMenuItem as={Link} to="/my-templates">
+                            <SideNavMenu renderIcon={Template} title="Templates" tabIndex={0}>
+                                <SideNavMenuItem as={Link} to="/templates">
                                     My Templates
                                 </SideNavMenuItem>
-                                <SideNavMenuItem as={Link} to="/templates">
-                                    Pre - generated
-                                </SideNavMenuItem>
-                                <SideNavMenuItem as={Link} to="/templates/edit">
-                                    Edit Pre - generated
-                                </SideNavMenuItem>
                             </SideNavMenu>
-                            <SideNavLink renderIcon={Fade} as={Link} to="/devices">
+                            <SideNavLink renderIcon={IotConnect} as={Link} to="/devices">
                                 Devices
                             </SideNavLink>
-                            <SideNavLink renderIcon={Fade} href="https://www.carbondesignsystem.com/">
-                                Link
+                            <SideNavLink renderIcon={User} href="/users">
+                                Users
                             </SideNavLink>
                         </SideNavItems>
                     </SideNav>

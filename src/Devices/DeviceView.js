@@ -1,37 +1,63 @@
-import { AspectRatio, Column, Grid, Row } from "@carbon/react";
-
+import { Button, Tile } from '@carbon/react';
+import esp from '../images/esp32-wroom-32.jpg'
+import { ArrowUpRight, FlowData, Settings, Share, Upload } from '@carbon/icons-react';
+import axios from 'axios';
+import { Link, useLoaderData } from 'react-router-dom';
+import { isLessThan30Seconds, timeDifference } from '../Methods/Time';
 const DeviceView = () => {
+    const {device:{ name, lastActiveTime, description, templateName }, time} = useLoaderData();
     return (
-        <>
-            <Grid>
-                <Column sm={2} md={4} lg={6}>
-                    <p>Small: Span 2 of 4</p>
-                    <p>Medium: Span 4 of 8</p>
-                    <p>Large: Span 6 of 16</p>
-                </Column>
-                <Column sm={2} md={2} lg={3}>
-                    <p>Small: Span 2 of 4</p>
-                    <p>Medium: Span 2 of 8</p>
-                    <p>Large: Span 3 of 16</p>
-                </Column>
-                <Column sm={0} md={2} lg={3}>
-                    <p>Small: Span 0 of 4</p>
-                    <p>Medium: Span 2 of 8</p>
-                    <p>Large: Span 3 of 16</p>
-                </Column>
-                <Column sm={0} md={0} lg={4}>
-                    <p>Small: Span 0 of 4</p>
-                    <p>Medium: Span 0 of 8</p>
-                    <p>Large: Span 4 of 16</p>
-                </Column>
-                <Column sm="25%" md="50%" lg="75%">
-                    <p>Small: Span 25%</p>
-                    <p>Medium: Span 50%</p>
-                    <p>Large: Span 75%</p>
-                </Column>
-            </Grid>
-        </>
+        <div style={{ display: 'flex', justifyContent: "space-between", height: "100%" }}>
+            <div style={{ width: "48%", height:"100%" }}>
+                <img src={esp} style={{ maxWidth: '90%', maxHeight:"50%" }} alt="logo"></img>
+                <h2>{name}</h2>
+                <p>{description}</p>
+            </div>
+
+            <div style={{ width: "48%" }}>
+                <div>
+                    <div style={{ display: "flex", flexWrap: "wrap", border: "1px solid #262626" }}>
+                        <Tile id="tile-1" style={{ flexGrow: "1", minWidth: "200px", border: "1px solid #262626" }}>
+                            <h4>Status</h4>
+                            <p>{isLessThan30Seconds(new Date(time), new Date(lastActiveTime)) ? 'Online' : 'Offline'}</p>
+                        </Tile>
+                        <Tile id="tile-1" style={{ flexGrow: "1", minWidth: "200px", border: "1px solid #262626" }}>
+                            <h4>Last Active</h4>
+                            <p>{timeDifference(new Date(time), new Date(lastActiveTime))}</p>
+                        </Tile>
+                    </div>
+
+                    <div style={{ display: "flex", flexWrap: "wrap", border: "1px solid #262626" }}>
+                        <Tile id="tile-1" style={{ flexGrow: "1", minWidth: "200px", border: "1px solid #262626" }}>
+                            <h4>Template</h4>
+                            <p>{templateName}</p>
+                        </Tile>
+                        <Tile id="tile-1" style={{ flexGrow: "1", minWidth: "200px", border: "1px solid #262626" }}>
+                            <h4>Last Active</h4>
+                            <p>5 minutes ago</p>
+                        </Tile>
+                    </div>
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "flex-end", flexWrap:"wrap"}}>
+
+                    <Button kind="ghost" iconDescription="Share this device with others" renderIcon={Share} hasIconOnly={true}></Button>
+                    <Button kind="ghost" iconDescription='OTA updates' renderIcon={Upload} hasIconOnly={true}></Button>
+                    <Button kind="ghost" iconDescription='Edit flows' renderIcon={FlowData} hasIconOnly={true}></Button>
+                    <Button as={Link} to={'./../configure'} kind="ghost" iconDescription='Configure device' renderIcon={Settings} hasIconOnly={true}></Button>
+                    <Button renderIcon={ArrowUpRight} >Dashboard</Button>
+                </div>
+            </div>
+        </div>
     );
+}
+
+export const deviceDetailsLoader = async (ideviceId) => {
+    const device = await axios.get(`/device/${ideviceId}`)
+        .then((res) => res.data)
+    const time = await axios.get(`/time`)
+        .then((res) => res.data)
+    return {device, time};
 }
 
 export default DeviceView;

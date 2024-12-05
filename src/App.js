@@ -3,10 +3,13 @@ import './App.scss'
 import MainLayout from './Layout/MainLayout';
 import { createBrowserRouter, createRoutesFromElements, Route, RouterProvider } from 'react-router-dom';
 import MyTemplates from './Templates/MyTemplates';
-import TemplatesList from './Templates/TemplatesList';
-import DevicesList from './Devices/DevicesList';
-import DeviceView from './Devices/DeviceView';
-import TemplateEdit from './Templates/TemplateEdit';
+import TemplatesList, { templateListLoader } from './Templates/TemplatesList';
+import DevicesList, { deviceListLoader } from './Devices/DevicesList';
+import DeviceView, { deviceDetailsLoader } from './Devices/DeviceView';
+import TemplateEdit, { fetchFlows } from './Templates/TemplateEdit';
+import TemplateView, { templateDetailsLoader } from './Templates/TemplateView';
+import TemplateConfigure, { templateMetadataLoader } from './Templates/Configure/TemplateConfigure';
+import DeviceConfigure, { deviceMetadataLoader } from './Devices/Configure/DeviceConfigure';
 
 function App() {
 
@@ -15,13 +18,16 @@ function App() {
 			<Route exact path='/' element={<MainLayout />}>
 				<Route path='my-templates' element={<MyTemplates />} />
 				<Route path='templates'>
-					<Route index element={<TemplatesList />} />
-					<Route path='edit/:id' element={<TemplateEdit />} />
+					<Route index element={<TemplatesList />} loader={templateListLoader} />
+					<Route path=':id/view' element={<TemplateView />} loader={(a) => templateDetailsLoader(a.params.id)} />
+					<Route path=':id/configure' element={<TemplateConfigure />} loader={(a) => templateMetadataLoader(a.params.id)} />
+					<Route path=':id/edit' element={<TemplateEdit />} loader={(a) => fetchFlows(a.params.id)} />
 				</Route>
 
 				<Route path='devices'>
-					<Route index element={<DevicesList />} />
-					<Route path='view/:id' element={<DeviceView />} />
+					<Route index element={<DevicesList />} loader={deviceListLoader} />
+					<Route path=':id/view' element={<DeviceView />} loader={(e) => deviceDetailsLoader(e.params.id)} />
+					<Route path=':id/configure' element={<DeviceConfigure />} loader={(a) => deviceMetadataLoader(a.params.id)} />
 				</Route>
 			</Route>
 		)
