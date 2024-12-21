@@ -3,8 +3,8 @@ import { Button, Checkbox, Tab, TabList, TabPanel, TabPanels, Tabs, TextArea, Te
 import axios from "axios";
 import { useState } from "react";
 import { useLoaderData } from "react-router-dom";
-import DatastreamsList from "../../Components/DatastreamsList";
-import AccessControlList from "../../Components/AccessControlList";
+import DatastreamsList from "../Components/DatastreamsList";
+import AccessControlList from "../Components/AccessControlList";
 
 const DeviceConfigure = () => {
     const { device, metadata } = useLoaderData();

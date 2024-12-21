@@ -1,14 +1,18 @@
-import { Content, Header, HeaderGlobalAction, HeaderGlobalBar, HeaderMenuButton, HeaderName, SideNav, SideNavItems, SideNavLink, SideNavMenu, SideNavMenuItem, Theme } from '@carbon/react';
+import { Content, Header, HeaderGlobalAction, HeaderGlobalBar, HeaderMenuButton, HeaderName, Loading, SideNav, SideNavItems, SideNavLink, SideNavMenu, SideNavMenuItem, Theme } from '@carbon/react';
 import { IotConnect, Notification, Search, Template, User } from '@carbon/icons-react';
 import { useState } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation, useNavigation } from 'react-router-dom';
 
 const MainLayout = () => {
     const [isSideNavExpanded, setIsSideNavExpanded] = useState(false);
     const location = useLocation();
-    let isEditPage= location.pathname.includes('edit');
+    const navigation = useNavigation();
+    let isEditPage =
+      location.pathname.includes("edit") || location.pathname.includes("dashboard");
 
-    let contentStyle = {}
+    let contentStyle = {
+        overflow: 'auto'
+    }
     if (isEditPage) {
         contentStyle.marginLeft = '0';
         contentStyle.padding = '0';
@@ -51,7 +55,8 @@ const MainLayout = () => {
                 </Header>
             </Theme>
             
-            <Content className='content' style={contentStyle} children={<Outlet />} />
+            <Content className='content' style={contentStyle} children={
+                navigation.state === 'loading' ? <Theme theme="g90"><Loading withOverlay={true} small/></Theme> : <Outlet />} />
 
         </>
     );

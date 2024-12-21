@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Link, useLoaderData } from 'react-router-dom';
 import { isLessThan30Seconds, timeDifference } from '../Methods/Time';
 const DeviceView = () => {
-    const {device:{ name, lastActiveTime, description, templateName }, time} = useLoaderData();
+    const {device:{ name, lastActiveTime, description, templateName, dashboardId }, time} = useLoaderData();
     return (
         <div style={{ display: 'flex', justifyContent: "space-between", height: "100%" }}>
             <div style={{ width: "48%", height:"100%" }}>
@@ -45,7 +45,9 @@ const DeviceView = () => {
                     <Button kind="ghost" iconDescription='OTA updates' renderIcon={Upload} hasIconOnly={true}></Button>
                     <Button kind="ghost" iconDescription='Edit flows' renderIcon={FlowData} hasIconOnly={true}></Button>
                     <Button as={Link} to={'./../configure'} kind="ghost" iconDescription='Configure device' renderIcon={Settings} hasIconOnly={true}></Button>
-                    <Button renderIcon={ArrowUpRight} >Dashboard</Button>
+                    {dashboardId
+                        ? <Button renderIcon={ArrowUpRight} as={Link} to={`./../dashboard/edit`} target="_blank">Edit Dashboard</Button> 
+                        : <Button renderIcon={ArrowUpRight} as={Link} to={`./../dashboard/edit`} target="_blank">New dashboard</Button>}
                 </div>
             </div>
         </div>
