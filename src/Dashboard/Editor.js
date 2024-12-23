@@ -10,19 +10,18 @@ import DashboardModal from "./DashboardModal";
 import axios from "axios";
 import { useLoaderData, useParams } from "react-router-dom";
 
-
 const Editor = () => {
   const { metadata, dashboardConfig } = useLoaderData();
   const { id: deviceId } = useParams();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [activeWidget, setActiveWidget] = useState('');
+  const [activeWidget, setActiveWidget] = useState("");
   const [layout, setLayout] = useState(dashboardConfig.layout);
   const [droppingItem, setDroppingItem] = useState();
   const [widgetData, setWidgetData] = useState(dashboardConfig.widgetData); // Manages widget content mapped by `i` (id)
 
   useEffect(() => {
-    console.log(widgetData)
-  },[widgetData])
+    console.log(widgetData);
+  }, [widgetData]);
 
   const onDragStart = (item) => {
     setDroppingItem(item);
@@ -40,7 +39,7 @@ const Editor = () => {
   const layoutChange = (updatedLayout) => {
     console.log("Updated Layout:", updatedLayout);
     console.log("Updated Wid:", widgetData);
-    setLayout(updatedLayout); // No need to merge content; content is in `widgetData`
+    setLayout(updatedLayout.filter((item) => item.i !== "dropping-element")); // No need to merge content; content is in `widgetData`
   };
 
   const onDrop = (layout, layoutItem) => {
@@ -48,17 +47,16 @@ const Editor = () => {
 
     const newId = `widget-${uuidv4()}`;
     console.log(droppingItem);
-    
+
     setLayout((prev) => [
       ...prev.filter((item) => item.i !== "dropping-element"),
-      { ...layoutItem, i: newId},
+      { ...layoutItem, i: newId },
     ]);
 
     setWidgetData((prev) => ({
       ...prev,
       [newId]: droppingItem.content,
     }));
-    
   };
   const onRemoveItem = (id) => {
     console.log("on remove:", id);
@@ -74,9 +72,9 @@ const Editor = () => {
   const saveData = () => {
     axios.post(`/dashboard/${deviceId}`, {
       layout,
-      widgetData
-    })
-  }
+      widgetData,
+    });
+  };
 
   return (
     <div style={{ width: "100%", height: "100%", display: "flex" }}>
@@ -86,9 +84,13 @@ const Editor = () => {
           height: "100%",
           backgroundColor: "#161616",
           overflow: "auto",
+          display:"flex",
+          justifyContent: "center",
+          flexWrap:"wrap",
+          msOverflowStyle: "none" /* IE and Edge */,
+          scrollbarWidth: "none",
         }}
       >
-        
         <button onClick={saveData}>save</button>
         {Object.keys(WidgetsList).map((key) => {
           return (
@@ -105,7 +107,7 @@ const Editor = () => {
                   },
                 })
               }
-              style={{ width: "90%", overflow: "hidden" }}
+              style={{ width: "95%", overflow: "hidden", margin:"2px" }}
               key={key}
             >
               <div style={{ pointerEvents: "none" }}>
@@ -122,7 +124,15 @@ const Editor = () => {
           );
         })}
       </div>
-      <div style={{ width: "calc(100% - 16rem)", height: "100%" }}>
+      <div
+        style={{
+          width: "calc(100% - 16rem)",
+          height: "100%",
+          overflow: "auto",
+          msOverflowStyle: "none" /* IE and Edge */,
+          scrollbarWidth: "thin" /* Firefox */,
+        }}
+      >
         <GridLayout
           droppingItem={droppingItem}
           layout={layout}
@@ -132,13 +142,13 @@ const Editor = () => {
           onDrop={onDrop}
           onRemove={onRemoveItem}
           isDroppable={true}
-          maxRows={13}
-          cols={24}
+          maxRows={"Infinity"}
+          cols={56}
           rowHeight={40}
-          width={800}
-          preventCollision={true} // Allow overlapping items
-          compactType={null} // Disable automatic compacting
-          style={{ height: "100%" }}
+          width={2000}
+          preventCollision={true}
+          compactType={null}
+          style={{ minHeight: "100%", minWidth: "100%", width: "fit-content" }}
           draggableCancel=".no-drag"
         >
           {layout.map((item) => (
@@ -168,12 +178,16 @@ const Editor = () => {
 };
 
 export const dashboardEditorLoader = async (deviceId) => {
-  const {device, dashboardConfig} = await axios.get(`/device/${deviceId}`).then((res) => res.data)
-          .then(async (device) => {
-              const dashboardConfig = await axios.get(`/dashboard/${device.dashboardId}`)
-                .then((res) => res.data);
-              return {device, dashboardConfig}
-            });
+  const { device, dashboardConfig } = await axios
+    .get(`/device/${deviceId}`)
+    .then((res) => res.data)
+    .then(async (device) => {
+      const dashboardConfig = await axios
+        .get(`/dashboard/${device.dashboardId}`)
+        .then((res) => res.data)
+        .catch(() => ({ layout: [], widgetData: {} }));
+      return { device, dashboardConfig };
+    });
   const metadata = await axios
     .get(`/device/metadata/${deviceId}`)
     .then((res) => res.data);

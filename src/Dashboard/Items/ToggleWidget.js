@@ -2,13 +2,28 @@ import { Toggle } from "@carbon/react";
 import toggleImg from "../../images/toggle.png";
 
 const ToggleWidget = {
-  element: ({ id, label, onLabel, offLabel, args }) => {
+  element: (
+    { id, label, onLabel, offLabel, onVal, offVal, args },
+    plotData,
+    height,
+    width,
+    sendMessage
+  ) => {
+    console.log(onVal);
+    console.log(plotData);
+    console.log(plotData === onVal);
+    
     return (
       <Toggle
         id={id}
         labelText={label}
         labelA={offLabel}
         labelB={onLabel}
+        value={plotData}
+        toggled={plotData === onVal}
+        onToggle={(e) => {
+          sendMessage && sendMessage(id, e ? onVal : offVal);
+        }}
         // defaultToggled
         {...args}
       />
@@ -23,7 +38,7 @@ const ToggleWidget = {
   },
   controls: {
     name: "Toggle",
-    type: "Integer",
+    type: "Float",
     inputs: [
       {
         type: "int",
@@ -49,7 +64,7 @@ const ToggleWidget = {
   },
   initial: {
     label: "",
-    datastream: "",
+    datastream: [],
     onVal: 1,
     offVal: 0,
     onLabel: "On",

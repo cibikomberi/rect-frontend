@@ -2,7 +2,8 @@ import { GaugeChart } from "@carbon/charts-react";
 import circularGaugeImg from "../../images/circular-gauge.png";
 
 const CircularGaugeWidget = {
-  element: ({ id, value, label }, height) => {
+  element: ({ id, min, max, label }, plotData, height, width) => {
+    const value = ((plotData ? plotData : 0) * 100) / (max - min);
     return (
       <GaugeChart
         id={id}
@@ -16,11 +17,11 @@ const CircularGaugeWidget = {
           title: label,
           resizable: true,
           height: { height },
-          width: "100%",
+          width: { width },
           gauge: {
             type: "full",
           },
-          theme: "g90",
+          theme: "g100",
         }}
       />
     );
@@ -50,7 +51,7 @@ const CircularGaugeWidget = {
   },
   initial: {
     label: "",
-    datastream: "",
+    datastream: [],
     min: 0,
     max: 100,
   },

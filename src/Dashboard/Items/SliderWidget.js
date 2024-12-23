@@ -2,15 +2,24 @@ import { Slider } from "@carbon/react";
 import sliderImg from "../../images/slider.png";
 
 const SliderWidget = {
-  element: ({ id, min, max, value, label, step, args }) => {
+  element: (
+    { id, min, max, label, step, args },
+    plotData,
+    height,
+    width,
+    sendMessage
+  ) => {
     return (
       <Slider
         id={id}
         min={min}
         max={max}
-        value={value}
+        value={plotData}
         labelText={label}
         step={step}
+        onChange={(e) => {
+          sendMessage && sendMessage(id, e.value);
+        }}
         {...args}
         noValidate
       />
@@ -25,7 +34,7 @@ const SliderWidget = {
   },
   controls: {
     name: "Slider",
-    type: "Integer",
+    type: "Float",
     inputs: [
       {
         type: "int",
@@ -46,7 +55,7 @@ const SliderWidget = {
   },
   initial: {
     label: "",
-    datastream: "",
+    datastream: [],
     min: 0,
     max: 100,
     step: 1,

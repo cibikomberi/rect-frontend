@@ -20,7 +20,7 @@ const MainLayout = () => {
 
     return (
         <>
-            <Theme theme="g100">
+            <Theme theme="g100" style={{scrollbarWidth: "thin"}}>
                 <Header aria-label="Rect Platform Name">
                     <HeaderMenuButton aria-label={isSideNavExpanded ? 'Close menu' : 'Open menu'} onClick={() => setIsSideNavExpanded(!isSideNavExpanded)} isActive={isSideNavExpanded} aria-expanded={isSideNavExpanded} isCollapsible={isEditPage}/>
                     <HeaderName href="#" prefix=''>

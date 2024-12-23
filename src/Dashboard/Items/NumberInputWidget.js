@@ -2,14 +2,23 @@ import { NumberInput } from "@carbon/react";
 import numInputImg from "../../images/num-input.svg";
 
 const NumberInputWidget = {
-  element: ({ id, min, max, value, label, args }) => {
+  element: (
+    { id, min, max, value, label, args },
+    plotData,
+    height,
+    width,
+    sendMessage
+  ) => {
     return (
       <NumberInput
         id={id}
         min={min}
         max={max}
-        value={value}
+        value={plotData}
         label={label}
+        onChange={(e, { value }) => {
+          sendMessage && sendMessage(id, value);
+        }}
         {...args}
       />
     );
@@ -23,7 +32,7 @@ const NumberInputWidget = {
   },
   controls: {
     name: "Number Input",
-    type: "Integer",
+    type: "Float",
     inputs: [
       {
         type: "int",
@@ -39,7 +48,7 @@ const NumberInputWidget = {
   },
   initial: {
     label: "",
-    datastream: "",
+    datastream: [],
     min: 0,
     max: 100,
   },

@@ -1,5 +1,13 @@
-import { Dropdown, FilterableMultiSelect, Modal, NumberInput, TextInput, Tile } from "@carbon/react";
+import {
+  Dropdown,
+  FilterableMultiSelect,
+  Modal,
+  NumberInput,
+  TextInput,
+  Tile,
+} from "@carbon/react";
 import { WidgetsList } from "./WidgetsList";
+
 
 const DashboardModal = ({
   open,
@@ -18,6 +26,10 @@ const DashboardModal = ({
       },
     }));
   };
+
+  
+
+
   return (
     <>
       {activeWidget && (
@@ -68,8 +80,8 @@ const DashboardModal = ({
                   label="Select datastream"
                   titleText="Datastream"
                   id="datastream-Dropdown"
-                  selectedItem={widgetData[activeWidget].datastream}
-                  onChange={(e) => saveData("datastream", e.selectedItem)}
+                  selectedItem={widgetData[activeWidget].datastream[0] ? widgetData[activeWidget].datastream[0] : ""}
+                  onChange={(e) => saveData("datastream", [e.selectedItem])}
                   itemToString={(item) => item.name}
                   items={datastreams.filter(
                     (item) =>

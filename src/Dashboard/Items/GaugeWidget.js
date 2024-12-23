@@ -2,7 +2,10 @@ import { GaugeChart } from "@carbon/charts-react";
 import gaugeImg from "../../images/gauge.png";
 
 const GaugeWidget = {
-  element: ({ id, value, label }, height) => {
+  element: ({ id, min, max, label }, plotData, height, width) => {  
+    console.log(plotData);
+      
+    const value = ((plotData ? plotData : 0) * 100 / (max - min))
     return (
       <GaugeChart
         id={id}
@@ -13,14 +16,15 @@ const GaugeWidget = {
           },
         ]}
         options={{
+          animatations: true,
           title: label,
           resizable: true,
           height: { height },
-          width: "100%",
+          width: { width },
           gauge: {
             type: "semi",
           },
-          theme: "g90",
+          theme: "g100",
         }}
       />
     );
@@ -28,9 +32,9 @@ const GaugeWidget = {
   image: gaugeImg,
   preDefinedSizes: {
     w: 12,
-    h: 9,
+    h: 6,
     minW: 12,
-    minH: 9,
+    minH: 6,
   },
   controls: {
     name: "Gauge",
@@ -50,7 +54,7 @@ const GaugeWidget = {
   },
   initial: {
     label: "",
-    datastream: "",
+    datastream: [],
     min: 0,
     max: 100,
   },
