@@ -64,7 +64,7 @@ const DeviceConfigure = () => {
                 </TabPanel>
                     
                 <TabPanel>
-                    <DatastreamsList dataStreams={datastreams} setDatastreams={setDatastreams} />
+                    <DatastreamsList dataStreams={datastreams} setDatastreams={setDatastreams} deviceId={device.id}/>
                 </TabPanel>
                 
                 <TabPanel>

@@ -2,10 +2,14 @@ import { GaugeChart } from "@carbon/charts-react";
 import gaugeImg from "../../images/gauge.png";
 
 const GaugeWidget = {
-  element: ({ id, min, max, label }, plotData, height, width) => {  
-    console.log(plotData);
-      
-    const value = ((plotData ? plotData : 0) * 100 / (max - min))
+  element: ({ id, min, max, label }, plotData, height, width) => {        
+    const value =
+      (((plotData && plotData[plotData.length - 1])
+        ? plotData[plotData.length - 1].value
+        : 0) *
+        100) /
+      (max - min);
+    
     return (
       <GaugeChart
         id={id}

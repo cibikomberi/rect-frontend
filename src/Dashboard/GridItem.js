@@ -17,6 +17,23 @@ const GridItem = ({
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
 
+  const mapData = plotData && content.datastream
+    .map(
+      (item) =>
+        plotData[`${item.deviceId}-${item.identifier}`] &&
+        plotData[`${item.deviceId}-${item.identifier}`].map(
+          (val) => ({
+            ...val,
+            group: item.name,
+          })
+        )
+    )
+    .flat()
+    .filter((item) => item);
+  console.log(mapData);
+
+
+
   useEffect(() => {
     if (tile_ref.current) {
       setHeight(tile_ref.current.getBoundingClientRect().height);
@@ -41,8 +58,8 @@ const GridItem = ({
       )} */}
       {content &&
         WidgetsList[content.type].element(
-          {...content, id: item.i},
-          plotData,
+          { ...content, id: item.i },
+          (plotData && mapData[0]) ? mapData : [],
           height,
           width,
           sendMessage
@@ -86,5 +103,5 @@ const GridItem = ({
     </Tile>
   );
 };
- 
+
 export default GridItem;

@@ -6,7 +6,7 @@ const AreaChartWidget = {
     return (
       <AreaChart
         id={id}
-        data={plotData ? JSON.parse(plotData) : []}
+        data={plotData ? plotData : []}
         options={{
           title: label,
           axes: {

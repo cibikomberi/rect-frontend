@@ -3,12 +3,12 @@ import lineImg from "../../images/line.svg";
 
 const LineChartWidget = {
   element: ({ id, label, xLabel, yLabel }, plotData, height, width) => {
-    console.log(xLabel);
+    console.log(plotData);
 
     return (
       <LineChart
         id={id}
-        data={plotData ? JSON.parse(plotData) : []}
+        data={plotData ? plotData : []}
         options={{
           title: label,
           axes: {

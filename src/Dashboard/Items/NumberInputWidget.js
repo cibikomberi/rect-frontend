@@ -9,15 +9,27 @@ const NumberInputWidget = {
     width,
     sendMessage
   ) => {
+  let timer;
+    
     return (
       <NumberInput
         id={id}
         min={min}
         max={max}
-        value={plotData}
+        value={
+          plotData && plotData[plotData.length - 1]
+            ? plotData[plotData.length - 1].value
+            : 0
+        }
         label={label}
         onChange={(e, { value }) => {
-          sendMessage && sendMessage(id, value);
+          console.log(e);
+          if (e.isTrusted) { 
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            sendMessage && sendMessage(id, value);
+          }, 1000);
+        }
         }}
         {...args}
       />

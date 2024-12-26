@@ -5,6 +5,21 @@ import { useEffect, useState } from 'react';
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import { isLessThan30Seconds } from '../Methods/Time';
 
+const headers = [
+  {
+    key: "name",
+    header: "Name",
+  },
+  {
+    key: "board",
+    header: "Board",
+  },
+  {
+    key: "status",
+    header: "Status",
+  },
+];
+
 const DevicesList = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [newBoard, setNewBoard] = useState('');
@@ -23,20 +38,7 @@ const DevicesList = () => {
             status:isLessThan30Seconds(new Date(time), new Date(val.lastActiveTime)) 
                 ? 'Online' : 'Offline'}))
 );
-    const headers = [
-        {
-            key: 'name',
-            header: 'Name',
-        },
-        {
-            key: 'board',
-            header: 'Board',
-        },
-        {
-            key: 'status',
-            header: 'Status',
-        },
-    ];
+    
 
 
     useEffect(() => {        
@@ -53,7 +55,11 @@ const DevicesList = () => {
     }, [newBoard])
 
     const applySearchFilter = (keyword) => {        
-        setRows(deviceList.filter((val) => val.name.includes(keyword)))
+        setRows(
+          deviceList.filter((val) =>
+            val.name.toLowerCase().includes(keyword.toLowerCase())
+          )
+        );
     }
 
     const newDevice = () => {

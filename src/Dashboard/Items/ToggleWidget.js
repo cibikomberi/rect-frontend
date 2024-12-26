@@ -10,8 +10,9 @@ const ToggleWidget = {
     sendMessage
   ) => {
     console.log(onVal);
-    console.log(plotData);
-    console.log(plotData === onVal);
+    console.log(parseInt(plotData && plotData[plotData.length - 1]));
+    console.log(plotData && plotData[plotData.length - 1]);
+  let timer;
     
     return (
       <Toggle
@@ -20,9 +21,16 @@ const ToggleWidget = {
         labelA={offLabel}
         labelB={onLabel}
         value={plotData}
-        toggled={plotData === onVal}
+        toggled={
+          parseInt(
+            plotData && plotData[0] && plotData[plotData.length - 1].value
+          ) === parseInt(onVal)
+        }
         onToggle={(e) => {
-          sendMessage && sendMessage(id, e ? onVal : offVal);
+          clearTimeout(timer);
+          timer = setTimeout(() => {
+            sendMessage && sendMessage(id, e ? onVal : offVal);
+          }, 1000);
         }}
         // defaultToggled
         {...args}

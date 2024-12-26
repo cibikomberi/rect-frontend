@@ -1,6 +1,6 @@
 import { Button, Tile } from '@carbon/react';
 import esp from '../images/esp32-wroom-32.jpg'
-import { ArrowUpRight, FlowData, Settings, Share } from '@carbon/icons-react';
+import { ArrowUpRight, FlowData, SettingsEdit, Share } from '@carbon/icons-react';
 import axios from 'axios';
 import { Link, useLoaderData } from 'react-router-dom';
 import { timeDifference } from '../Methods/Time';
@@ -48,7 +48,7 @@ const TemplateView = () => {
 
                         <Button kind="ghost" iconDescription="Share this template" renderIcon={Share} hasIconOnly={true}></Button>
                         <Button kind="ghost" iconDescription='Edit flows' renderIcon={FlowData} hasIconOnly={true}></Button>
-                        <Button as={Link} to={'./../configure'} kind="ghost" iconDescription='Configure template' renderIcon={Settings} hasIconOnly={true}></Button>
+                        <Button as={Link} to={'./../configure'} kind="ghost" iconDescription='Configure template' renderIcon={SettingsEdit} hasIconOnly={true}></Button>
                         <Button renderIcon={ArrowUpRight} >Dashboard</Button>
                     </div>
                 </div>

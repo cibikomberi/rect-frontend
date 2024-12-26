@@ -9,17 +9,23 @@ const SliderWidget = {
     width,
     sendMessage
   ) => {
+
     return (
       <Slider
         id={id}
         min={min}
         max={max}
-        value={plotData}
+        value={
+          plotData && plotData[plotData.length - 1]
+            ? parseInt(plotData[plotData.length - 1].value)
+            : 0
+        }
         labelText={label}
         step={step}
-        onChange={(e) => {
-          sendMessage && sendMessage(id, e.value);
-        }}
+        onRelease={(e) => {
+            sendMessage && sendMessage(id, e.value);
+        }}         
+          
         {...args}
         noValidate
       />

@@ -6,116 +6,154 @@ import SockJS from "sockjs-client";
 import { useLoaderData } from "react-router-dom";
 import GridItem from "./GridItem";
 
+function filterData(array) {
+  const flattened = array.flat(); // Flatten the nested array
+  const seen = new Set();
+
+  return flattened.filter((item) => {
+    const key = `${item.deviceId}|${item.identifier}`; // Unique key based on `deviceId` and `identifier`
+    if (seen.has(key)) {
+      return false; // Skip duplicates
+    }
+    seen.add(key);
+    return true; // Keep unique items
+  });
+}
+
 const Dashboard = () => {
-    const {dashboardConfig:{layout, widgetData}, device} = useLoaderData();
-    const [plot, setPlot] = useState({});
-    const staticLayout = layout.map((item) => ({...item,static:true,  isDraggable: false}))
-    console.log(layout);
-    console.log(plot);
+  const {
+    dashboardData: { layout, widgetData },
+  } = useLoaderData();
+  const [plot, setPlot] = useState({});
+  const staticLayout = layout.map((item) => ({
+    ...item,
+    static: true,
+    isDraggable: false,
+  }));
+  const datastreams = filterData(
+    Object.keys(widgetData).map((items) => widgetData[items].datastream)
+  );
 
-    const stompClientRef = useRef(null);
-    useEffect(() => {
-      const socket = new SockJS("http://localhost:8080/websocket");
-      const stompClient = new Client({
-        webSocketFactory: () => socket,
-        onConnect: () => {
-          console.log("Connected");
-          layout.forEach((item) => {
-            stompClient.subscribe(
-              `/topic/data/${device.dashboardId}/${item.i}`,
-              (message) => {
-                console.log("Message: ", message.body);
-                setPlot((existing) => ({...existing, [item.i]:message.body}))
+  const stompClientRef = useRef(null);
+  useEffect(() => {
+    const socket = new SockJS("http://localhost:8080/websocket");
+    const stompClient = new Client({
+      webSocketFactory: () => socket,
+      onConnect: () => {
+        console.log("Connected");
+        datastreams.forEach((item) => {
+          stompClient.subscribe(
+            `/topic/data/${item.deviceId}/${item.identifier}`,
+            (message) => {
+              console.log("Message: ", message.body);
+              const parsedMessage = JSON.parse(message.body);
+              if (parsedMessage.type !== "update") {
+                setPlot((existing) => ({
+                  ...existing,
+                  [`${item.deviceId}-${item.identifier}`]: parsedMessage.data,
+                }));
+              } else {
+                setPlot((existing) => ({
+                  ...existing,
+                  [`${item.deviceId}-${item.identifier}`]: [
+                    ...existing[`${item.deviceId}-${item.identifier}`],
+                    parsedMessage.data,
+                  ],
+                }));
               }
-            );
-          });
-
-          layout.forEach((item) => {
-            stompClient.publish({
-              destination: `/app/dashboard/get/${device.dashboardId}/${item.i}`,
-              body: "Hello, STOMP",
-            });
-          })
-        },
-        onStompError: (error) => console.error(error),
-      });
-      stompClient.activate();
-
-      // Store the client in the ref
-
-      stompClientRef.current = stompClient;
-      // sendMessage();
-
-      return () => {
-        if (stompClientRef.current) {
-          stompClientRef.current.deactivate();
-        }
-      };
-    }, [device.dashboardId, layout]);
-
-    const sendMessage = (widgetId, val) => {
-      if (stompClientRef.current) {
-        console.log(widgetId);
-        console.log(val);
-        
-        stompClientRef.current.publish({
-          destination: `/app/dashboard/post/${device.dashboardId}/${widgetId}`,
-          body: val ? val : '0',
+            }
+          );
         });
+
+        datastreams.forEach((item) => {
+          stompClient.publish({
+            destination: `/app/dashboard/get/${item.deviceId}/${item.identifier}`,
+            body: "all",
+          });
+        });
+      },
+      onStompError: (error) => console.error(error),
+    });
+    stompClient.activate();
+
+    stompClientRef.current = stompClient;
+
+    return () => {
+      if (stompClientRef.current) {
+        stompClientRef.current.deactivate();
       }
     };
-    
-    return (
-      <div
-        style={{
-          // width: "calc(100% - 16rem)",
-          height: "100%",
-          overflow: "auto",
-          msOverflowStyle: "none" /* IE and Edge */,
-          scrollbarWidth: "thin" /* Firefox */,
-        }}
-      >
-        <ReactGridLayout
-          layout={staticLayout}
-          items={staticLayout}
-          isDroppable={false}
-          isDraggable={false}
-          isEditable={false}
-          maxRows={13}
-          cols={24}
-          rowHeight={40}
-          width={800}
-          preventCollision={true}
-          className="layout"
-          isResizable={false}
-          style={{ height: "100%" }}
-        >
-          {layout.map((item) => (
-            <div key={item.i}>
-              <GridItem
-                item={item}
-                isEditable={false}
-                content={widgetData[item.i]}
-                plotData={plot[item.i]}
-                sendMessage={sendMessage}
-              />
-            </div>
-          ))}
-        </ReactGridLayout>
-      </div>
-    );
-}
+  }, []);
 
-export const dashboardLoader = async (deviceId) => {
-    const {device, dashboardConfig} = await axios.get(`/device/${deviceId}`).then((res) => res.data)
-          .then(async (device) => {
-              const dashboardConfig = await axios.get(`/dashboard/${device.dashboardId}`)
-                .then((res) => res.data);
-              return {device, dashboardConfig}
-            });
-    
-    return { device, dashboardConfig };
-    
-}
- 
+  const sendMessage = (widgetId, val) => {
+    if (stompClientRef.current) {
+      // Check if sending updates is allowed
+      console.log(widgetId);
+      console.log(widgetData[widgetId]);
+
+      stompClientRef.current.publish({
+        destination: `/app/dashboard/post/${widgetData[widgetId].datastream[0].deviceId}/${widgetData[widgetId].datastream[0].identifier}`,
+        body: val ? val : "0",
+      });
+    }
+  };
+
+  return (
+    <div
+      style={{
+        height: "100%",
+        overflow: "auto",
+        msOverflowStyle: "none" /* IE and Edge */,
+        scrollbarWidth: "thin" /* Firefox */,
+      }}
+    >
+      <ReactGridLayout
+        layout={staticLayout}
+        items={staticLayout}
+        isDroppable={false}
+        isDraggable={false}
+        isEditable={false}
+        maxRows={13}
+        cols={24}
+        rowHeight={40}
+        width={800}
+        preventCollision={true}
+        className="layout"
+        isResizable={false}
+        style={{ minHeight: "100%" }}
+      >
+        {layout.map((item) => (
+          <div key={item.i}>
+            <GridItem
+              item={item}
+              isEditable={false}
+              content={widgetData[item.i]}
+              plotData={plot}
+              sendMessage={sendMessage}
+            />
+          </div>
+        ))}
+      </ReactGridLayout>
+    </div>
+  );
+};
+
+export const dashboardLoader = async (dashboardId) => {
+  const { dashboard, dashboardData } = await axios
+    .get(`/dashboard/${dashboardId}`)
+    .then((res) => {
+      return res.data;
+    })
+    .then(async (dashboard) => {
+      const dashboardData = await axios
+        .get(`/dashboard/data/${dashboard.dashboardDataId}`)
+        .then((res) => {
+          return res.data;
+        });
+
+      return { dashboard, dashboardData };
+    });
+
+  return { dashboard, dashboardData };
+};
 export default Dashboard;

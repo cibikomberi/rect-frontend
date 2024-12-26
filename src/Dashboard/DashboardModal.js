@@ -70,7 +70,7 @@ const DashboardModal = ({
                         widgetData[activeWidget].type
                       ].controls.type.split("-")[1]
                   )}
-                  itemToString={(item) => item.name}
+                    itemToString={(item) => `[${item.deviceName}] ${item.name}`}
                   selectedItems={widgetData[activeWidget].datastream}
                   onChange={(e) => saveData("datastream", e.selectedItems)}
                   selectionFeedback="top-after-reopen"
@@ -82,7 +82,7 @@ const DashboardModal = ({
                   id="datastream-Dropdown"
                   selectedItem={widgetData[activeWidget].datastream[0] ? widgetData[activeWidget].datastream[0] : ""}
                   onChange={(e) => saveData("datastream", [e.selectedItem])}
-                  itemToString={(item) => item.name}
+                    itemToString={(item) => `[${item.deviceName}] ${item.name}`}
                   items={datastreams.filter(
                     (item) =>
                       item.type ===

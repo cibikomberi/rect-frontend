@@ -3,7 +3,13 @@ import circularGaugeImg from "../../images/circular-gauge.png";
 
 const CircularGaugeWidget = {
   element: ({ id, min, max, label }, plotData, height, width) => {
-    const value = ((plotData ? plotData : 0) * 100) / (max - min);
+const value =
+  ((plotData && plotData[plotData.length - 1]
+    ? plotData[plotData.length - 1].value
+    : 0) *
+    100) /
+  (max - min);
+  
     return (
       <GaugeChart
         id={id}

@@ -1,6 +1,6 @@
 import { Button, Tile } from '@carbon/react';
 import esp from '../images/esp32-wroom-32.jpg'
-import { ArrowUpRight, FlowData, Settings, Share, Upload } from '@carbon/icons-react';
+import { ArrowUpRight, FlowData, SettingsEdit, Share, Upload } from '@carbon/icons-react';
 import axios from 'axios';
 import { Link, useLoaderData } from 'react-router-dom';
 import { isLessThan30Seconds, timeDifference } from '../Methods/Time';
@@ -44,10 +44,8 @@ const DeviceView = () => {
                     <Button kind="ghost" iconDescription="Share this device with others" renderIcon={Share} hasIconOnly={true}></Button>
                     <Button kind="ghost" iconDescription='OTA updates' renderIcon={Upload} hasIconOnly={true}></Button>
                     <Button kind="ghost" iconDescription='Edit flows' renderIcon={FlowData} hasIconOnly={true}></Button>
-                    <Button as={Link} to={'./../configure'} kind="ghost" iconDescription='Configure device' renderIcon={Settings} hasIconOnly={true}></Button>
-                    {dashboardId
-                        ? <Button renderIcon={ArrowUpRight} as={Link} to={`./../dashboard/edit`} target="_blank">Edit Dashboard</Button> 
-                        : <Button renderIcon={ArrowUpRight} as={Link} to={`./../dashboard/edit`} target="_blank">New dashboard</Button>}
+                    <Button as={Link} to={'./../configure'} kind="ghost" iconDescription='Configure device' renderIcon={SettingsEdit} hasIconOnly={true}></Button>
+                    <Button renderIcon={ArrowUpRight} as={Link} to={`/dashboard/${dashboardId}/edit`} target="_blank">Edit Dashboard</Button> 
                 </div>
             </div>
         </div>

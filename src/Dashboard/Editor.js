@@ -8,16 +8,17 @@ import { v4 as uuidv4 } from "uuid";
 import GridItem from "./GridItem";
 import DashboardModal from "./DashboardModal";
 import axios from "axios";
-import { useLoaderData, useParams } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 
 const Editor = () => {
-  const { metadata, dashboardConfig } = useLoaderData();
-  const { id: deviceId } = useParams();
+  const { dashboardData, dashboard, datastreams } = useLoaderData();
+
+  const [layout, setLayout] = useState(dashboardData.layout);
+  const [widgetData, setWidgetData] = useState(dashboardData.widgetData); // Manages widget content mapped by `i` (id)
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeWidget, setActiveWidget] = useState("");
-  const [layout, setLayout] = useState(dashboardConfig.layout);
   const [droppingItem, setDroppingItem] = useState();
-  const [widgetData, setWidgetData] = useState(dashboardConfig.widgetData); // Manages widget content mapped by `i` (id)
 
   useEffect(() => {
     console.log(widgetData);
@@ -70,7 +71,7 @@ const Editor = () => {
   };
 
   const saveData = () => {
-    axios.post(`/dashboard/${deviceId}`, {
+    axios.put(`/dashboard/data/${dashboard.dashboardDataId}`, {
       layout,
       widgetData,
     });
@@ -84,9 +85,9 @@ const Editor = () => {
           height: "100%",
           backgroundColor: "#161616",
           overflow: "auto",
-          display:"flex",
+          display: "flex",
           justifyContent: "center",
-          flexWrap:"wrap",
+          flexWrap: "wrap",
           msOverflowStyle: "none" /* IE and Edge */,
           scrollbarWidth: "none",
         }}
@@ -107,7 +108,7 @@ const Editor = () => {
                   },
                 })
               }
-              style={{ width: "95%", overflow: "hidden", margin:"2px" }}
+              style={{ width: "95%", overflow: "hidden", margin: "2px" }}
               key={key}
             >
               <div style={{ pointerEvents: "none" }}>
@@ -133,6 +134,7 @@ const Editor = () => {
           scrollbarWidth: "thin" /* Firefox */,
         }}
       >
+        
         <GridLayout
           droppingItem={droppingItem}
           layout={layout}
@@ -148,7 +150,7 @@ const Editor = () => {
           width={2000}
           preventCollision={true}
           compactType={null}
-          style={{ minHeight: "100%", minWidth: "100%", width: "fit-content" }}
+          style={{ minHeight: "100%" }}
           draggableCancel=".no-drag"
         >
           {layout.map((item) => (
@@ -171,27 +173,33 @@ const Editor = () => {
         activeWidget={activeWidget}
         widgetData={widgetData}
         setWidgetData={setWidgetData}
-        datastreams={metadata.datastreams}
+        datastreams={datastreams}
       />
     </div>
   );
 };
 
-export const dashboardEditorLoader = async (deviceId) => {
-  const { device, dashboardConfig } = await axios
-    .get(`/device/${deviceId}`)
-    .then((res) => res.data)
-    .then(async (device) => {
-      const dashboardConfig = await axios
-        .get(`/dashboard/${device.dashboardId}`)
-        .then((res) => res.data)
-        .catch(() => ({ layout: [], widgetData: {} }));
-      return { device, dashboardConfig };
-    });
-  const metadata = await axios
-    .get(`/device/metadata/${deviceId}`)
-    .then((res) => res.data);
+export const dashboardEditorLoader = async (dashboardId) => {
+  const { dashboard, dashboardData } = await axios
+    .get(`/dashboard/${dashboardId}`)
+    .then((res) => {
+      return res.data;
+    })
+    .then(async (dashboard) => {
+      const dashboardData = await axios
+        .get(`/dashboard/data/${dashboard.dashboardDataId}`)
+        .then((res) => {
+          return res.data;
+        });
 
-  return { device, metadata, dashboardConfig };
+      return { dashboard, dashboardData };
+    });
+
+  const datastreams = await axios
+    .get(`/dashboard/datastreams/${dashboardId}`)
+    .then((res) => {
+      return res.data;
+    });
+  return { dashboard, dashboardData, datastreams };
 };
 export default Editor;
