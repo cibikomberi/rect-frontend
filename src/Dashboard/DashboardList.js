@@ -185,8 +185,10 @@ const DashboardList = () => {
 };
 
 export const dashboardListLoader = async () => {
-  const dashboardsList = await axios.get("/dashboards").then((res) => res.data);
-  const deviceList = await axios.get('/devices/1').then((res) => res.data)
+  const dashboardsList = await axios.get("/dashboards",{} , {headers:{
+    "Authorization": `Bearer ${localStorage.getItem("token")}`
+  }}).then((res) => res.data);
+  const deviceList = await axios.get('/devices').then((res) => res.data)
   return { dashboardsList, deviceList };
 }
 

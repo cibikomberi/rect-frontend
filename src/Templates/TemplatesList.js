@@ -23,7 +23,7 @@ import { useLoaderData, useNavigate } from "react-router-dom";
 const TemplatesList = () => {
   const navigate = useNavigate();
   const templateData = useLoaderData();
-  const [rows, setRows] = useState(templateData);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   const [open, setOpen] = useState(false);
   const [newBoard, setNewBoard] = useState("");
@@ -38,13 +38,10 @@ const TemplatesList = () => {
       .then((res) => setOpen(false));
   };
 
-  const applySearchFilter = (keyword) => {
-    setRows(
-      templateData.filter((val) =>
-        val.name.toLowerCase().includes(keyword.toLowerCase())
-      )
-    );
-  };
+  const filteredTemplateData = templateData.filter((val) =>
+    val.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+    val.board.toLowerCase().includes(searchKeyword.toLowerCase())
+  );
 
   const headers = [
     {
@@ -59,40 +56,33 @@ const TemplatesList = () => {
 
   return (
     <>
-      <DataTable rows={rows} headers={headers} isSortable>
-        {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
+      <DataTable rows={filteredTemplateData} headers={headers} isSortable>
+        {() => (
           <TableContainer title="Templates">
             <TableToolbar>
               <TableToolbarContent>
                 <TableToolbarSearch
-                  onChange={(e) => applySearchFilter(e.target.value)}
-                />
+                  onChange={(e) => setSearchKeyword(e.target.value)}
+                  value={searchKeyword}                />
                 <Button renderIcon={Add} onClick={() => setOpen(true)}>
                   New Template
                 </Button>
               </TableToolbarContent>
             </TableToolbar>
-            <Table {...getTableProps()}>
+            <Table>
               <TableHead>
                 <TableRow>
-                  {headers.map((header) => (
-                    <TableHeader {...getHeaderProps({ header })}>
-                      {header.header}
-                    </TableHeader>
-                  ))}
+                  <TableHeader>Name</TableHeader>
+                  <TableHeader>Board</TableHeader>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {rows.map((row) => (
-                  <TableRow
-                    {...getRowProps({ row })}
-                    onClick={() => navigate(`${row.id}/view`)}
-                  >
-                    {row.cells.map((cell) => (
-                      <TableCell key={cell.id}>{cell.value}</TableCell>
-                    ))}
-                  </TableRow>
-                ))}
+                {filteredTemplateData.map((row) => {console.log(row)
+                return (
+                  <TableRow key={row.id} onClick={() => navigate(`${row.id}/view`)}>
+                  <TableCell>{row.name}</TableCell>
+                  <TableCell>{row.board}</TableCell>
+                </TableRow>);})}
               </TableBody>
             </Table>
           </TableContainer>
@@ -101,6 +91,7 @@ const TemplatesList = () => {
 
       <Modal
         open={open}
+        id="new-template-modal"
         onRequestClose={() => setOpen(false)}
         onRequestSubmit={() => newTemplate()}
         modalHeading="Create a new template"
@@ -108,6 +99,7 @@ const TemplatesList = () => {
         secondaryButtonText="Cancel"
       >
         <Dropdown
+        id="dropdown-board"
           label="Board"
           titleText="Board"
           value={newBoard}
@@ -132,6 +124,7 @@ const TemplatesList = () => {
         />
 
         <TextInput
+        id="text-input-template-name"
           labelText="Template name"
           value={newTemplateName}
           onChange={(e) => {
@@ -144,7 +137,7 @@ const TemplatesList = () => {
 };
 
 export const templateListLoader = async () => {
-  const templates = await axios.get("/templates/1").then((res) => res.data);
+  const templates = await axios.get("/templates").then((res) => res.data);
   return templates;
 };
 

@@ -9,29 +9,24 @@ import AccessControlList from "../Components/AccessControlList";
 const DeviceConfigure = () => {
     const { device, metadata } = useLoaderData();
     console.log(device);
-    
+
     const [name, setName] = useState(device.name);
     const [description, setDescription] = useState(device.description);
     const [inheritTemplate, setInheritTemplate] = useState(device.inheritTemplate);
     const [datastreams, setDatastreams] = useState(metadata.datastreams);
-    const [accessControls, setAccessControls] = useState(metadata.accessControls);
-    
+    const [accessControls, setAccessControls] = useState(metadata.userAccess);
+
     const updateDeviceInfo = () => {
-        const info = {
+        axios.put(`device/${device.id}`, {
             name,
             description,
             inheritTemplate
-        }
-        const metadata = {
-            datastreams,
-            accessControls
-        }
-        const data = new FormData();
-        data.append('info',new Blob([JSON.stringify(info)], { type: "application/json" }));
-        data.append('metadata',new Blob([JSON.stringify(metadata)], { type: "application/json" }));
-
-        axios.put(`device/${device.id}`,data).then(res => console.log(res))
+        }).then(res => console.log(res))
     }
+
+    
+
+
 
 
     return (<>
@@ -53,27 +48,27 @@ const DeviceConfigure = () => {
                         id="input-description"
                         type="text"
                         labelText="Description"
-                        value={description}
+                        value={description || ""}
                         onChange={(e) => setDescription(e.target.value)} />
-                    <Checkbox 
+                    <Checkbox
                         id="checkbox-label-1"
-                        labelText={`Apply changes from template`} 
+                        labelText={`Apply changes from template`}
                         checked={inheritTemplate}
                         onChange={(e) => setInheritTemplate(e.target.checked)}
                     />
+                    <Button renderIcon={Save} onClick={updateDeviceInfo}>Save</Button>
                 </TabPanel>
-                    
+
                 <TabPanel>
-                    <DatastreamsList dataStreams={datastreams} setDatastreams={setDatastreams} deviceId={device.id}/>
+                    <DatastreamsList dataStreams={datastreams} templateOrDevice={"device"} setDatastreams={setDatastreams} deviceId={device.id} />
                 </TabPanel>
-                
+
                 <TabPanel>
-                    <AccessControlList accessControls={accessControls} setAccessControls={setAccessControls} />
+                    <AccessControlList accessControls={accessControls} setAccessControls={setAccessControls} deviceId={device.id} />
                 </TabPanel>
             </TabPanels>
         </Tabs>
 
-        <Button renderIcon={Save} onClick={updateDeviceInfo}>Save</Button>
     </>);
 }
 

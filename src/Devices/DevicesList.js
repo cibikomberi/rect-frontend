@@ -42,7 +42,7 @@ const DevicesList = () => {
 
 
     useEffect(() => {        
-        axios.get('/templates/1')
+        axios.get('/templates')
             .then((res) => res.data)
             .then((data) => {
                 let templatesList = data.filter((val) => val.board === newBoard)
@@ -165,8 +165,10 @@ const DevicesList = () => {
 }
 
 export const deviceListLoader = async () => {
-    const deviceList = await axios.get('/devices/1')
-        .then((res) => res.data)
+    const deviceList = await axios.get('/devices')
+        .then((res) => {
+            console.log(res);
+         return res.data})
     const time = await axios.get(`/time`)
         .then((res) => res.data)
     return {deviceList, time};

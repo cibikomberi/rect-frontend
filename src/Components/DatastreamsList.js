@@ -1,14 +1,50 @@
 import { Add, Edit, TrashCan } from "@carbon/icons-react";
-import { Button, DataTable, Dropdown, Modal, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, TableToolbar, TableToolbarContent, TableToolbarSearch, TextInput } from "@carbon/react";
+import { Button, DataTable, Dropdown, InlineLoading, Modal, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, TableToolbar, TableToolbarContent, TableToolbarSearch, TextInput } from "@carbon/react";
+import axios from "axios";
 import { useState } from "react";
 
-
-
-const DatastreamsList = ({ dataStreams, setDatastreams, deviceId }) => {
-  console.log(dataStreams);
+const datastreamHeaders = [
+  {
+    key: "identifier",
+    header: "Id",
+  },
+  {
+    key: "name",
+    header: "Name",
+  },
+  {
+    key: "type",
+    header: "Data type",
+  },
+  {
+    key: "unit",
+    header: "Unit",
+  },
+];
+const datastreams = [
+  {
+    id: "one",
+    label: "Integer",
+    name: "Integer",
+  },
+  {
+    id: "two",
+    label: "Float",
+    name: "Float",
+  },
+  {
+    id: "three",
+    label: "String",
+    name: "String",
+  },
+]
+const DatastreamsList = ({ dataStreams, setDatastreams, deviceId, templateOrDevice, isLocked }) => {
 
   const [searchKeyword, setSearchKeyword] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [status, setStatus] = useState(false);
+  const [isLoading, setIsLoading] = useState('');
+
 
   const [datastreamId, setDatastreamId] = useState("");
   const [datastreamName, setDatastreamName] = useState("");
@@ -18,43 +54,47 @@ const DatastreamsList = ({ dataStreams, setDatastreams, deviceId }) => {
   const filteredDataStreams = dataStreams.filter((val) =>
     val.name.includes(searchKeyword)
   );
-  // const filteredDataStreams = dataStreams;
 
-  const addNewDatastream = () => {
-    setDatastreams((existing) => [
-      ...existing,
-      {
-        deviceId,
-        identifier: datastreamId,
-        name: datastreamName,
-        type: datastreamType,
-        unit: datastreamUnit,
-      },
-    ]);
-    setIsModalOpen(false);
-    setDatastreamId("");
-    setDatastreamName("");
-    setDatastreamType("");
-    setDatastreamUnit("");
-  };
-  const datastreamHeaders = [
-    {
-      key: "identifier",
-      header: "Id",
-    },
-    {
-      key: "name",
-      header: "Name",
-    },
-    {
-      key: "type",
-      header: "Data type",
-    },
-    {
-      key: "unit",
-      header: "Unit",
-    },
-  ];
+  const updateDatastream = (datastreamId, datastream) => {
+    setStatus('');
+    setIsLoading('active');
+    axios.put(`/${templateOrDevice}/datastream/${deviceId}/${datastreamId}`, {
+      ...datastream,
+      deviceId: deviceId
+    }).then(res => {
+      if (res.data === "ok") {
+        setIsLoading('')
+        setIsModalOpen('')
+        setStatus('')
+      } else {
+        setStatus(res.data)
+        setIsLoading('error')
+      }
+    })
+  }
+
+  const createDatastream = (datastream) => {
+    setIsLoading('active');
+    setStatus('');
+    axios.post(`/${templateOrDevice}/datastream/${deviceId}`, {
+      ...datastream,
+      deviceId: deviceId
+    }).then(res => {
+      if (res.data === "ok") {
+        setIsLoading('')
+        setIsModalOpen('')
+        setStatus('')
+      } else {
+        setStatus(res.data)
+        setIsLoading('error')
+      }
+    })
+  }
+
+  const deleteDatastream = (datastreamId) => {
+    axios.delete(`/${templateOrDevice}/datastream/${deviceId}/${datastreamId}`)
+  }
+  
 
   return (
     <>
@@ -67,9 +107,15 @@ const DatastreamsList = ({ dataStreams, setDatastreams, deviceId }) => {
                   onChange={(e) => setSearchKeyword(e.target.value)}
                   value={searchKeyword}
                 />
-                <Button renderIcon={Add} onClick={() => setIsModalOpen(true)}>
+                {!isLocked && <Button renderIcon={Add} onClick={() => {
+                  setIsModalOpen('new')
+                  setDatastreamId('')
+                  setDatastreamName('')
+                  setDatastreamType('')
+                  setDatastreamUnit('')
+                }}>
                   New Datastream
-                </Button>
+                </Button>}
               </TableToolbarContent>
             </TableToolbar>
             <Table>
@@ -79,7 +125,7 @@ const DatastreamsList = ({ dataStreams, setDatastreams, deviceId }) => {
                   <TableHeader>Name</TableHeader>
                   <TableHeader>Type</TableHeader>
                   <TableHeader>Unit</TableHeader>
-                  <TableHeader>Actions</TableHeader>
+                  {!isLocked && <TableHeader>Actions</TableHeader>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -89,20 +135,28 @@ const DatastreamsList = ({ dataStreams, setDatastreams, deviceId }) => {
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.type}</TableCell>
                     <TableCell>{row.unit}</TableCell>
-                    <TableCell>
+                    {!isLocked && <TableCell>
                       <Button
+                        onClick={() => {
+                          setIsModalOpen(row.identifier)
+                          setDatastreamId(row.identifier)
+                          setDatastreamName(row.name)
+                          setDatastreamType(row.type)
+                          setDatastreamUnit(row.unit)
+                        }}
                         kind="ghost"
                         renderIcon={Edit}
                         iconDescription="Edit"
                         hasIconOnly
                       />
                       <Button
+                        onClick={() => deleteDatastream(row.identifier)}
                         kind="ghost"
                         renderIcon={TrashCan}
                         iconDescription="Delete"
                         hasIconOnly
-                      />
-                    </TableCell>
+                        />
+                    </TableCell>}
                   </TableRow>
                 ))}
               </TableBody>
@@ -112,48 +166,70 @@ const DatastreamsList = ({ dataStreams, setDatastreams, deviceId }) => {
       </DataTable>
 
       <Modal
-        open={isModalOpen}
-        onRequestClose={() => setIsModalOpen(false)}
-        onRequestSubmit={() => addNewDatastream()}
-        modalHeading="Create new datastream"
-        primaryButtonText="Create"
+        open={isModalOpen ? true : false}
+        onRequestClose={() => setIsModalOpen('')}
+        onRequestSubmit={() => isModalOpen === "new" ? createDatastream({
+          identifier: datastreamId,
+          name: datastreamName,
+          type: datastreamType,
+          unit: datastreamUnit,
+        }, setStatus) : updateDatastream(isModalOpen, {
+          identifier: datastreamId,
+          name: datastreamName,
+          type: datastreamType,
+          unit: datastreamUnit,
+        }, setStatus)}
+        modalHeading={isModalOpen === "new" ? "Create new datastream": "Edit datastream"}
+        primaryButtonDisabled={isLoading ? true : false}
+        primaryButtonText={
+          isLoading ? (
+            <InlineLoading
+              status={isLoading}
+              description={
+                isLoading === "active"
+                  ? "Creating datastream..."
+                  : "Error creating datastream"
+              }
+              iconDescription={
+                isLoading === "active"
+                  ? "Creating datastream..."
+                  : "Error creating datastream"
+              }
+            />
+          ) : (
+            "Create"
+          )
+        }
         secondaryButtonText="Cancel"
       >
         <TextInput
           id="datastream-id-input"
           labelText="Datastream id"
           value={datastreamId}
-          onChange={(e) => setDatastreamId(e.target.value)}
+          onChange={(e) => {
+            setIsLoading('')
+            setDatastreamId(e.target.value)
+          }}
         />
         <TextInput
           id="datastream-name-input"
           labelText="Name"
           value={datastreamName}
-          onChange={(e) => setDatastreamName(e.target.value)}
+          onChange={(e) => {
+            setIsLoading('')
+            setDatastreamName(e.target.value)
+          }}
         />
         <Dropdown
           id="datastream-type-input"
           label="Data type"
           titleText="Data type"
-          value={datastreamType}
-          onChange={(e) => setDatastreamType(e.selectedItem.name)}
-          items={[
-            {
-              id: "one",
-              label: "Integer",
-              name: "Integer",
-            },
-            {
-              id: "two",
-              label: "Float",
-              name: "Float",
-            },
-            {
-              id: "three",
-              label: "String",
-              name: "String",
-            },
-          ]}
+          value={datastreams.filter((item) => item.name === datastreamType)}
+          onChange={(e) => {
+            setIsLoading('')
+            setDatastreamType(e.selectedItem.name)
+          }}
+          items={datastreams}
           style={{
             marginBottom: "1rem",
           }}
@@ -164,6 +240,7 @@ const DatastreamsList = ({ dataStreams, setDatastreams, deviceId }) => {
           value={datastreamUnit}
           onChange={(e) => setDatastreamUnit(e.target.value)}
         />
+        <p style={{ color: "red", fontSize: "12px" }}>{status}</p>
       </Modal>
     </>
   );

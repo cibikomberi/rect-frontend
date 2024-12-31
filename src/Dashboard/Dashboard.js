@@ -39,6 +39,9 @@ const Dashboard = () => {
     const socket = new SockJS("http://localhost:8080/websocket");
     const stompClient = new Client({
       webSocketFactory: () => socket,
+      connectHeaders: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
       onConnect: () => {
         console.log("Connected");
         datastreams.forEach((item) => {
