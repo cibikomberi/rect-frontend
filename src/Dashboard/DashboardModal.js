@@ -7,6 +7,7 @@ import {
   Tile,
 } from "@carbon/react";
 import { WidgetsList } from "./WidgetsList";
+import React, { useEffect, useState } from "react";
 
 
 const DashboardModal = ({
@@ -26,9 +27,16 @@ const DashboardModal = ({
       },
     }));
   };
-
+const tile_ref = React.createRef();
+  const [height, setHeight] = useState(0);
+  const [width, setWidth] = useState(0);
   
-
+useEffect(() => {
+    if (tile_ref.current) {
+      setHeight(tile_ref.current.getBoundingClientRect().height);
+      setWidth(tile_ref.current.getBoundingClientRect().width);
+    }
+  }, [tile_ref]);
 
   return (
     <>
@@ -123,7 +131,7 @@ const DashboardModal = ({
               )}
             </div>
             <div style={{ display: "flex", alignItems: "center" }}>
-              <Tile>
+              <Tile ref={tile_ref} >
                 {WidgetsList[widgetData[activeWidget].type].element({
                   ...widgetData[activeWidget],
                   args: { id: "modal-element" },

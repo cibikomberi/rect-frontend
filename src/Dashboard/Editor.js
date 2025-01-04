@@ -11,15 +11,16 @@ import axios from "axios";
 import { useLoaderData } from "react-router-dom";
 
 const Editor = () => {
-  const { dashboardData, dashboard, datastreams } = useLoaderData();
+  const { dashboard, datastreams } = useLoaderData();
 
-  const [layout, setLayout] = useState(dashboardData.layout);
-  const [widgetData, setWidgetData] = useState(dashboardData.widgetData); // Manages widget content mapped by `i` (id)
+  const [layout, setLayout] = useState(dashboard.dashboardData.layout);
+  const [widgetData, setWidgetData] = useState(dashboard.dashboardData.widgetData); // Manages widget content mapped by `i` (id)
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeWidget, setActiveWidget] = useState("");
   const [droppingItem, setDroppingItem] = useState();
 
+  
   useEffect(() => {
     console.log(widgetData);
   }, [widgetData]);
@@ -71,7 +72,7 @@ const Editor = () => {
   };
 
   const saveData = () => {
-    axios.put(`/dashboard/data/${dashboard.dashboardDataId}`, {
+    axios.put(`/dashboard/data/${dashboard.id}`, {
       layout,
       widgetData,
     });
@@ -134,7 +135,7 @@ const Editor = () => {
           scrollbarWidth: "thin" /* Firefox */,
         }}
       >
-        
+
         <GridLayout
           droppingItem={droppingItem}
           layout={layout}
@@ -144,7 +145,7 @@ const Editor = () => {
           onDrop={onDrop}
           onRemove={onRemoveItem}
           isDroppable={true}
-          maxRows={"Infinity"}
+          // maxRows={"Infinity"}
           cols={56}
           rowHeight={40}
           width={2000}
@@ -180,26 +181,17 @@ const Editor = () => {
 };
 
 export const dashboardEditorLoader = async (dashboardId) => {
-  const { dashboard, dashboardData } = await axios
-    .get(`/dashboard/${dashboardId}`)
+  const dashboard  = await axios
+    .get(`/dashboard/data/${dashboardId}`)
     .then((res) => {
       return res.data;
-    })
-    .then(async (dashboard) => {
-      const dashboardData = await axios
-        .get(`/dashboard/data/${dashboard.dashboardDataId}`)
-        .then((res) => {
-          return res.data;
-        });
-
-      return { dashboard, dashboardData };
     });
-
   const datastreams = await axios
     .get(`/dashboard/datastreams/${dashboardId}`)
     .then((res) => {
       return res.data;
     });
-  return { dashboard, dashboardData, datastreams };
+
+  return { dashboard, datastreams };
 };
 export default Editor;

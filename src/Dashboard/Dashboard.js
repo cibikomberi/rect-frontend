@@ -142,21 +142,12 @@ const Dashboard = () => {
 };
 
 export const dashboardLoader = async (dashboardId) => {
-  const { dashboard, dashboardData } = await axios
-    .get(`/dashboard/${dashboardId}`)
+  const dashboard = await axios
+    .get(`/dashboard/data/${dashboardId}`)
     .then((res) => {
       return res.data;
-    })
-    .then(async (dashboard) => {
-      const dashboardData = await axios
-        .get(`/dashboard/data/${dashboard.dashboardDataId}`)
-        .then((res) => {
-          return res.data;
-        });
-
-      return { dashboard, dashboardData };
     });
 
-  return { dashboard, dashboardData };
+  return { dashboardData: dashboard.dashboardData };
 };
 export default Dashboard;

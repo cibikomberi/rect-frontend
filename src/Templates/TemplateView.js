@@ -6,15 +6,15 @@ import { Link, useLoaderData } from 'react-router-dom';
 import { timeDifference } from '../Methods/Time';
 
 const TemplateView = () => {
-    const { template: { name, lastActiveTime, description, templateName }, time } = useLoaderData();
+    const { template: { name, lastActiveTime, description, templateName, image }, time } = useLoaderData();
 
 
     return (
         <>
-            <h3 style={{marginBottom:"15px"}}>Template details</h3>
             <div style={{ display: 'flex', justifyContent: "space-between", height: "100%" }}>
                 <div style={{ width: "48%", height: "100%" }}>
-                    <img src={esp} style={{ maxWidth: '90%', maxHeight: "50%" }} alt="logo"></img>
+                    <h3 style={{ marginBottom: "15px" }}>Template details</h3>
+                    <img src={image} style={{ maxWidth: '90%', maxHeight: "50%" }} alt="logo"></img>
                     <h2>{name}</h2>
                     <p>{description}</p>
                 </div>
@@ -60,6 +60,16 @@ const TemplateView = () => {
 export const templateDetailsLoader = async (deviceId) => {
     const template = await axios.get(`/template/${deviceId}`)
         .then((res) => res.data)
+        .then(async (template) => {
+            const image = await axios.get(`/template/image/${template.image}`,
+                { responseType: "blob" })
+                .then((res) => {
+                    return URL.createObjectURL(res.data)
+                }).catch(() => {
+                    return esp;
+                });
+            return { ...template, image };
+        })
     return { template };
 }
 

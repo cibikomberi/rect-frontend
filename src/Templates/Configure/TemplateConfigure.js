@@ -1,5 +1,5 @@
 import { Save } from "@carbon/icons-react";
-import { Button, Tab, TabList, TabPanel, TabPanels, Tabs, TextArea, TextInput } from "@carbon/react";
+import { Button, FileUploader, Tab, TabList, TabPanel, TabPanels, Tabs, TextArea, TextInput } from "@carbon/react";
 import axios from "axios";
 import { useState } from "react";
 import { useLoaderData } from "react-router-dom";
@@ -8,10 +8,13 @@ import AccessControlList from "../../Components/AccessControlList";
 
 const TemplateConfigure = () => {
     const { template, metadata } = useLoaderData();
+    console.log(template);
+
     const [name, setName] = useState(template.name);
     const [description, setDescription] = useState(template.description);
+    const [image, setImage] = useState(null);
     const [datastreams, setDatastreams] = useState(metadata.datastreams);
-    const [accessControls, setAccessControls] = useState(metadata.accessControls);
+    const [accessControls, setAccessControls] = useState(metadata.userAccess);
     // const reducer = (state, action) => {
     //     console.log(state);
     //     console.log(action);
@@ -64,19 +67,14 @@ const TemplateConfigure = () => {
     // console.log(state);
 
     const updateTemplateInfo = () => {
-        const info = {
+        const data = new FormData();
+        data.append('info', new Blob([JSON.stringify({
             name,
             description
-        }
-        const metadata = {
-            datastreams,
-            accessControls
-        }
-        const data = new FormData();
-        data.append('info',new Blob([JSON.stringify(info)], { type: "application/json" }));
-        data.append('metadata',new Blob([JSON.stringify(metadata)], { type: "application/json" }));
+        })], { type: "application/json" }));
+        data.append('image', image);
 
-        axios.put(`template/${template.id}`,data).then(res => console.log(res))
+        axios.put(`template/${template.id}`, data).then(res => console.log(res))
     }
 
     return (<>
@@ -90,6 +88,19 @@ const TemplateConfigure = () => {
             </TabList>
             <TabPanels>
                 <TabPanel>
+                    <FileUploader
+                        name=""
+                        labelTitle=""
+                        labelDescription=""
+                        buttonLabel="Upload image"
+                        buttonKind="primary"
+                        size="md"
+                        filenameStatus="edit"
+                        accept={['.jpg', '.png']}
+                        multiple={false}
+                        disabled={false}
+                        onChange={(e) => setImage(e.target.files[0])}
+                    />
                     <TextInput
                         id="input-name"
                         type="text"
@@ -102,29 +113,30 @@ const TemplateConfigure = () => {
                         labelText="Description"
                         value={description}
                         onChange={(e) => setDescription(e.target.value)} />
+                    <Button renderIcon={Save} onClick={() => updateTemplateInfo()}>Save</Button>
+
                 </TabPanel>
 
                 <TabPanel>
-                    <DatastreamsList dataStreams={datastreams} setDatastreams={setDatastreams} />
+                    <DatastreamsList dataStreams={datastreams} setDatastreams={setDatastreams} templateOrDevice={"template"} templateOrDeviceId={template.id}/>
                 </TabPanel>
-                
+
                 <TabPanel>
-                    <AccessControlList accessControls={accessControls} setAccessControls={setAccessControls} />
+                    <AccessControlList accessControls={accessControls} setAccessControls={setAccessControls} templateOrDevice={"template"} templateOrDeviceId={template.id} />
                 </TabPanel>
             </TabPanels>
         </Tabs>
 
-        <Button renderIcon={Save} onClick={() => updateTemplateInfo()}>Save</Button>
-        
+
     </>);
 }
 
-export const templateMetadataLoader = async (deviceId) => {
-    const template = await axios.get(`/template/${deviceId}`)
+export const templateMetadataLoader = async (templateId) => {
+    const template = await axios.get(`/template/${templateId}`)
         .then((res) => res.data)
-    const metadata = await axios.get(`/template/metadata/${deviceId}`)
+    const metadata = await axios.get(`/template/metadata/${templateId}`)
         .then((res) => res.data)
-console.log(metadata);
+    console.log(metadata);
 
     return { template, metadata };
 }

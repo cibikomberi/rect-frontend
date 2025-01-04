@@ -1,19 +1,25 @@
-import { ArrowUpRight, FlowData, SettingsEdit, Share, Upload } from '@carbon/icons-react';
-import { Button, ComboBox, Dropdown, Modal, Tile } from '@carbon/react';
+import { ArrowUpRight, Dashboard, SettingsEdit, Share, Upload } from '@carbon/icons-react';
+import { Button, ComboBox, Dropdown, FileUploaderDropContainer, FileUploaderItem, Modal, TextInput, Tile } from '@carbon/react';
 import axios from 'axios';
+import { useEffect, useState } from "react";
 import { Link, useLoaderData } from 'react-router-dom';
 import esp from '../images/esp32-wroom-32.jpg';
 import { isLessThan30Seconds, timeDifference } from '../Methods/Time';
-import { useEffect, useState } from "react";
 import bg from "./../Assets/bg.jpeg";
 
 const DeviceView = () => {
-    const {device:{ id, name, lastActiveTime, description, templateName, dashboardId }, time} = useLoaderData();
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const { device: { id, name, lastActiveTime, description, templateName, dashboardId, image, isUpToDate }, time } = useLoaderData();
+    const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
+    const [isOTAModalOpen, setIsOTAModalOpen] = useState(false);
+    const [otaFile, setOtaFile] = useState(undefined);
+    const [version, setVersion] = useState(undefined);
+
     const [searchPeople, setSearchPeople] = useState('');
     const [people, setPeople] = useState([]);
     const [user, setUser] = useState([]);
     const [accessControlLevel, setAccessControlLevel] = useState('');
+
+    console.log(image);
 
     useEffect(() => {
         if (searchPeople.length > 2) {
@@ -35,13 +41,23 @@ const DeviceView = () => {
             user: user.id,
             access: accessControlLevel.name
         })
-        setIsModalOpen(false)
+        setIsAccessModalOpen(false)
         setAccessControlLevel('')
+    }
+
+    const uploadOTAfile = () => {
+        const data = new FormData();
+        data.append('file', otaFile);
+        data.append('version', new Blob([JSON.stringify({version})], { type: "application/json" }));
+        axios.post(`/device/ota/${id}`, data)
+        setIsOTAModalOpen(false)
+        // setAccessControlLevel('')
     }
     return (
         <div style={{ display: 'flex', justifyContent: "space-between", height: "100%" }}>
-            <div style={{ width: "48%", height:"100%" }}>
-                <img src={esp} style={{ maxWidth: '90%', maxHeight:"50%" }} alt="logo"></img>
+            <div style={{ width: "48%", height: "100%" }}>
+                <h3 style={{ marginBottom: "15px" }}>Device details</h3>
+                <img src={image} style={{ maxWidth: '90%', maxHeight: "50%" }} alt="logo"></img>
                 <h2>{name}</h2>
                 <p>{description}</p>
             </div>
@@ -65,24 +81,25 @@ const DeviceView = () => {
                             <p>{templateName}</p>
                         </Tile>
                         <Tile id="tile-1" style={{ flexGrow: "1", minWidth: "200px", border: "1px solid #262626" }}>
-                            <h4>Last Active</h4>
-                            <p>5 minutes ago</p>
+                            <h4>Is Upto Date</h4>
+                            <p>{isUpToDate ? 'True' : 'False'}</p>
                         </Tile>
                     </div>
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "flex-end", flexWrap:"wrap"}}>
+                <div style={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap" }}>
 
-                    <Button kind="ghost" iconDescription="Share this device with others" renderIcon={Share} hasIconOnly={true} onClick={() => setIsModalOpen(true)}></Button>
-                    <Button kind="ghost" iconDescription='OTA updates' renderIcon={Upload} hasIconOnly={true}></Button>
-                    <Button kind="ghost" iconDescription='Edit flows' renderIcon={FlowData} hasIconOnly={true}></Button>
-                    <Button as={Link} to={'./../configure'} kind="ghost" iconDescription='Configure device' renderIcon={SettingsEdit} hasIconOnly={true}></Button>
-                    <Button renderIcon={ArrowUpRight} as={Link} to={`/dashboard/${dashboardId}/edit`} target="_blank">Edit Dashboard</Button> 
+                    <Button kind="ghost" iconDescription="Share this device with others" renderIcon={Share} hasIconOnly={true} onClick={() => setIsAccessModalOpen(true)}></Button>
+                    <Button kind="ghost" iconDescription='OTA updates' renderIcon={Upload} hasIconOnly={true} onClick={() => setIsOTAModalOpen(true)}></Button>
+                    <Button kind="ghost" iconDescription='Configure device' renderIcon={SettingsEdit} hasIconOnly={true} as={Link} to={'./../configure'}></Button>
+                    <Button kind="ghost" iconDescription='Edit dashboard' renderIcon={Dashboard} hasIconOnly={true} as={Link} to={`/dashboard/${dashboardId}/edit`} target="_blank"></Button>
+                    <Button renderIcon={ArrowUpRight} as={Link} to={`/dashboard/${dashboardId}/view`} target="_blank">View Dashboard</Button>
                 </div>
             </div>
 
-            <Modal open={isModalOpen}
-                onRequestClose={() => setIsModalOpen(false)}
+            <Modal open={isAccessModalOpen}
+                id='access-control-modal'
+                onRequestClose={() => setIsAccessModalOpen(false)}
                 onRequestSubmit={() => addNewAccesscontrol()}
                 modalHeading="Share"
                 primaryButtonText="Share"
@@ -93,7 +110,7 @@ const DeviceView = () => {
                     autoAlign
                     id="carbon-combobox"
                     items={people}
-                    value={user?.name}
+                    value={user?.name || ''}
                     onChange={(e) => setUser(e.selectedItem)}
                     itemToElement={(item) =>
                         <div><img src={bg} style={{ height: "90%", width: "25px", borderRadius: "50%" }} alt="profile pic" />{item.name}</div>}
@@ -101,7 +118,7 @@ const DeviceView = () => {
                     titleText="Email"
                     onInputChange={(e) => {
                         setSearchPeople(e);
-                        setUser(e.selectedItem);
+                        setUser(existing => ({ ...existing, name: e }));
                     }}
                 />
 
@@ -129,16 +146,63 @@ const DeviceView = () => {
                         marginBottom: '1rem'
                     }} />
             </Modal>
+
+            <Modal open={isOTAModalOpen}
+                id='ota-modal'
+                onRequestClose={() => setIsOTAModalOpen(false)}
+                onRequestSubmit={() => uploadOTAfile()}
+                modalHeading="Update this device"
+                primaryButtonText="Update"
+                secondaryButtonText="Cancel"
+                hasScrollingContent={false}
+            >
+                <TextInput
+                    id="input-name"
+                    type="text"
+                    labelText="Version"
+                    value={version}
+                    onChange={(e) => setVersion(e.target.value)} />
+                {!otaFile ? <FileUploaderDropContainer
+                    labelText="Upload your *.bin file here"
+                    multiple={true}
+                    accept={['.bin', '.hex']}
+                    disabled={false}
+                    name=""
+                    onDragOver={(event) => event.preventDefault()}
+                    onChange={(e) => console.log(e)}
+                    onAddFiles={(e) => {
+                        if (e.target.files && e.target.files.length > 0)
+                            if (e.target.files[0].name.endsWith('.bin')) {
+                                setOtaFile(e.target.files[0])
+                            }
+                        }
+                    }
+                    onClick={(e) => console.log(e)}
+                    size="lg"
+                    style={{marginTop: "10px"}}
+                /> : <FileUploaderItem iconDescription="Delete file" invalid={false} name={otaFile.name} status="edit" size="md" onDelete={() => setOtaFile(null)} />}
+            </Modal>
         </div>
     );
 }
 
-export const deviceDetailsLoader = async (ideviceId) => {
-    const device = await axios.get(`/device/${ideviceId}`)
+export const deviceDetailsLoader = async (deviceId) => {
+    const device = await axios.get(`/device/${deviceId}`)
         .then((res) => res.data)
+        .then(async (device) => {
+            const image = await axios.get(`/device/image/${device.image}`,
+                { responseType: "blob" })
+                .then((res) => {
+                    return URL.createObjectURL(res.data)
+                }).catch(() => {
+                    return esp;
+                });
+            return { ...device, image };
+        })
     const time = await axios.get(`/time`)
         .then((res) => res.data)
-    return {device, time};
+
+    return { device, time };
 }
 
 export default DeviceView;

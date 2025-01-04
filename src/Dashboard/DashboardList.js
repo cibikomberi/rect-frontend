@@ -1,26 +1,29 @@
 import { Add, Edit, View } from "@carbon/icons-react";
 import {
+  Button,
   DataTable,
+  Dropdown,
+  FilterableMultiSelect,
+  InlineLoading,
+  Modal,
+  Pagination,
+  Tab,
   Table,
-  TableHead,
-  TableRow,
-  TableHeader,
   TableBody,
   TableCell,
   TableContainer,
-  Button,
+  TableHead,
+  TableHeader,
+  TableRow,
   TableToolbar,
   TableToolbarContent,
   TableToolbarSearch,
-  TextInput,
-  Dropdown,
-  Modal,
-  InlineLoading,
-  FilterableMultiSelect,
+  TextInput
 } from "@carbon/react";
 import axios from "axios";
 import { useState } from "react";
 import { Link, useLoaderData } from "react-router-dom";
+import { customSortRow } from '../Methods/Sort';
 
 
 const headers = [
@@ -43,6 +46,52 @@ const DashboardList = () => {
   const [newDashboardDevices, setNewDashboardDevices] = useState([]);
   const [newDashboardName, setNewDashboardName] = useState('');
   const [newDashboardAccess, setNewDashboardAccess] = useState("Private");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [sortColumn, setSortColumn] = useState(null); // Track sort column
+  const [sortDirection, setSortDirection] = useState('NONE'); // Track sort direction
+
+  const [rows, setRows] = useState(dashboardsList);
+
+  const filteredRows = rows
+          .filter((val) => val.name.toLowerCase().includes(searchKeyword.toLowerCase()))
+  
+      const sortedRows = sortColumn
+          ? [...filteredRows].sort((a, b) =>
+              customSortRow(a[sortColumn], b[sortColumn], {
+                  sortDirection,
+                  sortStates: { ASC: 'ASC', DESC: 'DESC' },
+                  locale: navigator.language,
+              })
+          )
+          : filteredRows;
+  
+      const paginatedRows = sortedRows.slice(
+          (currentPage - 1) * pageSize,
+          currentPage * pageSize
+      );
+
+  const handlePaginationChange = ({ page, pageSize }) => {
+    setCurrentPage(page);
+    setPageSize(pageSize);
+  };
+  const handleSearch = (e) => {
+    setSearchKeyword(e.target.value);
+    setCurrentPage(1); // Reset to first page on search
+  };
+  const handleSort = (headerKey) => {
+    if (sortColumn === headerKey) {
+      setSortDirection((prev) =>
+        prev === 'ASC' ? 'DESC' : prev === 'DESC' ? 'NONE' : 'ASC'
+      );
+    } else {
+      setSortColumn(headerKey);
+      setSortDirection('ASC');
+    }
+  };
   const newDashboard = () => {
     setIsCreatingDashboard('active');
     axios.post("/dashboard", {
@@ -62,25 +111,32 @@ const DashboardList = () => {
 
   return (
     <>
-      <DataTable rows={dashboardsList} headers={headers} isSortable>
+      <DataTable rows={paginatedRows} headers={headers} isSortable>
         {() => (
           <TableContainer title="Dashboards">
             <TableToolbar>
               <TableToolbarContent>
-                {/* <TableToolbarSearch onChange={(e) => applySearchFilter(e.target.value)} /> */}
+                <TableToolbarSearch onChange={handleSearch} />
                 <Button renderIcon={Add} onClick={() => setIsDialogOpen(true)}> New Dashboard </Button>
               </TableToolbarContent>
             </TableToolbar>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableHeader>Name</TableHeader>
-                  <TableHeader>Access</TableHeader>
+                  {headers.map((header) => (
+                    <TableHeader
+                      isSortHeader={sortColumn === header.key}
+                      sortDirection={sortDirection}
+                      onClick={() => handleSort(header.key)}
+                      isSortable>
+                      {header.header}
+                    </TableHeader>
+                  ))}
                   <TableHeader>Actions</TableHeader>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {dashboardsList.map((row) => (
+                {paginatedRows.map((row) => (
                   <TableRow key={row.id}>
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.access}</TableCell>
@@ -96,7 +152,7 @@ const DashboardList = () => {
                       <Button
                         kind="ghost"
                         as={Link}
-                        to={`/dashboard/${row.id}`}
+                        to={`/dashboard/${row.id}/view`}
                         renderIcon={View}
                         iconDescription="View"
                         hasIconOnly
@@ -106,6 +162,13 @@ const DashboardList = () => {
                 ))}
               </TableBody>
             </Table>
+            <Pagination
+              page={currentPage}
+              pageSize={pageSize}
+              pageSizes={[5, 10, 15]}
+              totalItems={filteredRows.length}
+              onChange={handlePaginationChange}
+            />
           </TableContainer>
         )}
       </DataTable>

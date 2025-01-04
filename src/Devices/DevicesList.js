@@ -1,95 +1,138 @@
 import { Add } from '@carbon/icons-react';
-import { DataTable, Table, TableHead, TableRow, TableHeader, TableBody, TableCell, TableContainer, Button, TableToolbar, TableToolbarContent, TableToolbarSearch, Modal, Dropdown, TextInput } from '@carbon/react';
+import { Button, DataTable, Dropdown, Modal, Pagination, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, TableToolbar, TableToolbarContent, TableToolbarSearch, TextInput } from '@carbon/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import { isLessThan30Seconds } from '../Methods/Time';
+import { customSortRow } from '../Methods/Sort';
 
 const headers = [
-  {
-    key: "name",
-    header: "Name",
-  },
-  {
-    key: "board",
-    header: "Board",
-  },
-  {
-    key: "status",
-    header: "Status",
-  },
+    {
+        key: "name",
+        header: "Name",
+    },
+    {
+        key: "board",
+        header: "Board",
+    },
+    {
+        key: "status",
+        header: "Status",
+    },
 ];
+const devices = [{
+    id: 'one',
+    label: 'ESP32',
+    name: 'ESP32'
+}, {
+    id: 'two',
+    label: 'ESP8266',
+    name: 'ESP8266'
+}];
+
 
 const DevicesList = () => {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+
     const [newBoard, setNewBoard] = useState('');
     const [newDeviceName, setNewDeviceName] = useState('');
     const [newDevicetemplate, setNewDeviceTemplate] = useState({});
     const [newDeviceTemplateId, setNewDeviceTemplateId] = useState({});
     const [availableNewDevicetemplate, setAvailableNewDevicetemplate] = useState({});
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
+    
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [sortColumn, setSortColumn] = useState(null); // Track sort column
+    const [sortDirection, setSortDirection] = useState('NONE'); // Track sort direction
+
     const navigate = useNavigate();
-    const {deviceList, time} = useLoaderData();
+    const { deviceList, time } = useLoaderData();
 
-    console.log(deviceList);
-    
-    const [rows, setRows] = useState(deviceList.map((val) => 
-        ({...val, 
-            status:isLessThan30Seconds(new Date(time), new Date(val.lastActiveTime)) 
-                ? 'Online' : 'Offline'}))
-);
-    
+    const [rows, setRows] = useState(deviceList);
 
+    const filteredRows = rows
+        .filter((val) => val.name.toLowerCase().includes(searchKeyword.toLowerCase()))
+        .map((val) => ({
+            ...val,
+            status: isLessThan30Seconds(new Date(time), new Date(val.lastActiveTime)) ? 'Online' : 'Offline'
+        }));
 
-    useEffect(() => {        
+    const sortedRows = sortColumn
+        ? [...filteredRows].sort((a, b) =>
+            customSortRow(a[sortColumn], b[sortColumn], {
+                sortDirection,
+                sortStates: { ASC: 'ASC', DESC: 'DESC' },
+                locale: navigator.language,
+            })
+        )
+        : filteredRows;
+
+    const paginatedRows = sortedRows.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
+
+    useEffect(() => {
         axios.get('/templates')
             .then((res) => res.data)
             .then((data) => {
                 let templatesList = data.filter((val) => val.board === newBoard)
-                    .map((val) =>  ({label: val.name, name:val.name, id:val.id }))
+                    .map((val) => ({ label: val.name, name: val.name, id: val.id }))
 
-                console.log(templatesList)
                 setAvailableNewDevicetemplate(templatesList)
             })
-
     }, [newBoard])
 
-    const applySearchFilter = (keyword) => {        
-        setRows(
-          deviceList.filter((val) =>
-            val.name.toLowerCase().includes(keyword.toLowerCase())
-          )
-        );
-    }
+    const handleSearch = (e) => {
+        setSearchKeyword(e.target.value);
+        setCurrentPage(1); // Reset to first page on search
+    };
 
+    const handleSort = (headerKey) => {
+        if (sortColumn === headerKey) {
+            setSortDirection((prev) =>
+                prev === 'ASC' ? 'DESC' : prev === 'DESC' ? 'NONE' : 'ASC'
+            );
+        } else {
+            setSortColumn(headerKey);
+            setSortDirection('ASC');
+        }
+    };
+
+    const handlePaginationChange = ({ page, pageSize }) => {
+        setCurrentPage(page);
+        setPageSize(pageSize);
+    };
     const newDevice = () => {
-        console.log(newDevicetemplate);
-        
+        setErrorMessage("")
         axios.post(`/device`, {
             name: newDeviceName,
             templateId: newDeviceTemplateId,
             board: newBoard
-        }).then((res) => setIsDialogOpen(false))
+        }).then((res) => {
+            setRows((prevRows) => [
+                {
+                    name: newDeviceName,
+                    templateId: newDeviceTemplateId,
+                    board: newBoard,
+                    status: 'Offline'
+                }, ...prevRows
+            ]);
+            setIsDialogOpen(false)
+        }).catch(() => setErrorMessage('Error creating device'));
     }
+    
     return (
         <>
-            <DataTable rows={rows} headers={headers} isSortable>
+            <DataTable rows={paginatedRows} headers={headers} isSortable>
                 {({ rows, headers, getTableProps, getHeaderProps, getRowProps }) => (
-                    <TableContainer title="Devices" description="With filtering">
+                    <TableContainer title="Devices">
                         <TableToolbar>
                             <TableToolbarContent>
-                                <TableToolbarSearch  onChange={(e) => applySearchFilter(e.target.value)}/>
-                                {/* <TableToolbarMenu>
-                                    <TableToolbarAction>
-                                        Action 1
-                                    </TableToolbarAction>
-                                    <TableToolbarAction>
-                                        Action 2
-                                    </TableToolbarAction>
-                                    <TableToolbarAction>
-                                        Action 3
-                                    </TableToolbarAction>
-                                </TableToolbarMenu> */}
+                                <TableToolbarSearch onChange={handleSearch} />
                                 <Button renderIcon={Add} onClick={() => setIsDialogOpen(true)} >New Device</Button>
                             </TableToolbarContent>
                         </TableToolbar>
@@ -97,7 +140,12 @@ const DevicesList = () => {
                             <TableHead>
                                 <TableRow>
                                     {headers.map((header) => (
-                                        <TableHeader {...getHeaderProps({ header })}>
+                                        <TableHeader
+                                            {...getHeaderProps({ header })}
+                                            isSortHeader={sortColumn === header.key}
+                                            sortDirection={sortDirection}
+                                            onClick={() => handleSort(header.key)}
+                                            isSortable>
                                             {header.header}
                                         </TableHeader>
                                     ))}
@@ -109,13 +157,19 @@ const DevicesList = () => {
                                         {row.cells.map((cell) => (
                                             <TableCell key={cell.id}>{cell.value}</TableCell>
                                         ))}
-                                        
+
                                     </TableRow>
                                 ))}
-                                {/* <PaginationNav itemsShown={10} totalItems={25} /> */}
                             </TableBody>
                         </Table>
-                    </TableContainer>
+                        <Pagination
+                            page={currentPage}
+                            pageSize={pageSize}
+                            pageSizes={[5, 10, 15]}
+                            totalItems={filteredRows.length}
+                            onChange={handlePaginationChange}
+                        />                    
+                        </TableContainer>
                 )}
             </DataTable>
 
@@ -130,18 +184,11 @@ const DevicesList = () => {
                     label="Board"
                     titleText="Board"
                     value={newBoard}
-                    onChange={(e) => { 
+                    onChange={(e) => {
                         setNewDeviceTemplate('Select Template');
-                        setNewBoard(e.selectedItem.name) }}
-                    items={[{
-                        id: 'one',
-                        label: 'ESP32',
-                        name: 'ESP32'
-                    }, {
-                        id: 'two',
-                        label: 'ESP8266',
-                        name: 'ESP8266'
-                    }]} style={{
+                        setNewBoard(e.selectedItem.name)
+                    }}
+                    items={devices} style={{
                         marginBottom: '1rem'
                     }} />
 
@@ -150,14 +197,16 @@ const DevicesList = () => {
                     titleText="Template"
                     value={newDevicetemplate}
                     selectedItem={newDevicetemplate}
-                    onChange={(e) => { setNewDeviceTemplate(e.selectedItem.name);
+                    onChange={(e) => {
+                        setNewDeviceTemplate(e.selectedItem.name);
                         setNewDeviceTemplateId(e.selectedItem.id);
-                     }}
+                    }}
                     items={availableNewDevicetemplate} />
 
                 <TextInput labelText="Device name"
                     value={newDeviceName}
                     onChange={(e) => { setNewDeviceName(e.target.value) }} />
+                <p style={{ color: "red", fontSize: "12px" }}>{errorMessage}</p>
 
             </Modal>
         </>
@@ -167,11 +216,11 @@ const DevicesList = () => {
 export const deviceListLoader = async () => {
     const deviceList = await axios.get('/devices')
         .then((res) => {
-            console.log(res);
-         return res.data})
+            return res.data
+        })
     const time = await axios.get(`/time`)
         .then((res) => res.data)
-    return {deviceList, time};
+    return { deviceList, time };
 }
 
 export default DevicesList;

@@ -38,7 +38,7 @@ const datastreams = [
     name: "String",
   },
 ]
-const DatastreamsList = ({ dataStreams, setDatastreams, deviceId, templateOrDevice, isLocked }) => {
+const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, templateOrDevice, isLocked }) => {
 
   const [searchKeyword, setSearchKeyword] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -58,9 +58,9 @@ const DatastreamsList = ({ dataStreams, setDatastreams, deviceId, templateOrDevi
   const updateDatastream = (datastreamId, datastream) => {
     setStatus('');
     setIsLoading('active');
-    axios.put(`/${templateOrDevice}/datastream/${deviceId}/${datastreamId}`, {
+    axios.put(`/${templateOrDevice}/datastream/${templateOrDeviceId}/${datastreamId}`, {
       ...datastream,
-      deviceId: deviceId
+      [`${templateOrDevice}Id`]: templateOrDeviceId
     }).then(res => {
       if (res.data === "ok") {
         setIsLoading('')
@@ -76,9 +76,9 @@ const DatastreamsList = ({ dataStreams, setDatastreams, deviceId, templateOrDevi
   const createDatastream = (datastream) => {
     setIsLoading('active');
     setStatus('');
-    axios.post(`/${templateOrDevice}/datastream/${deviceId}`, {
+    axios.post(`/${templateOrDevice}/datastream/${templateOrDeviceId}`, {
       ...datastream,
-      deviceId: deviceId
+      templateOrDeviceId: templateOrDeviceId
     }).then(res => {
       if (res.data === "ok") {
         setIsLoading('')
@@ -92,7 +92,7 @@ const DatastreamsList = ({ dataStreams, setDatastreams, deviceId, templateOrDevi
   }
 
   const deleteDatastream = (datastreamId) => {
-    axios.delete(`/${templateOrDevice}/datastream/${deviceId}/${datastreamId}`)
+    axios.delete(`/${templateOrDevice}/datastream/${templateOrDeviceId}/${datastreamId}`)
   }
   
 

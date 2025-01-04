@@ -20,7 +20,7 @@ const GaugeWidget = {
           },
         ]}
         options={{
-          animatations: true,
+          animations: true,
           title: label,
           resizable: true,
           height: { height },

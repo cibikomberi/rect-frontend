@@ -1,5 +1,5 @@
 import { Save } from "@carbon/icons-react";
-import { Button, Checkbox, Tab, TabList, TabPanel, TabPanels, Tabs, TextArea, TextInput } from "@carbon/react";
+import { Button, Checkbox, FileUploader, Tab, TabList, TabPanel, TabPanels, Tabs, TextArea, TextInput } from "@carbon/react";
 import axios from "axios";
 import { useState } from "react";
 import { useLoaderData } from "react-router-dom";
@@ -8,26 +8,24 @@ import AccessControlList from "../Components/AccessControlList";
 
 const DeviceConfigure = () => {
     const { device, metadata } = useLoaderData();
-    console.log(device);
 
     const [name, setName] = useState(device.name);
     const [description, setDescription] = useState(device.description);
     const [inheritTemplate, setInheritTemplate] = useState(device.inheritTemplate);
+    const [image, setImage] = useState(null);
     const [datastreams, setDatastreams] = useState(metadata.datastreams);
     const [accessControls, setAccessControls] = useState(metadata.userAccess);
 
     const updateDeviceInfo = () => {
-        axios.put(`device/${device.id}`, {
+        const data = new FormData();
+        data.append('info', new Blob([JSON.stringify( {
             name,
             description,
             inheritTemplate
-        }).then(res => console.log(res))
+        })], { type: "application/json" }));
+        data.append('image', image);
+        axios.put(`device/${device.id}`, data).then(res => console.log(res))
     }
-
-    
-
-
-
 
     return (<>
         <Tabs>
@@ -38,6 +36,20 @@ const DeviceConfigure = () => {
             </TabList>
             <TabPanels>
                 <TabPanel>
+                    {/* <FileUploader buttonLabel="Upload image" buttonKind="primary" size="md" filenameStatus="edit" accept={['.jpg', '.png']} multiple={false} disabled={false} name="" /> */}
+                    <FileUploader 
+                        name="" 
+                        labelTitle="" 
+                        labelDescription="" 
+                        buttonLabel="Upload image" 
+                        buttonKind="primary" 
+                        size="md" 
+                        filenameStatus="edit"
+                        accept={['.jpg', '.png']} 
+                        multiple={false} 
+                        disabled={false}
+                        onChange={(e) => setImage(e.target.files[0])}
+                    />
                     <TextInput
                         id="input-name"
                         type="text"
@@ -60,7 +72,7 @@ const DeviceConfigure = () => {
                 </TabPanel>
 
                 <TabPanel>
-                    <DatastreamsList dataStreams={datastreams} templateOrDevice={"device"} setDatastreams={setDatastreams} deviceId={device.id} />
+                    <DatastreamsList dataStreams={datastreams} templateOrDevice={"device"} setDatastreams={setDatastreams} templateOrDeviceId={device.id} />
                 </TabPanel>
 
                 <TabPanel>

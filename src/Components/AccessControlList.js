@@ -20,8 +20,20 @@ const accessControlHeaders = [
         header: 'Access Level',
     }
 ];
-
-const AccessControlList = ({ accessControls, setAccessControls, deviceId }) => {
+const accessControlItems = [{
+    id: 'one',
+    label: 'Editor',
+    name: 'Editor'
+}, {
+    id: 'three',
+    label: 'Viewer',
+    name: 'Viewer'
+}, {
+    id: 'four',
+    label: 'None',
+    name: 'None'
+}]
+const AccessControlList = ({ accessControls, setAccessControls, templateOrDeviceId, templateOrDevice }) => {
     const [searchKeyword, setSearchKeyword] = useState('');
     const [searchPeople, setSearchPeople] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -29,7 +41,7 @@ const AccessControlList = ({ accessControls, setAccessControls, deviceId }) => {
     const [a, setA] = useState([]);
     const [people, setPeople] = useState([]);
     const [user, setUser] = useState([]);
-    const [accessControlLevel, setAccessControlLevel] = useState('');
+    const [accessControlLevel, setAccessControlLevel] = useState(accessControlItems[0]);
 
 
     // const filteredAccessControls = accessControls.filter((val) => val.name.includes(searchKeyword));
@@ -38,7 +50,7 @@ const AccessControlList = ({ accessControls, setAccessControls, deviceId }) => {
     console.log(user);
     console.log(accessControlLevel);
     const addNewAccesscontrol = () => {
-        axios.post(`/device/userAccess/${deviceId}`, {
+        axios.post(`/${templateOrDevice}/userAccess/${templateOrDeviceId}`, {
             user: user.id,
             access: accessControlLevel.name
         })
@@ -47,7 +59,7 @@ const AccessControlList = ({ accessControls, setAccessControls, deviceId }) => {
     }
 
     const removeAccessControl = (userId) => {
-        axios.delete(`/device/userAccess/${deviceId}/${userId}`).then(res => {
+        axios.delete(`/${templateOrDevice}/userAccess/${templateOrDeviceId}/${userId}`).then(res => {
             setA(existing => existing.filter((item) => item.id !== userId));
         })
     }
@@ -56,19 +68,21 @@ const AccessControlList = ({ accessControls, setAccessControls, deviceId }) => {
         Object.keys(accessControls).forEach((key) => {
             axios.get(`/whoisthis/${key}`).then(function (res) {
                 setA(existing => {
-                    
+
 
                     return [...existing.filter((item) => item.identifier !== key), {
-                    identifier: key,
-                    name: res.data.name,
-                    email: res.data.email,
-                    access: accessControls[key]}]});
+                        identifier: key,
+                        name: res.data.name,
+                        email: res.data.email,
+                        access: accessControls[key]
+                    }]
+                });
                 // accessControls[key].name = res.data.name;
             });
         })
     }, [])
     console.log(accessControls);
-    
+
 
     useEffect(() => {
         if (searchPeople.length > 2) {
@@ -110,7 +124,7 @@ const AccessControlList = ({ accessControls, setAccessControls, deviceId }) => {
                                     <TableCell>{row.email}</TableCell>
                                     <TableCell>{row.access}</TableCell>
                                     <TableCell>
-                                        <Button kind="ghost" renderIcon={TrashCan} hasIconOnly onClick={() => removeAccessControl(row.identifier)} />
+                                        <Button kind="ghost" renderIcon={TrashCan} iconDescription="Remove access" hasIconOnly onClick={() => removeAccessControl(row.identifier)} />
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -134,38 +148,35 @@ const AccessControlList = ({ accessControls, setAccessControls, deviceId }) => {
                 autoAlign
                 id="carbon-combobox"
                 items={people}
-                value={user?.name}
-                onChange={(e) => setUser(e.selectedItem)}
+                value={user?.name || user?.dummyName || ''}
+                onChange={(e) => {
+                    console.log(e);
+
+                    setUser(e.selectedItem)
+                }}
                 itemToElement={(item) =>
-                    <div><img src={bg} style={{ height: "90%", width: "25px", borderRadius: "50%" }} alt="profile pic" />{item.name}</div>}
-                itemToString={(item) => (item ? item.name : '')}
+                    <div style={{ height: "60px", display: "flex", flexDirection: "row", alignItems: "center" }}>
+                        <img src={item.imageId ? `http://localhost:8080/profile/image/${item.imageId}` : bg} style={{ height: "50px", width: "50px", borderRadius: "50%", objectFit: "cover", marginRight: "15px" }} alt="profile pic" />
+                        {item.name} <br />
+                        {item.email}
+                    </div>
+                }
                 titleText="Email"
                 onInputChange={(e) => {
                     setSearchPeople(e);
-                    setUser(e.selectedItem);
+                    setUser(existing => ({ ...existing, dummyName: e }));
                 }}
-             />
-
+                className="custom-combobox"
+            />
             <Dropdown
                 autoAlign
                 id="datastream-type-input"
                 label="Access"
                 titleText="Access"
                 value={accessControlLevel}
+                onInput={e => console.log(e)}
                 onChange={(e) => setAccessControlLevel(e.selectedItem)}
-                items={[{
-                    id: 'one',
-                    label: 'Editor',
-                    name: 'Editor'
-                }, {
-                    id: 'three',
-                    label: 'Viewer',
-                    name: 'Viewer'
-                }, {
-                    id: 'four',
-                    label: 'None',
-                    name: 'None'
-                }]}
+                items={accessControlItems}
                 style={{
                     marginBottom: '1rem'
                 }} />

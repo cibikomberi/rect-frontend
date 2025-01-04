@@ -17,7 +17,11 @@ const Register = () => {
 
     const register = (e) => {
         e.preventDefault();
-        setErrorMessage("")
+        if (password !== passwordTwo) {
+            setErrorMessage("Passwords do not match");
+            return;
+        }
+        setErrorMessage("");
         axios.post("/register", {
             name, email, password
         }).then((res) => {
