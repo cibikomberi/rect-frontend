@@ -1,10 +1,11 @@
-import { Save } from "@carbon/icons-react";
+import { Save, TrashCan } from "@carbon/icons-react";
 import { Button, Checkbox, FileUploader, Tab, TabList, TabPanel, TabPanels, Tabs, TextArea, TextInput } from "@carbon/react";
 import axios from "axios";
 import { useState } from "react";
 import { useLoaderData } from "react-router-dom";
-import DatastreamsList from "../Components/DatastreamsList";
 import AccessControlList from "../Components/AccessControlList";
+import DatastreamsList from "../Components/DatastreamsList";
+import HeaderEditor from "../Components/HeaderEditor";
 
 const DeviceConfigure = () => {
     const { device, metadata } = useLoaderData();
@@ -13,7 +14,6 @@ const DeviceConfigure = () => {
     const [description, setDescription] = useState(device.description);
     const [inheritTemplate, setInheritTemplate] = useState(device.inheritTemplate);
     const [image, setImage] = useState(null);
-    const [datastreams, setDatastreams] = useState(metadata.datastreams);
     const [accessControls, setAccessControls] = useState(metadata.userAccess);
 
     const updateDeviceInfo = () => {
@@ -33,6 +33,8 @@ const DeviceConfigure = () => {
                 <Tab>Info</Tab>
                 <Tab>Datastreams</Tab>
                 <Tab>Access Control</Tab>
+                <Tab>Device constants</Tab>
+                <Tab>Delete data</Tab>
             </TabList>
             <TabPanels>
                 <TabPanel>
@@ -72,11 +74,20 @@ const DeviceConfigure = () => {
                 </TabPanel>
 
                 <TabPanel>
-                    <DatastreamsList dataStreams={datastreams} templateOrDevice={"device"} setDatastreams={setDatastreams} templateOrDeviceId={device.id} />
+                    <DatastreamsList data={metadata.datastreams} templateOrDevice={"device"} templateOrDeviceId={device.id} />
                 </TabPanel>
 
                 <TabPanel>
-                    <AccessControlList accessControls={accessControls} setAccessControls={setAccessControls} deviceId={device.id} />
+                    <AccessControlList accessControls={accessControls} setAccessControls={setAccessControls} templateOrDevice={"device"} templateOrDeviceId={device.id} />
+                </TabPanel>
+                <TabPanel style={{ height: "90%" }}>
+                    <HeaderEditor />
+                </TabPanel>
+                <TabPanel>
+                    <h6>Clear log data</h6>
+                    <Button renderIcon={TrashCan} kind="danger">Clear</Button>
+                    <h6>Delete device</h6>
+                    <Button renderIcon={TrashCan} kind="danger">Delete</Button>
                 </TabPanel>
             </TabPanels>
         </Tabs>

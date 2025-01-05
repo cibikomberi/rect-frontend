@@ -36,6 +36,7 @@ const headers = [
 const TemplatesList = () => {
   const navigate = useNavigate();
   const templateData = useLoaderData();
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [open, setOpen] = useState(false);
   const [newBoard, setNewBoard] = useState("");
@@ -47,7 +48,14 @@ const TemplatesList = () => {
         name: newTemplateName,
         board: newBoard,
       })
-      .then((res) => setOpen(false));
+      .then((res) => {
+        if (res.data.id && res.data.name) {
+          setRows((existing) => [res.data, ...existing])
+          setOpen(false)
+        } else {
+          setErrorMessage("Unable to create template")
+        }
+      }).catch(err => setErrorMessage(`Error creating template: ${err.message}`)) 
   };
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -184,6 +192,8 @@ const TemplatesList = () => {
             setNewTemplateName(e.target.value);
           }}
         />
+        <p style={{ color: "red", fontSize: "12px" }}>{errorMessage}</p>
+
       </Modal>
     </>
   );

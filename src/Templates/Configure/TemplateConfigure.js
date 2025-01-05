@@ -2,18 +2,17 @@ import { Save } from "@carbon/icons-react";
 import { Button, FileUploader, Tab, TabList, TabPanel, TabPanels, Tabs, TextArea, TextInput } from "@carbon/react";
 import axios from "axios";
 import { useState } from "react";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import DatastreamsList from "../../Components/DatastreamsList";
 import AccessControlList from "../../Components/AccessControlList";
 
 const TemplateConfigure = () => {
+    const navigate = useNavigate();
     const { template, metadata } = useLoaderData();
-    console.log(template);
 
     const [name, setName] = useState(template.name);
     const [description, setDescription] = useState(template.description);
     const [image, setImage] = useState(null);
-    const [datastreams, setDatastreams] = useState(metadata.datastreams);
     const [accessControls, setAccessControls] = useState(metadata.userAccess);
     // const reducer = (state, action) => {
     //     console.log(state);
@@ -74,7 +73,11 @@ const TemplateConfigure = () => {
         })], { type: "application/json" }));
         data.append('image', image);
 
-        axios.put(`template/${template.id}`, data).then(res => console.log(res))
+        axios.put(`template/${template.id}`, data)
+        .then(res => {
+            if (res.status === 200) {
+                navigate(-1)
+        }})
     }
 
     return (<>
@@ -118,7 +121,7 @@ const TemplateConfigure = () => {
                 </TabPanel>
 
                 <TabPanel>
-                    <DatastreamsList dataStreams={datastreams} setDatastreams={setDatastreams} templateOrDevice={"template"} templateOrDeviceId={template.id}/>
+                    <DatastreamsList data={metadata.datastreams} templateOrDevice={"template"} templateOrDeviceId={template.id}/>
                 </TabPanel>
 
                 <TabPanel>

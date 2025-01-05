@@ -1,8 +1,9 @@
 import { Share, TrashCan } from "@carbon/icons-react";
-import { Button, ComboBox, DataTable, Dropdown, Modal, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, TableToolbar, TableToolbarContent, TableToolbarSearch } from "@carbon/react";
+import { Button, ComboBox, DataTable, Dropdown, Modal, Pagination, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, TableToolbar, TableToolbarContent, TableToolbarSearch } from "@carbon/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import bg from "./../Assets/bg.jpeg";
+import { customSortRow } from '../Methods/Sort';
 
 
 const accessControlHeaders = [
@@ -34,7 +35,6 @@ const accessControlItems = [{
     name: 'None'
 }]
 const AccessControlList = ({ accessControls, setAccessControls, templateOrDeviceId, templateOrDevice }) => {
-    const [searchKeyword, setSearchKeyword] = useState('');
     const [searchPeople, setSearchPeople] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -45,7 +45,13 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
 
 
     // const filteredAccessControls = accessControls.filter((val) => val.name.includes(searchKeyword));
-    const filteredAccessControls = accessControls;
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
+
+    const [searchKeyword, setSearchKeyword] = useState('');
+    const [sortColumn, setSortColumn] = useState(null); // Track sort column
+    const [sortDirection, setSortDirection] = useState('NONE'); // Track sort direction
+
 
     console.log(user);
     console.log(accessControlLevel);
@@ -53,9 +59,13 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
         axios.post(`/${templateOrDevice}/userAccess/${templateOrDeviceId}`, {
             user: user.id,
             access: accessControlLevel.name
+        }).then(res => {
+            if (res.data === "ok") {
+                setAccessControls((existing) => ({[user.id]: accessControlLevel.name, ...existing}))
+                setIsModalOpen(false)
+                setAccessControlLevel('')
+            }
         })
-        setIsModalOpen(false)
-        setAccessControlLevel('')
     }
 
     const removeAccessControl = (userId) => {
@@ -80,7 +90,7 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
                 // accessControls[key].name = res.data.name;
             });
         })
-    }, [])
+    }, [accessControls])
     console.log(accessControls);
 
 
@@ -98,22 +108,65 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
             }
         }
     }, [searchPeople])
+
+    const filteredRows = a
+              .filter((val) => val.name.toLowerCase().includes(searchKeyword.toLowerCase()))
+      
+          const sortedRows = sortColumn
+              ? [...filteredRows].sort((a, b) =>
+                  customSortRow(a[sortColumn], b[sortColumn], {
+                      sortDirection,
+                      sortStates: { ASC: 'ASC', DESC: 'DESC' },
+                      locale: navigator.language,
+                  })
+              )
+              : filteredRows;
+      
+          const paginatedRows = sortedRows.slice(
+              (currentPage - 1) * pageSize,
+              currentPage * pageSize
+          );
+    
+      const handlePaginationChange = ({ page, pageSize }) => {
+        setCurrentPage(page);
+        setPageSize(pageSize);
+      };
+      const handleSearch = (e) => {
+        setSearchKeyword(e.target.value);
+        setCurrentPage(1); // Reset to first page on search
+      };
+      const handleSort = (headerKey) => {
+        if (sortColumn === headerKey) {
+          setSortDirection((prev) =>
+            prev === 'ASC' ? 'DESC' : prev === 'DESC' ? 'NONE' : 'ASC'
+          );
+        } else {
+          setSortColumn(headerKey);
+          setSortDirection('ASC');
+        }
+      };
     return (<>
-        <DataTable rows={a} headers={accessControlHeaders} isSortable>
+        <DataTable rows={paginatedRows} headers={accessControlHeaders} isSortable>
             {({ getTableProps }) => (
                 <TableContainer title="Access control">
                     <TableToolbar>
                         <TableToolbarContent>
-                            <TableToolbarSearch onChange={(e) => setSearchKeyword(e.target.value)} value={searchKeyword} />
+                            <TableToolbarSearch onChange={handleSearch} />
                             <Button label="Remove Access" renderIcon={Share} onClick={() => setIsModalOpen(true)}>Share</Button>
                         </TableToolbarContent>
                     </TableToolbar>
                     <Table {...getTableProps()}>
                         <TableHead>
                             <TableRow>
-                                <TableHeader>Name</TableHeader>
-                                <TableHeader>Email</TableHeader>
-                                <TableHeader>Access Level</TableHeader>
+                                {accessControlHeaders.map((header) => (
+                                                    <TableHeader
+                                                      isSortHeader={sortColumn === header.key}
+                                                      sortDirection={sortDirection}
+                                                      onClick={() => handleSort(header.key)}
+                                                      isSortable>
+                                                      {header.header}
+                                                    </TableHeader>
+                                                  ))}
                                 <TableHeader>Actions</TableHeader>
                             </TableRow>
                         </TableHead>
@@ -130,6 +183,13 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
                             ))}
                         </TableBody>
                     </Table>
+                    <Pagination
+                        page={currentPage}
+                        pageSize={pageSize}
+                        pageSizes={[5, 10, 15]}
+                        totalItems={filteredRows.length}
+                        onChange={handlePaginationChange}
+                    />
                 </TableContainer>
             )}
         </DataTable>

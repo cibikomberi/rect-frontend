@@ -1,7 +1,8 @@
 import { Add, Edit, TrashCan } from "@carbon/icons-react";
-import { Button, DataTable, Dropdown, InlineLoading, Modal, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, TableToolbar, TableToolbarContent, TableToolbarSearch, TextInput } from "@carbon/react";
+import { Button, DataTable, Dropdown, InlineLoading, Modal, Pagination, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, TableToolbar, TableToolbarContent, TableToolbarSearch, TextInput } from "@carbon/react";
 import axios from "axios";
 import { useState } from "react";
+import { customSortRow } from '../Methods/Sort';
 
 const datastreamHeaders = [
   {
@@ -38,22 +39,65 @@ const datastreams = [
     name: "String",
   },
 ]
-const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, templateOrDevice, isLocked }) => {
+const DatastreamsList = ({ data, templateOrDeviceId, templateOrDevice, isLocked }) => {
 
-  const [searchKeyword, setSearchKeyword] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [status, setStatus] = useState(false);
   const [isLoading, setIsLoading] = useState('');
-
+  const [dataStreams, setDatastreams] = useState(data);
 
   const [datastreamId, setDatastreamId] = useState("");
   const [datastreamName, setDatastreamName] = useState("");
   const [datastreamType, setDatastreamType] = useState("");
   const [datastreamUnit, setDatastreamUnit] = useState("");
 
-  const filteredDataStreams = dataStreams.filter((val) =>
-    val.name.includes(searchKeyword)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
+
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [sortColumn, setSortColumn] = useState(null); // Track sort column
+  const [sortDirection, setSortDirection] = useState('NONE'); // Track sort direction
+
+  const filteredRows = dataStreams
+    .filter((val) => val.name.toLowerCase().includes(searchKeyword.toLowerCase()))
+    .map((val) => ({
+      ...val,
+    }));
+
+  const sortedRows = sortColumn
+    ? [...filteredRows].sort((a, b) =>
+      customSortRow(a[sortColumn], b[sortColumn], {
+        sortDirection,
+        sortStates: { ASC: 'ASC', DESC: 'DESC' },
+        locale: navigator.language,
+      })
+    )
+    : filteredRows;
+
+  const paginatedRows = sortedRows.slice(
+    (currentPage - 1) * pageSize,
+    currentPage * pageSize
   );
+
+  const handlePaginationChange = ({ page, pageSize }) => {
+    setCurrentPage(page);
+    setPageSize(pageSize);
+  };
+  const handleSearch = (e) => {
+    setSearchKeyword(e.target.value);
+    setCurrentPage(1); // Reset to first page on search
+  };
+  const handleSort = (headerKey) => {
+    if (sortColumn === headerKey) {
+      setSortDirection((prev) =>
+        prev === 'ASC' ? 'DESC' : prev === 'DESC' ? 'NONE' : 'ASC'
+      );
+    } else {
+      setSortColumn(headerKey);
+      setSortDirection('ASC');
+    }
+  };
+
 
   const updateDatastream = (datastreamId, datastream) => {
     setStatus('');
@@ -62,7 +106,8 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
       ...datastream,
       [`${templateOrDevice}Id`]: templateOrDeviceId
     }).then(res => {
-      if (res.data === "ok") {
+      if (res.data.identifier && res.data.name) {
+        setDatastreams((existing) => [res.data, ...existing.filter(rows => rows.identifier !== datastreamId)])
         setIsLoading('')
         setIsModalOpen('')
         setStatus('')
@@ -78,9 +123,10 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
     setStatus('');
     axios.post(`/${templateOrDevice}/datastream/${templateOrDeviceId}`, {
       ...datastream,
-      templateOrDeviceId: templateOrDeviceId
+      [`${templateOrDevice}Id`]: templateOrDeviceId
     }).then(res => {
-      if (res.data === "ok") {
+      if (res.data.identifier && res.data.name) {
+        setDatastreams((existing) => [res.data, ...existing])
         setIsLoading('')
         setIsModalOpen('')
         setStatus('')
@@ -93,20 +139,22 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
 
   const deleteDatastream = (datastreamId) => {
     axios.delete(`/${templateOrDevice}/datastream/${templateOrDeviceId}/${datastreamId}`)
+      .then(res => {
+        if (res.data === "ok") {
+          setDatastreams(existing => existing.filter(rows => rows.identifier !== datastreamId))
+        }
+      })
   }
-  
+
 
   return (
     <>
-      <DataTable rows={dataStreams} headers={datastreamHeaders} isSortable>
+      <DataTable rows={paginatedRows} headers={datastreamHeaders} isSortable>
         {() => (
           <TableContainer title="Datastreams">
             <TableToolbar>
               <TableToolbarContent>
-                <TableToolbarSearch
-                  onChange={(e) => setSearchKeyword(e.target.value)}
-                  value={searchKeyword}
-                />
+                <TableToolbarSearch onChange={handleSearch} />
                 {!isLocked && <Button renderIcon={Add} onClick={() => {
                   setIsModalOpen('new')
                   setDatastreamId('')
@@ -121,15 +169,20 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableHeader>Id</TableHeader>
-                  <TableHeader>Name</TableHeader>
-                  <TableHeader>Type</TableHeader>
-                  <TableHeader>Unit</TableHeader>
+                  {datastreamHeaders.map((header) => (
+                    <TableHeader
+                      isSortHeader={sortColumn === header.key}
+                      sortDirection={sortDirection}
+                      onClick={() => handleSort(header.key)}
+                      isSortable>
+                      {header.header}
+                    </TableHeader>
+                  ))}
                   {!isLocked && <TableHeader>Actions</TableHeader>}
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredDataStreams.map((row) => (
+                {paginatedRows.map((row) => (
                   <TableRow key={row.identifier}>
                     <TableCell>{row.identifier}</TableCell>
                     <TableCell>{row.name}</TableCell>
@@ -155,12 +208,19 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
                         renderIcon={TrashCan}
                         iconDescription="Delete"
                         hasIconOnly
-                        />
+                      />
                     </TableCell>}
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
+            <Pagination
+              page={currentPage}
+              pageSize={pageSize}
+              pageSizes={[5, 10, 15]}
+              totalItems={filteredRows.length}
+              onChange={handlePaginationChange}
+            />
           </TableContainer>
         )}
       </DataTable>
@@ -179,7 +239,7 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
           type: datastreamType,
           unit: datastreamUnit,
         }, setStatus)}
-        modalHeading={isModalOpen === "new" ? "Create new datastream": "Edit datastream"}
+        modalHeading={isModalOpen === "new" ? "Create new datastream" : "Edit datastream"}
         primaryButtonDisabled={isLoading ? true : false}
         primaryButtonText={
           isLoading ? (

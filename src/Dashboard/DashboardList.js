@@ -7,7 +7,6 @@ import {
   InlineLoading,
   Modal,
   Pagination,
-  Tab,
   Table,
   TableBody,
   TableCell,
@@ -21,7 +20,7 @@ import {
   TextInput
 } from "@carbon/react";
 import axios from "axios";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useLoaderData } from "react-router-dom";
 import { customSortRow } from '../Methods/Sort';
 
@@ -42,8 +41,13 @@ const DashboardList = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isCreatingDashboard, setIsCreatingDashboard] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const [newDashboardDevices, setNewDashboardDevices] = useState([]);
+  const selectedItems = useMemo(
+    () => deviceList.filter((item) => newDashboardDevices.includes(item.id)),
+    [deviceList, newDashboardDevices]
+  );
   const [newDashboardName, setNewDashboardName] = useState('');
   const [newDashboardAccess, setNewDashboardAccess] = useState("Private");
 
@@ -98,12 +102,18 @@ const DashboardList = () => {
       name: newDashboardName,
       access: newDashboardAccess,
       associatedDevices: newDashboardDevices,
-    }).then((response) => {
-      setIsDialogOpen(false);
-      setIsCreatingDashboard('');
-      setNewDashboardName('');
-      setNewDashboardAccess('Private');
-    }).catch((error) => {
+    }).then((res) => {
+      if (res.data.id && res.data.name) {
+        setRows((existing) => [res.data, ...existing])
+        setIsDialogOpen(false);
+        setIsCreatingDashboard('');
+        setNewDashboardName('');
+        setNewDashboardAccess('Private');
+      } else {
+        setErrorMessage("Unable to create template")
+      }
+    }).catch((err) => {
+      setErrorMessage(`Error creating template: ${err.message}`)
       setIsCreatingDashboard('error');
     });
   }
@@ -200,6 +210,7 @@ const DashboardList = () => {
         secondaryButtonText="Cancel"
       >
         <Dropdown
+        autoAlign
           id="access-dropdown"
           label="Access"
           titleText="Access"
@@ -225,12 +236,18 @@ const DashboardList = () => {
           }}
         />
         <FilterableMultiSelect
+          autoAlign
           id="datastream-multiselect"
           titleText="Select Devices"
           items={deviceList}
           itemToString={(item) => item.name}
           selectedItems={deviceList.filter((item) => newDashboardDevices.includes(item.id))}
-          onChange={(e) => setNewDashboardDevices(e.selectedItems.map((item) => item.id))}
+          onChange={(e) => {
+            const newSelectedIds = e.selectedItems.map((item) => item.id);
+            if (JSON.stringify(newSelectedIds) !== JSON.stringify(newDashboardDevices)) {
+              setNewDashboardDevices(newSelectedIds);
+            }
+          }}
           selectionFeedback="top-after-reopen"
         />
         <TextInput
@@ -242,6 +259,7 @@ const DashboardList = () => {
             setNewDashboardName(e.target.value);
           }}
         />
+        <p style={{ color: "red", fontSize: "12px" }}>{errorMessage}</p>
       </Modal>
     </>
   );

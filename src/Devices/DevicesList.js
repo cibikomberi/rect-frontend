@@ -115,9 +115,7 @@ const DevicesList = () => {
         }).then((res) => {
             setRows((prevRows) => [
                 {
-                    name: newDeviceName,
-                    templateId: newDeviceTemplateId,
-                    board: newBoard,
+                    ...res.data,
                     status: 'Offline'
                 }, ...prevRows
             ]);
