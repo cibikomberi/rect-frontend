@@ -110,16 +110,25 @@ const DeviceView = () => {
                     autoAlign
                     id="carbon-combobox"
                     items={people}
-                    value={user?.name || ''}
-                    onChange={(e) => setUser(e.selectedItem)}
+                    value={user?.name || user?.dummyName || ''}
+                    onChange={(e) => {
+                        console.log(e);
+
+                        setUser(e.selectedItem)
+                    }}
                     itemToElement={(item) =>
-                        <div><img src={bg} style={{ height: "90%", width: "25px", borderRadius: "50%" }} alt="profile pic" />{item.name}</div>}
-                    itemToString={(item) => (item ? item.name : '')}
+                        <div style={{ height: "60px", display: "flex", flexDirection: "row", alignItems: "center" }}>
+                            <img src={item.imageId ? `http://localhost:8080/profile/image/${item.imageId}` : bg} style={{ height: "50px", width: "50px", borderRadius: "50%", objectFit: "cover", marginRight: "15px" }} alt="profile pic" />
+                            {item.name} <br />
+                            {item.email}
+                        </div>
+                    }
                     titleText="Email"
                     onInputChange={(e) => {
                         setSearchPeople(e);
-                        setUser(existing => ({ ...existing, name: e }));
+                        setUser(existing => ({ ...existing, dummyName: e }));
                     }}
+                    className="custom-combobox"
                 />
 
                 <Dropdown

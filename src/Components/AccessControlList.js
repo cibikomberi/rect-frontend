@@ -60,7 +60,7 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
             user: user.id,
             access: accessControlLevel.name
         }).then(res => {
-            if (res.data === "ok") {
+            if (res.status === 200) {
                 setAccessControls((existing) => ({[user.id]: accessControlLevel.name, ...existing}))
                 setIsModalOpen(false)
                 setAccessControlLevel('')
@@ -70,7 +70,12 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
 
     const removeAccessControl = (userId) => {
         axios.delete(`/${templateOrDevice}/userAccess/${templateOrDeviceId}/${userId}`).then(res => {
-            setA(existing => existing.filter((item) => item.id !== userId));
+            setAccessControls((existing) => {                
+                var newData = { ...existing };
+                delete newData[userId];
+                return newData;
+            });
+            setA((existing) => existing.filter((item) => item.identifier !== userId))
         })
     }
 
@@ -78,8 +83,6 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
         Object.keys(accessControls).forEach((key) => {
             axios.get(`/whoisthis/${key}`).then(function (res) {
                 setA(existing => {
-
-
                     return [...existing.filter((item) => item.identifier !== key), {
                         identifier: key,
                         name: res.data.name,

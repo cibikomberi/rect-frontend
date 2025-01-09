@@ -23,6 +23,10 @@ import ProfileView, { myDetailsLoader } from "./Profile/ProfileView";
 import ProfileUpdate from "./Profile/ProfileUpdate";
 import Error from "./Components/Error";
 import VSLogin from "./Layout/VSLogin";
+import SharedDevicesList, { sharedDevicesLoader } from "./Devices/SharedDevicesList";
+import SharedDashboardList, { sharedDashboardsLoader } from "./Dashboard/SharedDashboardList";
+import SharedTemplatesList, { sharedTemplatesLoader } from "./Templates/SharedTemplatesList";
+import VersionControl, { templateVersionsLoader } from "./Templates/VersionControl";
 
 function App() {
 	const routes = createBrowserRouter(
@@ -44,13 +48,14 @@ function App() {
 						<Route path=":id/view" element={<TemplateView />} loader={(a) => templateDetailsLoader(a.params.id)} />
 						<Route path=":id/configure" element={<TemplateConfigure />} loader={(a) => templateMetadataLoader(a.params.id)} />
 						<Route path=":id/edit" element={<TemplateEdit />} loader={(a) => fetchFlows(a.params.id)} />
+						<Route path=":id/version-control" element={<VersionControl />} loader={(a) => templateVersionsLoader(a.params.id)} />
 					</Route>
 
 					<Route path="devices">
 						<Route index element={<DevicesList />} loader={deviceListLoader} />
 						<Route path=":id/view" element={<DeviceView />} loader={(e) => deviceDetailsLoader(e.params.id)} />
 						<Route path=":id/configure" element={<DeviceConfigure />} loader={(a) => deviceMetadataLoader(a.params.id)} />
-						{/* <Route path=":id/dashboard/edit" element={<Editor />} loader={(a) => dashboardEditorLoader(a.params.id)} /> */}
+						<Route path=":id/dashboard/edit" element={<Editor />} loader={(a) => dashboardEditorLoader(a.params.id)} />
 						<Route path=":id/dashboard" element={<Dashboard />} loader={(a) => dashboardEditorLoader(a.params.id)} />
 					</Route>
 
@@ -58,6 +63,12 @@ function App() {
 						<Route index element={<DashboardList />} loader={dashboardListLoader} />
 						<Route path=":id/view" element={<Dashboard />} loader={(a) => dashboardLoader(a.params.id)} />
 						<Route path=":id/edit" element={<Editor />} loader={(a) => dashboardEditorLoader(a.params.id)} />
+					</Route>
+
+					<Route path="shared">
+						<Route path="dashboards" element={<SharedDashboardList />} loader={sharedDashboardsLoader}/>
+						<Route path="templates" element={<SharedTemplatesList />} loader={sharedTemplatesLoader}/>
+						<Route path="devices" element={<SharedDevicesList />} loader={sharedDevicesLoader}/>
 					</Route>
 
 				</Route>

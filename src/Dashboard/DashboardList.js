@@ -1,4 +1,4 @@
-import { Add, Edit, View } from "@carbon/icons-react";
+import { Add, Edit, SettingsEdit, View } from "@carbon/icons-react";
 import {
   Button,
   DataTable,
@@ -166,6 +166,12 @@ const DashboardList = () => {
                         renderIcon={View}
                         iconDescription="View"
                         hasIconOnly
+                      /><Button
+                        kind="ghost"
+                        to={`/dashboard/${row.id}/view`}
+                        renderIcon={SettingsEdit}
+                        iconDescription="Configure"
+                        hasIconOnly
                       />
                     </TableCell>
                   </TableRow>
@@ -266,11 +272,10 @@ const DashboardList = () => {
 };
 
 export const dashboardListLoader = async () => {
-  const dashboardsList = await axios.get("/dashboards",{} , {headers:{
-    "Authorization": `Bearer ${localStorage.getItem("token")}`
-  }}).then((res) => res.data);
-  const deviceList = await axios.get('/devices').then((res) => res.data)
-  return { dashboardsList, deviceList };
+  const dashboardsList = await axios.get("/dashboards").then((res) => res.data);
+  const devices = await axios.get('/devices').then((res) => res.data)
+  const sharedDevices = await axios.get('/devices/shared').then((res) => res.data)
+  return { dashboardsList, deviceList: [...devices, ...sharedDevices] };
 }
 
 export default DashboardList;

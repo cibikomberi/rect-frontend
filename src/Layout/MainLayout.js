@@ -1,5 +1,5 @@
-import { Dashboard, IotConnect, Template, User, UserAvatarFilled } from '@carbon/icons-react';
-import { Content, Header, HeaderGlobalAction, HeaderGlobalBar, HeaderMenuButton, HeaderName, Loading, SideNav, SideNavItems, SideNavLink, Theme } from '@carbon/react';
+import { Dashboard, IotConnect, Template, User, UserAvatarFilled, UserMultiple } from '@carbon/icons-react';
+import { Content, Header, HeaderGlobalAction, HeaderGlobalBar, HeaderMenuButton, HeaderName, Loading, SideNav, SideNavItems, SideNavLink, SideNavMenu, SideNavMenuItem, Theme } from '@carbon/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate, useNavigation } from 'react-router-dom';
@@ -12,6 +12,8 @@ const MainLayout = () => {
   const navigation = useNavigation();
   let isEditPage = location.pathname.includes("edit") || (location.pathname.includes("dashboard") && (location.pathname.includes("view") || location.pathname.includes("edit")));
   const currentPath = location.pathname.split("/")[1];
+  const sharedPath = location.pathname.split("/")[2];
+
   useEffect(() => {
     axios.get('/whoami').then(res => res.data)
       .then(async (profile) => {
@@ -74,6 +76,17 @@ const MainLayout = () => {
               <SideNavLink renderIcon={IotConnect} as={Link} to="/devices" isActive={currentPath === "devices"}>
                 Devices
               </SideNavLink>
+              <SideNavMenu renderIcon={UserMultiple} title="Shared with me">
+                <SideNavMenuItem as={Link} to="/shared/dashboards" isActive={sharedPath === "dashboards"}>
+                  Dashboards
+                </SideNavMenuItem>
+                <SideNavMenuItem as={Link} to="/shared/templates" isActive={sharedPath === "templates"}>
+                  Templates
+                </SideNavMenuItem>
+                <SideNavMenuItem as={Link} to="/shared/devices" isActive={sharedPath === "devices"}>
+                  Devices
+                </SideNavMenuItem>
+              </SideNavMenu>
             </SideNavItems>
           </SideNav>
         </Header>

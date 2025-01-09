@@ -80,8 +80,8 @@ const DeviceConfigure = () => {
                 <TabPanel>
                     <AccessControlList accessControls={accessControls} setAccessControls={setAccessControls} templateOrDevice={"device"} templateOrDeviceId={device.id} />
                 </TabPanel>
-                <TabPanel style={{ height: "90%" }}>
-                    <HeaderEditor />
+                <TabPanel style={{ height: "80%" }}>
+                    <HeaderEditor deviceId={device.id}/>
                 </TabPanel>
                 <TabPanel>
                     <h6>Clear log data</h6>
