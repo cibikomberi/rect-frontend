@@ -1,4 +1,4 @@
-import { Dashboard, IotConnect, Template, User, UserAvatarFilled, UserMultiple } from '@carbon/icons-react';
+import { Dashboard, IotConnect, Template, UserAvatarFilled, UserMultiple } from '@carbon/icons-react';
 import { Content, Header, HeaderGlobalAction, HeaderGlobalBar, HeaderMenuButton, HeaderName, Loading, SideNav, SideNavItems, SideNavLink, SideNavMenu, SideNavMenuItem, Theme } from '@carbon/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
@@ -97,9 +97,11 @@ const MainLayout = () => {
         style={contentStyle}
         children={
           navigation.state === "loading" ? (
-            <Loading withOverlay={true} small />
+            <div style={{width:"100%", height:"100%", display:"flex", alignItems:"center", justifyContent:"center"}}>
+              <Loading small withOverlay={false}/>
+            </div>
           ) : (
-            <Outlet />
+              <Outlet />
           )
         }
       />

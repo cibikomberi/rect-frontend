@@ -1,9 +1,9 @@
-import { ArrowUpRight, FlowData, SettingsEdit, Share, VersionMinor } from '@carbon/icons-react';
+import { SettingsEdit, Share, VersionMinor } from '@carbon/icons-react';
 import { Button, ComboBox, Dropdown, Modal, Tile } from '@carbon/react';
 import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { Link, useLoaderData } from 'react-router-dom';
 import esp from '../images/esp32-wroom-32.jpg';
-import { useEffect, useState } from 'react';
 import bg from "./../Assets/bg.jpeg";
 
 const accessControlItems = [{
@@ -82,11 +82,10 @@ const TemplateView = () => {
                     </div>
 
                     <div style={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap" }}>
-                        <Button kind="ghost" iconDescription="Version Control" renderIcon={VersionMinor} hasIconOnly={true} as={Link} to={'./../version-control'} ></Button>
                         <Button kind="ghost" iconDescription="Share this template" renderIcon={Share} hasIconOnly={true} onClick={() => setIsModalOpen(true)}></Button>
-                        <Button kind="ghost" iconDescription='Edit flows' renderIcon={FlowData} hasIconOnly={true}></Button>
+                        {/* <Button kind="ghost" iconDescription='Edit flows' renderIcon={FlowData} hasIconOnly={true}></Button> */}
                         <Button kind="ghost" iconDescription='Configure template' renderIcon={SettingsEdit} hasIconOnly={true} as={Link} to={'./../configure'} ></Button>
-                        <Button renderIcon={ArrowUpRight}>Dashboard</Button>
+                        <Button renderIcon={VersionMinor} as={Link} to={'./../version-control'} >Version Control</Button>
                     </div>
                 </div>
             </div>

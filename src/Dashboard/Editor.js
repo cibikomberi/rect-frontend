@@ -128,7 +128,8 @@ const Editor = () => {
       </div>
       <div
         style={{
-          width: "calc(100% - 16rem)",
+          minWidth: "calc(100% - 16rem)",
+          width:"fit-content",
           height: "100%",
           overflow: "auto",
           msOverflowStyle: "none" /* IE and Edge */,
@@ -151,7 +152,7 @@ const Editor = () => {
           width={2000}
           preventCollision={true}
           compactType={null}
-          style={{ minHeight: "100%" }}
+          style={{ minHeight: "100%"}}
           draggableCancel=".no-drag"
         >
           {layout.map((item) => (

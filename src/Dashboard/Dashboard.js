@@ -48,7 +48,7 @@ const Dashboard = () => {
           stompClient.subscribe(
             `/topic/data/${item.deviceId}/${item.identifier}`,
             (message) => {
-              console.log("Message: ", message.body);
+              console.log("Message: ", message);
               const parsedMessage = JSON.parse(message.body);
               if (parsedMessage.type !== "update") {
                 setPlot((existing) => ({
@@ -67,7 +67,10 @@ const Dashboard = () => {
             }
           );
         });
-
+stompClient.subscribe("#", (message) => {
+  console.log("all" + message);
+  
+})
         datastreams.forEach((item) => {
           stompClient.publish({
             destination: `/app/dashboard/get/${item.deviceId}/${item.identifier}`,
