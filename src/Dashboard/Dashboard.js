@@ -3,7 +3,7 @@ import ReactGridLayout from "react-grid-layout";
 import { useEffect, useRef, useState } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useParams } from "react-router-dom";
 import GridItem from "./GridItem";
 
 function filterData(array) {
@@ -21,6 +21,7 @@ function filterData(array) {
 }
 
 const Dashboard = () => {
+  const dashboardId = useParams().id;
   const {
     dashboardData: { layout, widgetData },
   } = useLoaderData();
@@ -33,10 +34,12 @@ const Dashboard = () => {
   const datastreams = filterData(
     Object.keys(widgetData).map((items) => widgetData[items].datastream)
   );
+  
 
   const stompClientRef = useRef(null);
   useEffect(() => {
-    const socket = new SockJS("http://localhost:8080/websocket");
+    const socket = new SockJS(`http://localhost:8080/websocket?token=${localStorage.getItem("token")}&dashboard=${dashboardId}`);
+    
     const stompClient = new Client({
       webSocketFactory: () => socket,
       connectHeaders: {
@@ -64,13 +67,13 @@ const Dashboard = () => {
                   ],
                 }));
               }
-            }
+            }, {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Dashboard: dashboardId
+          }
           );
         });
-stompClient.subscribe("#", (message) => {
-  console.log("all" + message);
-  
-})
+
         datastreams.forEach((item) => {
           stompClient.publish({
             destination: `/app/dashboard/get/${item.deviceId}/${item.identifier}`,
