@@ -1,5 +1,5 @@
 import { ArrowUpRight } from "@carbon/icons-react";
-import { Button, FluidForm, TextInput, Tile } from "@carbon/react";
+import { Button, FluidForm, PasswordInput, TextInput, Tile } from "@carbon/react";
 import axios from "axios";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -20,7 +20,7 @@ const VSLogin = () => {
             email, password
         }).then((res) => {
             if (res.status === 200) {
-                const vscodeCallbackUri = `vscode://cibikomberi.rect/auth-callback?token=${res.data}`;
+                const vscodeCallbackUri = `vscode://cibikomberi.rect/auth-callback?token=${res.data.jwt}&authToken=${res.data.authToken}`;
                 window.location.href = vscodeCallbackUri;
                 axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem("token")}`;
                 navigate("/");
@@ -39,7 +39,7 @@ const VSLogin = () => {
                 <FluidForm>
                     <div style={{ marginTop: "34px", marginBottom: "40px" }}>
                         <TextInput id="text-input-Email" type="email" labelText="Email" placeholder="username@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
-                        <TextInput id="text-input-Password" type="password" labelText="Password" placeholder="%S5Gghu*$" value={password} onChange={(e) => setPassword(e.target.value)} />
+                        <PasswordInput id="text-input-Password" type="password" labelText="Password" placeholder="%S5Gghu*$" value={password} onChange={(e) => setPassword(e.target.value)} />
                         <p style={{ color: "red", fontSize: "12px" }}>{errorMessage}</p>
                     </div>
 

@@ -5,6 +5,7 @@ import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
 import { useLoaderData, useParams } from "react-router-dom";
 import GridItem from "./GridItem";
+import { useMemo } from "react";
 
 function filterData(array) {
   const flattened = array.flat(); // Flatten the nested array
@@ -23,7 +24,7 @@ function filterData(array) {
 const Dashboard = () => {
   const dashboardId = useParams().id;
   const {
-    dashboardData: { layout, widgetData },
+    dashboardData: { layout, widgetData, days },
   } = useLoaderData();
   const [plot, setPlot] = useState({});
   const staticLayout = layout.map((item) => ({
@@ -34,62 +35,131 @@ const Dashboard = () => {
   const datastreams = filterData(
     Object.keys(widgetData).map((items) => widgetData[items].datastream)
   );
-  
+  const reconnectTimeout = useRef(null);
+  const reconnectAttempts = useRef(0);
+  const maxReconnectAttempts = 5;
 
   const stompClientRef = useRef(null);
   useEffect(() => {
-    const socket = new SockJS(`http://localhost:8080/websocket?token=${localStorage.getItem("token")}&dashboard=${dashboardId}`);
-    
-    const stompClient = new Client({
-      webSocketFactory: () => socket,
-      connectHeaders: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      onConnect: () => {
-        console.log("Connected");
-        datastreams.forEach((item) => {
-          stompClient.subscribe(
-            `/topic/data/${item.deviceId}/${item.identifier}`,
-            (message) => {
-              console.log("Message: ", message);
-              const parsedMessage = JSON.parse(message.body);
-              if (parsedMessage.type !== "update") {
-                setPlot((existing) => ({
-                  ...existing,
-                  [`${item.deviceId}-${item.identifier}`]: parsedMessage.data,
-                }));
-              } else {
-                setPlot((existing) => ({
-                  ...existing,
-                  [`${item.deviceId}-${item.identifier}`]: [
-                    ...existing[`${item.deviceId}-${item.identifier}`],
-                    parsedMessage.data,
-                  ],
-                }));
-              }
-            }, {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-              Dashboard: dashboardId
-          }
+    datastreams.forEach((item) => {
+      axios.get(`dashboard-data/${item.deviceId}/${item.identifier}/${days}`)
+        .then((res) => res.data)
+        .then((data) => {
+          setPlot((existing) => ({
+            ...existing,
+            [`${item.deviceId}-${item.identifier}`]: 
+              data.data
+            ,
+          }));
+        })
+    })
+  }, [])
+
+  useEffect(() => {
+    const cleanupInterval = setInterval(() => {
+      const currentTime = new Date().getTime();
+      const cutoffTime = currentTime - days * 24 * 60 * 60 * 1000; // Calculate cutoff time
+console.log("ran");
+
+      setPlot((existing) => {
+        const updatedPlot = {};
+
+        Object.keys(existing).forEach((key) => {
+          const filteredData = existing[key].filter(
+            (entry) => {console.log(entry);
+              return new Date(entry.dateTime).getTime() >= cutoffTime || new Date(entry.time).getTime() >= cutoffTime}
           );
+          updatedPlot[key] = filteredData;
         });
 
-        datastreams.forEach((item) => {
-          stompClient.publish({
-            destination: `/app/dashboard/get/${item.deviceId}/${item.identifier}`,
-            body: "all",
+        return updatedPlot;
+      });
+    }, 6000); // Run cleanup every minute (adjust as needed)
+
+    return () => {
+      clearInterval(cleanupInterval); // Clear interval on component unmount
+    };
+  }, [days]);
+
+  const memoizedDatastreams = useMemo(() => datastreams, [datastreams]);
+
+  useEffect(() => {
+    const connectWebSocket = () => {
+      const socket = new SockJS(`http://localhost:8080/websocket?token=${localStorage.getItem("token")}&dashboard=${dashboardId}`);
+
+      const stompClient = new Client({
+        webSocketFactory: () => socket,
+        connectHeaders: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        onConnect: () => {
+          console.log("Connected");
+          reconnectAttempts.current = 0; // Reset reconnection attempts
+          memoizedDatastreams.forEach((item) => {
+            stompClient.subscribe(
+              `/topic/data/${item.deviceId}/${item.identifier}`,
+              (message) => {
+                const parsedMessage = JSON.parse(message.body);
+                if (parsedMessage.type !== "update") {
+                  setPlot((existing) => ({
+                    ...existing,
+                    [`${item.deviceId}-${item.identifier}`]: parsedMessage.data,
+                  }));
+                } else {
+                  setPlot((existing) => ({
+                    ...existing,
+                    [`${item.deviceId}-${item.identifier}`]: [
+                      ...(existing[`${item.deviceId}-${item.identifier}`] || []),
+                      parsedMessage.data,
+                    ],
+                  }));
+                }
+              },
+              {
+                Authorization: `Bearer ${localStorage.getItem("token")}`,
+                Dashboard: dashboardId,
+              }
+            );
           });
-        });
-      },
-      onStompError: (error) => console.error(error),
-    });
-    stompClient.activate();
 
-    stompClientRef.current = stompClient;
+          memoizedDatastreams.forEach((item) => {
+            stompClient.publish({
+              destination: `/app/dashboard/get/${item.deviceId}/${item.identifier}`,
+              body: "all",
+            });
+          });
+        },
+        onStompError: (error) => console.error("STOMP error:", error),
+        onWebSocketClose: () => {
+          console.log("WebSocket disconnected");
+          attemptReconnect();
+        },
+      });
+
+      stompClient.activate();
+      stompClientRef.current = stompClient;
+    };
+
+    const attemptReconnect = () => {
+      if (reconnectAttempts.current < maxReconnectAttempts) {
+        reconnectAttempts.current += 1;
+        console.log(`Reconnection attempt ${reconnectAttempts.current}`);
+        reconnectTimeout.current = setTimeout(() => {
+          connectWebSocket();
+        }, 5000); // Retry after 5 seconds
+      } else {
+        console.error("Max reconnection attempts reached");
+      }
+    };
+
+    connectWebSocket();
 
     return () => {
       if (stompClientRef.current) {
         stompClientRef.current.deactivate();
+      }
+      if (reconnectTimeout.current) {
+        clearTimeout(reconnectTimeout.current);
       }
     };
   }, []);
@@ -123,9 +193,9 @@ const Dashboard = () => {
         isDraggable={false}
         isEditable={false}
         maxRows={13}
-        cols={24}
+        cols={56}
         rowHeight={40}
-        width={800}
+        width={2000}
         preventCollision={true}
         className="layout"
         isResizable={false}

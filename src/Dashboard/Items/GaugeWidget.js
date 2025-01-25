@@ -9,6 +9,8 @@ const GaugeWidget = {
         : 0) *
         100) /
       (max - min);
+    console.log(width);
+    console.log(height);
     
     return (
       <GaugeChart

@@ -17,6 +17,7 @@ const DashboardModal = ({
   activeWidget,
   setWidgetData,
   datastreams,
+  devices
 }) => {
   const saveData = (saveAs, val) => {
     setWidgetData((data) => ({
@@ -27,11 +28,11 @@ const DashboardModal = ({
       },
     }));
   };
-const tile_ref = React.createRef();
+  const tile_ref = React.createRef();
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
-  
-useEffect(() => {
+
+  useEffect(() => {
     if (tile_ref.current) {
       setHeight(tile_ref.current.getBoundingClientRect().height);
       setWidth(tile_ref.current.getBoundingClientRect().width);
@@ -45,9 +46,8 @@ useEffect(() => {
           open={open}
           passiveModal
           onRequestClose={() => setOpen(false)}
-          modalHeading={`Edit ${
-            widgetData[activeWidget] ? widgetData[activeWidget].type : ""
-          }`}
+          modalHeading={`Edit ${widgetData[activeWidget] ? widgetData[activeWidget].type : ""
+            }`}
         >
           <div
             style={{
@@ -69,6 +69,7 @@ useEffect(() => {
                 widgetData[activeWidget].type
               ].controls.type.includes("list") ? (
                 <FilterableMultiSelect
+                  autoAlign
                   id="datastream-multiselect"
                   titleText="Select datastreams"
                   items={datastreams.filter(
@@ -76,31 +77,53 @@ useEffect(() => {
                       item.type ===
                       WidgetsList[
                         widgetData[activeWidget].type
-                      ].controls.type.split("-")[1]
+                      ].controls.type.split("-")[1] || item.type === "any"
                   )}
-                    itemToString={(item) => `[${item.deviceName}] ${item.name}`}
+                  itemToString={(item) => `[${item.deviceName}] ${item.name}`}
                   selectedItems={widgetData[activeWidget].datastream}
                   onChange={(e) => saveData("datastream", e.selectedItems)}
                   selectionFeedback="top-after-reopen"
                 />
               ) : (
-                <Dropdown
-                  label="Select datastream"
-                  titleText="Datastream"
-                  id="datastream-Dropdown"
-                  selectedItem={widgetData[activeWidget].datastream[0] ? widgetData[activeWidget].datastream[0] : ""}
-                  onChange={(e) => saveData("datastream", [e.selectedItem])}
+                WidgetsList[
+                  widgetData[activeWidget].type
+                ].controls.type.includes("log") ?
+                  (<FilterableMultiSelect
+                    autoAlign
+                    label="Select device"
+                    titleText="Device"
+                    id="device-Dropdown"
+                    selectedItems={widgetData[activeWidget].datastream.map((datastream) => 
+                      devices.find((device) => device.id === datastream.deviceId)
+                    )}
+                    onChange={(e) => {
+                      saveData("datastream", e.selectedItems.map((device) => ({
+                        deviceId: device.id,
+                        deviceName: device.name,
+                        identifier: "rect-log",
+                      })))
+                    }}
+                    itemToString={(item) => item.name}
+                    items={devices}
+                  />) :
+                  (<Dropdown
+                    autoAlign
+                    label="Select datastream"
+                    titleText="Datastream"
+                    id="datastream-Dropdown"
+                    selectedItem={widgetData[activeWidget].datastream[0] ? widgetData[activeWidget].datastream[0] : ""}
+                    onChange={(e) => saveData("datastream", [e.selectedItem])}
                     itemToString={(item) => `[${item.deviceName}] ${item.name}`}
-                  items={datastreams.filter(
-                    (item) =>
-                      item.type ===
-                      WidgetsList[widgetData[activeWidget].type].controls.type
-                  )}
-                />
+                    items={datastreams.filter(
+                      (item) =>
+                        item.type === WidgetsList[widgetData[activeWidget].type].controls.type || WidgetsList[widgetData[activeWidget].type].controls.type === "any"
+                    )}
+                  />)
               )}
 
               {WidgetsList[widgetData[activeWidget].type].controls.inputs.map(
                 (item) => {
+
                   if (item.type === "int") {
                     return (
                       <NumberInput
@@ -130,14 +153,22 @@ useEffect(() => {
                 }
               )}
             </div>
+            {(widgetData[activeWidget].type === "Toggle" ||
+              widgetData[activeWidget].type === "Slider" ||
+              widgetData[activeWidget].type === "Label" ||
+              widgetData[activeWidget].type === "NumberInput"
+
+            ) && 
             <div style={{ display: "flex", alignItems: "center" }}>
               <Tile ref={tile_ref} >
                 {WidgetsList[widgetData[activeWidget].type].element({
                   ...widgetData[activeWidget],
                   args: { id: "modal-element" },
-                })}
+                }, height,
+                  width,)}
               </Tile>
             </div>
+}
           </div>
         </Modal>
       )}

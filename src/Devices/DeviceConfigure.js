@@ -6,6 +6,7 @@ import { useLoaderData } from "react-router-dom";
 import AccessControlList from "../Components/AccessControlList";
 import DatastreamsList from "../Components/DatastreamsList";
 import HeaderEditor from "../Components/HeaderEditor";
+import Automations from "../Components/Automations";
 
 const DeviceConfigure = () => {
     const { device, metadata } = useLoaderData();
@@ -34,6 +35,7 @@ const DeviceConfigure = () => {
                 <Tab>Datastreams</Tab>
                 <Tab>Access Control</Tab>
                 <Tab>Device constants</Tab>
+                <Tab>Automations</Tab>
                 <Tab>Delete data</Tab>
             </TabList>
             <TabPanels>
@@ -81,7 +83,10 @@ const DeviceConfigure = () => {
                     <AccessControlList accessControls={accessControls} setAccessControls={setAccessControls} templateOrDevice={"device"} templateOrDeviceId={device.id} />
                 </TabPanel>
                 <TabPanel style={{ height: "80%" }}>
-                    <HeaderEditor deviceId={device.id}/>
+                    <HeaderEditor deviceId={device.id} templateId={device.templateId}/>
+                </TabPanel>
+                <TabPanel>
+                    <Automations />
                 </TabPanel>
                 <TabPanel>
                     <h6>Clear log data</h6>

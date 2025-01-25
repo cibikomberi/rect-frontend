@@ -6,6 +6,7 @@ import GaugeWidget from "./Items/GaugeWidget";
 import CircularGaugeWidget from "./Items/CircularGaugeWidget";
 import AreaChartWidget from "./Items/AreaChartWidget";
 import LineChartWidget from "./Items/LineChartWidget";
+import LogWidget from "./Items/LogWidget";
 
 export const WidgetsList = {
   Toggle: ToggleWidget,
@@ -15,6 +16,7 @@ export const WidgetsList = {
   Gauge: GaugeWidget,
   CircularGauge: CircularGaugeWidget,
   AreaChart: AreaChartWidget,
+  Log: LogWidget,
   LineChart: LineChartWidget
   // 'toggle':{
   //     element: <Toggle labelText="Label" labelA="Off" labelB="On" defaultToggled id="toggle-3" /> }

@@ -237,7 +237,6 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
                 label="Access"
                 titleText="Access"
                 value={accessControlLevel}
-                onInput={e => console.log(e)}
                 onChange={(e) => setAccessControlLevel(e.selectedItem)}
                 items={accessControlItems}
                 style={{

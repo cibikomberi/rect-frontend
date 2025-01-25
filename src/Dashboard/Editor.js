@@ -1,17 +1,17 @@
 import { Tile } from "@carbon/react";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import { WidgetsList } from "./WidgetsList";
-import { v4 as uuidv4 } from "uuid";
-import GridItem from "./GridItem";
-import DashboardModal from "./DashboardModal";
-import axios from "axios";
 import { useLoaderData } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
+import DashboardModal from "./DashboardModal";
+import GridItem from "./GridItem";
+import { WidgetsList } from "./WidgetsList";
 
 const Editor = () => {
-  const { dashboard, datastreams } = useLoaderData();
+  const { dashboard, datastreams, devices } = useLoaderData();
 
   const [layout, setLayout] = useState(dashboard.dashboardData.layout);
   const [widgetData, setWidgetData] = useState(dashboard.dashboardData.widgetData); // Manages widget content mapped by `i` (id)
@@ -20,10 +20,14 @@ const Editor = () => {
   const [activeWidget, setActiveWidget] = useState("");
   const [droppingItem, setDroppingItem] = useState();
 
-  
-  useEffect(() => {
-    console.log(widgetData);
-  }, [widgetData]);
+  const saveData = (days) => {
+    axios.put(`/dashboard/data/${dashboard.id}`, {
+      layout,
+      widgetData,
+      days
+    });
+  };
+
 
   const onDragStart = (item) => {
     setDroppingItem(item);
@@ -71,15 +75,9 @@ const Editor = () => {
     });
   };
 
-  const saveData = () => {
-    axios.put(`/dashboard/data/${dashboard.id}`, {
-      layout,
-      widgetData,
-    });
-  };
-
   return (
     <div style={{ width: "100%", height: "100%", display: "flex" }}>
+
       <div
         style={{
           width: "16rem",
@@ -93,7 +91,8 @@ const Editor = () => {
           scrollbarWidth: "none",
         }}
       >
-        <button onClick={saveData}>save</button>
+        <button onClick={() => saveData(1)}>save</button>
+        
         {Object.keys(WidgetsList).map((key) => {
           return (
             <Tile
@@ -129,7 +128,6 @@ const Editor = () => {
       <div
         style={{
           minWidth: "calc(100% - 16rem)",
-          width:"fit-content",
           height: "100%",
           overflow: "auto",
           msOverflowStyle: "none" /* IE and Edge */,
@@ -152,7 +150,7 @@ const Editor = () => {
           width={2000}
           preventCollision={true}
           compactType={null}
-          style={{ minHeight: "100%"}}
+          style={{ minHeight: "100%" , width: "100%"}}
           draggableCancel=".no-drag"
         >
           {layout.map((item) => (
@@ -176,23 +174,17 @@ const Editor = () => {
         widgetData={widgetData}
         setWidgetData={setWidgetData}
         datastreams={datastreams}
+        devices={devices}
       />
     </div>
   );
 };
 
 export const dashboardEditorLoader = async (dashboardId) => {
-  const dashboard  = await axios
-    .get(`/dashboard/data/${dashboardId}`)
-    .then((res) => {
-      return res.data;
-    });
-  const datastreams = await axios
-    .get(`/dashboard/datastreams/${dashboardId}`)
-    .then((res) => {
-      return res.data;
-    });
+  const dashboard  = await axios.get(`/dashboard/data/${dashboardId}`).then((res) => res.data);
+  const datastreams = await axios.get(`/dashboard/datastreams/${dashboardId}`).then((res) => res.data);
+  const devices = await axios.get(`/dashboard/devices/${dashboardId}`).then((res) => res.data);
 
-  return { dashboard, datastreams };
+  return { dashboard, datastreams, devices };
 };
 export default Editor;

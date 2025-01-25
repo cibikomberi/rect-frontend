@@ -1,8 +1,8 @@
 import debounce from 'lodash.debounce'; // Install lodash.debounce using npm/yarn
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';
-import { Button, TextInput } from '@carbon/react';
+import { Button, Dropdown, TextInput } from '@carbon/react';
 import { Save } from '@carbon/icons-react';
 
 const options = {
@@ -30,6 +30,22 @@ const options = {
 const HeaderEditor = ({ deviceId }) => {
     const [editorValue, setEditorValue] = useState("// some constants");
     const [version, setVersion] = useState("");
+    const [versionList, setVersionList] = useState("");
+
+    useEffect(() => {
+        axios.get(`/device/versions/${deviceId}`)
+            .then(res => res.data)
+            .then((data) => setVersionList(data))
+
+    }, [deviceId])
+
+    useEffect(() => {
+        if (version) {
+            axios.get(`/device/constants/${deviceId}/${version}`)
+                .then(res => res.data)
+                .then((data) => setEditorValue(data))
+        }
+    }, [version, deviceId])
 
     // Debounced save handler
     const saveValue = useCallback(
@@ -41,19 +57,23 @@ const HeaderEditor = ({ deviceId }) => {
     );
 
     const saveHeader = () => {
-        axios.post(`/device/constants/${deviceId}/${version}`, editorValue).then((res) => console.log(res))
+        axios.post(`/device/constants/${deviceId}/${version}`, editorValue, {
+            headers: {
+                'Content-Type': 'text/plain', // Specify plain text content
+            }}).then((res) => console.log(res))
     }
 
     const handleEditorChange = (value) => {
         saveValue(value); // Save with debounce
     };
     return (<>
-        <TextInput
+        <Dropdown
             id="text-input-version-name"
             labelText="Version"
             value={version}
+            items={versionList}
             onChange={(e) => {
-                setVersion(e.target.value);
+                setVersion(e.selectedItem);
             }}
         />
         <Editor

@@ -5,6 +5,7 @@ const AreaChartWidget = {
   element: ({ id, label, xLabel, yLabel }, plotData, height, width ) => {
     return (
       <AreaChart
+
         id={id}
         data={plotData ? plotData : []}
         options={{

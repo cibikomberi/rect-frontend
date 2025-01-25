@@ -48,13 +48,15 @@ const MainLayout = () => {
             aria-expanded={isSideNavExpanded}
             isCollapsible={isEditPage}
           />
-          <HeaderName href="#" prefix="">
+          <HeaderName prefix="">
             Rect
           </HeaderName>
           <HeaderGlobalBar>
+           
             {/* <HeaderGlobalAction aria-label="Search">
               <Search size={20} />
             </HeaderGlobalAction> */}
+
             <HeaderGlobalAction aria-label="Profile" as={Link} to="/profile">
               {profileImage ? <img src={profileImage} alt='profile-image' className='img-view' style={{ width: "36px", height: "36px", margin: "0px" }} /> : <UserAvatarFilled size={20} />}
             </HeaderGlobalAction>

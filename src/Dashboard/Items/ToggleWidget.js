@@ -9,9 +9,6 @@ const ToggleWidget = {
     width,
     sendMessage
   ) => {
-    console.log(onVal);
-    console.log(parseInt(plotData && plotData[plotData.length - 1]));
-    console.log(plotData && plotData[plotData.length - 1]);
   let timer;
     
     return (

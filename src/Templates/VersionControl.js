@@ -1,23 +1,23 @@
-import { Add, Rocket } from "@carbon/icons-react";
-import { Accordion, AccordionItem, Button, CodeSnippet, ContentSwitcher, Switch, Tag, TextArea, TextInput, Tile } from "@carbon/react";
+import { Add, BuildRun } from "@carbon/icons-react";
+import { Accordion, AccordionItem, Button, ContentSwitcher, Switch, Tag, TextArea, TextInput, Tile } from "@carbon/react";
 import axios from "axios";
 import { useState } from "react";
 import { useLoaderData } from "react-router-dom";
+import BuildStatus from "./BuildStatus";
 
 const VersionControl = () => {
-    const { template, templateVersions, buildErrors } = useLoaderData();
+    const loaderData = useLoaderData();
+    const [template, setTemplate] = useState(loaderData.template);
     const [newVersionName, setNewVersionName] = useState("");
+    const [enviroinment, setEnviroinment] = useState("");
     const [description, setDescription] = useState("");
-    const [versions, setVersions] = useState(templateVersions);
+    const [versions, setVersions] = useState(loaderData.templateVersions);
     const [acitiveView, setActiveView] = useState("version");
-
-    const [productionVersion, setProductionVersion] = useState(template.productionVersion);
-    const [devVersion, setDevVersion] = useState(template.devVersion);
-
 
     const createVersion = () => {
         axios.post(`/template/version-control/${template.id}`, {
             version: newVersionName,
+            enviroinment,
             description
         }).then((res) => {
             if (res.status === 200) {
@@ -35,10 +35,11 @@ const VersionControl = () => {
             type
         }).then((res) => {
             if (res.status === 200) {
-                if (type === "Prod") {
-                    setProductionVersion(version)
+                if (type === "Build") {
+                    setTemplate((existing) => ({ ...existing, buildVersion: version }))
+                    setActiveView("status")
                 } else if (type === "Dev") {
-                    setDevVersion(version)
+                    setTemplate((existing) => ({ ...existing, devVersion: version }))
                 }
             }
         })
@@ -47,11 +48,13 @@ const VersionControl = () => {
     return (<>
         <h4 style={{ marginBottom: "15px" }}>Template Source Control</h4>
         {/* <h3>{template.name}</h3> */}
-        <ContentSwitcher onChange={(e) => {
-            setActiveView(e.name)
-        }}>
+        <ContentSwitcher
+            selectedIndex={acitiveView === "version" ? 0 : 1}
+            onChange={(e) => {
+                setActiveView(e.name)
+            }}>
             <Switch name="version" text="Version Control" />
-            <Switch name="error" text="Build Errors"></Switch>
+            <Switch name="status" text="Build Status"></Switch>
         </ContentSwitcher>
         {acitiveView === "version" &&
             <>
@@ -62,6 +65,14 @@ const VersionControl = () => {
                         value={newVersionName}
                         onChange={(e) => {
                             setNewVersionName(e.target.value);
+                        }}
+                    />
+                    <TextInput
+                        id="text-input-env-name"
+                        labelText="Specify enviroinment to build"
+                        value={enviroinment}
+                        onChange={(e) => {
+                            setEnviroinment(e.target.value);
                         }}
                     />
                     <TextArea
@@ -80,12 +91,16 @@ const VersionControl = () => {
                     {versions.map((item) =>
                         <AccordionItem title={
                             <>{item.version}
-                                {productionVersion === item.version &&
+                                {template.productionVersion === item.version &&
                                     <Tag className="some-class" type="cyan">
                                         {'Production'}
                                     </Tag>}
-                                {devVersion === item.version &&
-                                    <Tag className="some-class" type="gray">
+                                {template.buildVersion === item.version &&
+                                    <Tag className="some-class" type="outline">
+                                        {'Build'}
+                                    </Tag>}
+                                {template.devVersion === item.version &&
+                                    <Tag className="some-class" type='gray'>
                                         {'Dev'}
                                     </Tag>}
                             </>}>
@@ -94,32 +109,29 @@ const VersionControl = () => {
                                 <Button
                                     kind="secondary"
                                     onClick={() => updateBuild(item.version, "Dev")}
-                                    disabled={devVersion === item.version}>
+                                    disabled={template.devVersion === item.version}>
                                     Mark as dev
                                 </Button>
                                 <Button
+                                    renderIcon={BuildRun}
+                                    onClick={() => updateBuild(item.version, "Build")}
+                                    disabled={template.buildVersion === item.version}>
+                                    Build
+                                </Button>
+                                {/* <Button
                                     renderIcon={Rocket}
                                     onClick={() => updateBuild(item.version, "Prod")}
                                     disabled={productionVersion === item.version}>
                                     Mark as production
-                                </Button>
+                                </Button> */}
                             </div>
                         </AccordionItem>
                     )}
                 </Accordion>
             </>}
-        {acitiveView === "error" && <>
-            <Accordion>
 
-                {buildErrors.map((item) =>
-                (<AccordionItem title={item.deviceName}>
-                    {item.errorData && <CodeSnippet type="multi" feedback="Copied to clipboard">
-                        {item.errorData}
-                    </CodeSnippet>}
-                </AccordionItem>)
-                )}
-            </Accordion>
-
+        {acitiveView === "status" && <>
+            <BuildStatus templateId={template.id} template={template} setTemplate={setTemplate} />
         </>}
     </>);
 }
@@ -127,7 +139,6 @@ const VersionControl = () => {
 export const templateVersionsLoader = async (id) => {
     const template = await axios.get(`/template/${id}`).then((res) => res.data)
     const templateVersions = await axios.get(`/template/version-control/${id}`).then((res) => res.data)
-    const buildErrors = await axios.get(`/template/build/errors/${id}`).then((res) => res.data)
-    return { template, templateVersions, buildErrors };
+    return { template, templateVersions };
 }
 export default VersionControl;

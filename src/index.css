@@ -91,7 +91,7 @@ code {
     background-color: #262626;
     /* Dark background color */
     background-image: radial-gradient(circle, #555 1px, transparent 1px);
-    background-size: 20px 20px;
+    background-size: 25px 25px;
     /* Adjust the dot spacing */
 }
 
@@ -121,4 +121,12 @@ code {
 .custom-combobox .cds--list-box__menu-item__option {
     height: 100%;
     padding: 0;
+}
+.font-log-widget {
+    font-family: source-code-pro,
+        Menlo,
+        Monaco,
+        Consolas,
+        "Courier New",
+        monospace;
 }

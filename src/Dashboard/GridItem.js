@@ -12,7 +12,6 @@ const GridItem = ({
   plotData,
   sendMessage,
 }) => {
-  console.log(plotData);
   const tile_ref = React.createRef();
   const [height, setHeight] = useState(0);
   const [width, setWidth] = useState(0);
@@ -30,7 +29,6 @@ const GridItem = ({
     )
     .flat()
     .filter((item) => item);
-  console.log(mapData);
 
 
 

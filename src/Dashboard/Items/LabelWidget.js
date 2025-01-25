@@ -1,10 +1,15 @@
 import areaImg from "../../images/area.svg";
 
 const LabelWidget = {
-  element: ({ id, value, label }) => {
+  element: ({ id, label }, plotData) => {
+    const value =
+
+    ((plotData && plotData[plotData.length - 1])
+      ? plotData[plotData.length - 1].value
+      : 0)
     return (
       <div>
-        <span class="cds--toggle__label-text" dir="auto">
+        <span className="cds--toggle__label-text" style={{margin:"0px"}} dir="auto">
           {label}
         </span>
         <h1 id={id}>{value}</h1>
@@ -17,6 +22,15 @@ const LabelWidget = {
     h: 2,
     minW: 5,
     minH: 2,
+  },
+  controls: {
+    name: "Label",
+    type: "any",
+    inputs: []
+  },
+  initial: {
+    label: "",
+    datastream: [],
   },
 };
 
