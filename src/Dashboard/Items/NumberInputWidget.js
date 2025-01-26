@@ -1,5 +1,5 @@
 import { NumberInput } from "@carbon/react";
-import numInputImg from "../../images/num-input.svg";
+import numInputImg from "../../Assets/num-input.svg";
 
 const NumberInputWidget = {
   element: (

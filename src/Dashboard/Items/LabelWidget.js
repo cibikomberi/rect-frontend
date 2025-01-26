@@ -1,4 +1,4 @@
-import areaImg from "../../images/area.svg";
+import areaImg from "../../Assets/area.svg";
 
 const LabelWidget = {
   element: ({ id, label }, plotData) => {

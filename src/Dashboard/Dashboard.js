@@ -47,7 +47,7 @@ const Dashboard = () => {
         .then((data) => {
           setPlot((existing) => ({
             ...existing,
-            [`${item.deviceId}-${item.identifier}`]: 
+            [`${item.deviceId}-${item.identifier}`]:
               data.data
             ,
           }));
@@ -59,22 +59,23 @@ const Dashboard = () => {
     const cleanupInterval = setInterval(() => {
       const currentTime = new Date().getTime();
       const cutoffTime = currentTime - days * 24 * 60 * 60 * 1000; // Calculate cutoff time
-console.log("ran");
+      console.log("ran");
 
       setPlot((existing) => {
         const updatedPlot = {};
 
         Object.keys(existing).forEach((key) => {
           const filteredData = existing[key].filter(
-            (entry) => {console.log(entry);
-              return new Date(entry.dateTime).getTime() >= cutoffTime || new Date(entry.time).getTime() >= cutoffTime}
+            (entry) => {
+              return new Date(entry.dateTime).getTime() >= cutoffTime || new Date(entry.time).getTime() >= cutoffTime
+            }
           );
           updatedPlot[key] = filteredData;
         });
 
         return updatedPlot;
       });
-    }, 6000); // Run cleanup every minute (adjust as needed)
+    }, 60000); // Run cleanup every minute (adjust as needed)
 
     return () => {
       clearInterval(cleanupInterval); // Clear interval on component unmount
@@ -167,13 +168,12 @@ console.log("ran");
   const sendMessage = (widgetId, val) => {
     if (stompClientRef.current) {
       // Check if sending updates is allowed
-      console.log(widgetId);
-      console.log(widgetData[widgetId]);
-
-      stompClientRef.current.publish({
-        destination: `/app/dashboard/post/${widgetData[widgetId].datastream[0].deviceId}/${widgetData[widgetId].datastream[0].identifier}`,
-        body: val ? val : "0",
-      });
+      if (widgetData[widgetId] && widgetData[widgetId].datastream[0]) {
+        stompClientRef.current.publish({
+          destination: `/app/dashboard/post/${widgetData[widgetId].datastream[0].deviceId}/${widgetData[widgetId].datastream[0].identifier}`,
+          body: val ? val : "0",
+        });
+      }
     }
   };
 

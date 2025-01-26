@@ -1,16 +1,20 @@
 import { Dashboard, IotConnect, Template, UserAvatarFilled, UserMultiple } from '@carbon/icons-react';
-import { Content, Header, HeaderGlobalAction, HeaderGlobalBar, HeaderMenuButton, HeaderName, Loading, SideNav, SideNavItems, SideNavLink, SideNavMenu, SideNavMenuItem, Theme } from '@carbon/react';
+import { Content, Header, HeaderGlobalAction, HeaderGlobalBar, HeaderMenuButton, HeaderName, Loading, MenuButton, MenuItem, SideNav, SideNavItems, SideNavLink, SideNavMenu, SideNavMenuItem, Theme } from '@carbon/react';
 import axios from 'axios';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate, useNavigation } from 'react-router-dom';
+import { DashboardContext } from './DashboardContext';
+import { FeatureFlags } from '@carbon/react/lib/components/FeatureFlags';
 
 const MainLayout = () => {
+  const { saveData } = useContext(DashboardContext);
   const [isSideNavExpanded, setIsSideNavExpanded] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
   const navigation = useNavigation();
-  let isEditPage = location.pathname.includes("edit") || (location.pathname.includes("dashboard") && (location.pathname.includes("view") || location.pathname.includes("edit")));
+  let isEditPage = (location.pathname.includes("dashboard") && (location.pathname.includes("view") || location.pathname.includes("edit")));
+  let isDashboardEditPage = (location.pathname.includes("dashboard") && location.pathname.includes("edit"));
   const currentPath = location.pathname.split("/")[1];
   const sharedPath = location.pathname.split("/")[2];
 
@@ -29,6 +33,8 @@ const MainLayout = () => {
 
       });
   }, []);
+
+
   let contentStyle = {
     overflow: 'auto'
   }
@@ -52,14 +58,19 @@ const MainLayout = () => {
             Rect
           </HeaderName>
           <HeaderGlobalBar>
-           
+
             {/* <HeaderGlobalAction aria-label="Search">
               <Search size={20} />
             </HeaderGlobalAction> */}
-
+            {isDashboardEditPage ? <div style={{display:'flex', alignItems:"center"}}><MenuButton label='Deploy' size='sm' style={{marginRight:"15px"}}>
+                <MenuItem onClick={() => saveData(1, sharedPath)} label="1 Day" />
+                <MenuItem onClick={() => saveData(30, sharedPath)} label="1 Month" />
+                <MenuItem onClick={() => saveData(180, sharedPath)} label="6 Months" />
+            </MenuButton></div> :
             <HeaderGlobalAction aria-label="Profile" as={Link} to="/profile">
               {profileImage ? <img src={profileImage} alt='profile-image' className='img-view' style={{ width: "36px", height: "36px", margin: "0px" }} /> : <UserAvatarFilled size={20} />}
             </HeaderGlobalAction>
+              }
           </HeaderGlobalBar>
 
           <SideNav
@@ -99,11 +110,11 @@ const MainLayout = () => {
         style={contentStyle}
         children={
           navigation.state === "loading" ? (
-            <div style={{width:"100%", height:"100%", display:"flex", alignItems:"center", justifyContent:"center"}}>
-              <Loading small withOverlay={false}/>
+            <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <Loading small withOverlay={false} />
             </div>
           ) : (
-              <Outlet />
+            <Outlet />
           )
         }
       />

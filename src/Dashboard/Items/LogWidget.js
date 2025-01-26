@@ -1,5 +1,5 @@
 import { TextInput } from "@carbon/react";
-import gaugeImg from "../../images/gauge.png";
+import gaugeImg from "../../Assets/gauge.png";
 import { useEffect, useRef } from "react";
 
 const LogWidgetElement = ({ id, min, max, label }, plotData, height, width, sendMessage) => {
@@ -47,7 +47,6 @@ const LogWidgetElement = ({ id, min, max, label }, plotData, height, width, send
                             sendMessage && sendMessage(id, e.target.value);
                         }
                     }}
-                    onChange={(e) => console.log(e)}
                 />
             </div>
         </>

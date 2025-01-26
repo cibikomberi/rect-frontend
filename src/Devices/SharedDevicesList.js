@@ -2,7 +2,6 @@ import { DataTable, Pagination, Table, TableBody, TableCell, TableContainer, Tab
 import { useState } from 'react';
 import { useLoaderData, useNavigate } from 'react-router-dom';
 import { customSortRow } from '../Methods/Sort';
-import { isLessThan30Seconds } from '../Methods/Time';
 import axios from 'axios';
 
 const headers = [
@@ -36,10 +35,7 @@ const SharedDevicesList = () => {
 
     const filteredRows = sharedDevices
         .filter((val) => val.name.toLowerCase().includes(searchKeyword.toLowerCase()))
-        .map((val) => ({
-            ...val,
-            status: isLessThan30Seconds(new Date(time), new Date(val.lastActiveTime)) ? 'Online' : 'Offline'
-        }));
+
 
     const sortedRows = sortColumn
         ? [...filteredRows].sort((a, b) =>

@@ -1,5 +1,5 @@
 import { Renew, Rocket } from "@carbon/icons-react";
-import { Accordion, AccordionItem, Button, CodeSnippet, ProgressBar, ToastNotification } from "@carbon/react";
+import { Accordion, AccordionItem, Button, CodeSnippet, ProgressBar } from "@carbon/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -84,7 +84,7 @@ const BuildStatus = ({ template, setTemplate }) => {
             <Button
                 renderIcon={Rocket}
                 onClick={deploy}
-                disabled={!(status.total !== 0 && status.total === status.success && template.productionVersion !== template.buildVersion)}>
+                disabled={!(status.total !== 0 && status.total === status.success)}>
                 Deploy to all devices
             </Button>
         </div>

@@ -1,5 +1,5 @@
 import { Slider } from "@carbon/react";
-import sliderImg from "../../images/slider.png";
+import sliderImg from "../../Assets/slider.png";
 
 const SliderWidget = {
   element: (

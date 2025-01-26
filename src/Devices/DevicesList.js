@@ -3,7 +3,6 @@ import { Button, DataTable, Dropdown, Modal, Pagination, Table, TableBody, Table
 import axios from 'axios';
 import { useState } from 'react';
 import { useLoaderData, useNavigate } from 'react-router-dom';
-import { isLessThan30Seconds } from '../Methods/Time';
 import { customSortRow } from '../Methods/Sort';
 
 const headers = [
@@ -33,7 +32,7 @@ const devices = [{
 
 const DevicesList = () => {
     const navigate = useNavigate();
-    const { deviceList, templatesList, time } = useLoaderData();
+    const { deviceList, templatesList } = useLoaderData();
 
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -54,10 +53,7 @@ const DevicesList = () => {
 
     const filteredRows = rows
         .filter((val) => val.name.toLowerCase().includes(searchKeyword.toLowerCase()))
-        .map((val) => ({
-            ...val,
-            status: isLessThan30Seconds(new Date(time), new Date(val.lastActiveTime)) ? 'Online' : 'Offline'
-        }));
+
 
     const sortedRows = sortColumn
         ? [...filteredRows].sort((a, b) =>
@@ -139,14 +135,15 @@ const DevicesList = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {rows.map((row) => (
-                                    <TableRow {...getRowProps({ row })} onClick={() => navigate(`${row.id}/view`)}>
-                                        {row.cells.map((cell) => (
-                                            <TableCell key={cell.id}>{cell.value}</TableCell>
-                                        ))}
-
-                                    </TableRow>
-                                ))}
+                                {paginatedRows.map((item) => {
+                                    return (
+                                        <TableRow key={item.id} onClick={() => navigate(`${item.id}/view`)}>
+                                            <TableCell>{item.name}</TableCell>
+                                            <TableCell>{item.board}</TableCell>
+                                            <TableCell>{item.status.toLowerCase() === 'online' ? <strong style={{ color: "#61EC6D" }}>Online</strong> : <strong style={{ color: "#FF5058" }}>Offline</strong>}</TableCell>
+                                        </TableRow>
+                                    );
+                                })}
                             </TableBody>
                         </Table>
                         <Pagination

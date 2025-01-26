@@ -1,5 +1,5 @@
 import { GaugeChart } from "@carbon/charts-react";
-import gaugeImg from "../../images/gauge.png";
+import gaugeImg from "../../Assets/gauge.png";
 
 const GaugeWidget = {
   element: ({ id, min, max, label }, plotData, height, width) => {        
@@ -9,8 +9,6 @@ const GaugeWidget = {
         : 0) *
         100) /
       (max - min);
-    console.log(width);
-    console.log(height);
     
     return (
       <GaugeChart

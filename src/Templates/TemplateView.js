@@ -3,7 +3,7 @@ import { Button, ComboBox, Dropdown, Modal, Tile } from '@carbon/react';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { Link, useLoaderData } from 'react-router-dom';
-import esp from '../images/esp32-wroom-32.jpg';
+import esp from '../Assets/esp32-wroom-32.jpg';
 import bg from "./../Assets/bg.jpeg";
 
 const accessControlItems = [{

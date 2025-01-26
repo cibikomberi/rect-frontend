@@ -1,5 +1,5 @@
 import { AreaChart } from "@carbon/charts-react";
-import areaImg from "../../images/area.svg";
+import areaImg from "../../Assets/area.svg";
 
 const AreaChartWidget = {
   element: ({ id, label, xLabel, yLabel }, plotData, height, width ) => {

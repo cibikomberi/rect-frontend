@@ -1,6 +1,6 @@
 import { Tile } from "@carbon/react";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { forwardRef, useContext, useEffect, useImperativeHandle, useState } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -9,25 +9,26 @@ import { v4 as uuidv4 } from "uuid";
 import DashboardModal from "./DashboardModal";
 import GridItem from "./GridItem";
 import { WidgetsList } from "./WidgetsList";
+import { DashboardContext } from "../Layout/DashboardContext";
 
 const Editor = () => {
+  const { layout, setLayout, widgetData, setWidgetData } = useContext(DashboardContext);
   const { dashboard, datastreams, devices } = useLoaderData();
 
-  const [layout, setLayout] = useState(dashboard.dashboardData.layout);
-  const [widgetData, setWidgetData] = useState(dashboard.dashboardData.widgetData); // Manages widget content mapped by `i` (id)
+
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeWidget, setActiveWidget] = useState("");
   const [droppingItem, setDroppingItem] = useState();
+useEffect(() => {
+  setLayout(dashboard.dashboardData.layout);
+  setWidgetData(dashboard.dashboardData.widgetData);
 
-  const saveData = (days) => {
-    axios.put(`/dashboard/data/${dashboard.id}`, {
-      layout,
-      widgetData,
-      days
-    });
-  };
-
+  return () => {
+    setLayout([]);
+    setWidgetData({});
+  }
+}, [setLayout, setWidgetData])
 
   const onDragStart = (item) => {
     setDroppingItem(item);
@@ -91,7 +92,7 @@ const Editor = () => {
           scrollbarWidth: "none",
         }}
       >
-        <button onClick={() => saveData(1)}>save</button>
+        {/* <button onClick={() => saveData(1)}>save</button> */}
         
         {Object.keys(WidgetsList).map((key) => {
           return (
@@ -178,7 +179,7 @@ const Editor = () => {
       />
     </div>
   );
-};
+}
 
 export const dashboardEditorLoader = async (dashboardId) => {
   const dashboard  = await axios.get(`/dashboard/data/${dashboardId}`).then((res) => res.data);

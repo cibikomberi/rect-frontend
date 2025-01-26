@@ -1,5 +1,5 @@
 import { GaugeChart } from "@carbon/charts-react";
-import circularGaugeImg from "../../images/circular-gauge.png";
+import circularGaugeImg from "../../Assets/circular-gauge.png";
 
 const CircularGaugeWidget = {
   element: ({ id, min, max, label }, plotData, height, width) => {

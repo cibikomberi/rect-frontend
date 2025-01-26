@@ -21,8 +21,3 @@ export function timeDifference(current, previous) {
         return 'approximately ' + Math.round(elapsed / msPerYear) + ' years ago';   
     }
 }
-
-export function isLessThan30Seconds(current, previous) {
-    const elapsed = current - previous;
-    return elapsed < 30 * 1000;
-}

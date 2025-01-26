@@ -1,5 +1,5 @@
 import { LineChart } from "@carbon/charts-react";
-import lineImg from "../../images/line.svg";
+import lineImg from "../../Assets/line.svg";
 
 const LineChartWidget = {
   element: ({ id, label, xLabel, yLabel }, plotData, height, width) => {
@@ -10,6 +10,7 @@ const LineChartWidget = {
         id={id}
         data={plotData ? plotData : []}
         options={{
+          animations: false,
           title: label,
           axes: {
             bottom: {

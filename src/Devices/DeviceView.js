@@ -3,12 +3,12 @@ import { Button, ComboBox, Dropdown, FileUploaderDropContainer, FileUploaderItem
 import axios from 'axios';
 import { useEffect, useState } from "react";
 import { Link, useLoaderData } from 'react-router-dom';
-import esp from '../images/esp32-wroom-32.jpg';
-import { isLessThan30Seconds, timeDifference } from '../Methods/Time';
+import esp from '../Assets/esp32-wroom-32.jpg';
+import {  timeDifference } from '../Methods/Time';
 import bg from "./../Assets/bg.jpeg";
 
 const DeviceView = () => {
-    const { device: { id, name, lastActiveTime, description, templateName, dashboardId, image, isUpToDate }, time } = useLoaderData();
+    const { device: { id, name, lastActiveTime, description, templateName, dashboardId, image, isUpToDate, status }, time } = useLoaderData();
     const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
     const [isOTAModalOpen, setIsOTAModalOpen] = useState(false);
     const [otaFile, setOtaFile] = useState(undefined);
@@ -48,7 +48,7 @@ const DeviceView = () => {
     const uploadOTAfile = () => {
         const data = new FormData();
         data.append('file', otaFile);
-        data.append('version', new Blob([JSON.stringify({version})], { type: "application/json" }));
+        data.append('version', new Blob([JSON.stringify({ version })], { type: "application/json" }));
         axios.post(`/device/ota/${id}`, data)
         setIsOTAModalOpen(false)
         // setAccessControlLevel('')
@@ -67,11 +67,11 @@ const DeviceView = () => {
                     <div style={{ display: "flex", flexWrap: "wrap", border: "1px solid #262626" }}>
                         <Tile id="tile-1" style={{ flexGrow: "1", minWidth: "200px", border: "1px solid #262626" }}>
                             <h4>Status</h4>
-                            <p>{isLessThan30Seconds(new Date(time), new Date(lastActiveTime)) ? 'Online' : 'Offline'}</p>
+                            <p>{status.toLowerCase() === 'online' ? <strong style={{ color: "#61EC6D" }}>Online</strong> : <strong style={{ color: "#FF5058" }}>Offline</strong>}</p>
                         </Tile>
                         <Tile id="tile-1" style={{ flexGrow: "1", minWidth: "200px", border: "1px solid #262626" }}>
                             <h4>Last Active</h4>
-                            <p>{timeDifference(new Date(time), new Date(lastActiveTime))}</p>
+                            <p>{status.toLowerCase() === 'online' ? "<1min" : timeDifference(new Date(time), new Date(lastActiveTime))}</p>
                         </Tile>
                     </div>
 
@@ -184,11 +184,11 @@ const DeviceView = () => {
                             if (e.target.files[0].name.endsWith('.bin')) {
                                 setOtaFile(e.target.files[0])
                             }
-                        }
+                    }
                     }
                     onClick={(e) => console.log(e)}
                     size="lg"
-                    style={{marginTop: "10px"}}
+                    style={{ marginTop: "10px" }}
                 /> : <FileUploaderItem iconDescription="Delete file" invalid={false} name={otaFile.name} status="edit" size="md" onDelete={() => setOtaFile(null)} />}
             </Modal>
         </div>
@@ -199,6 +199,9 @@ export const deviceDetailsLoader = async (deviceId) => {
     const device = await axios.get(`/device/${deviceId}`)
         .then((res) => res.data)
         .then(async (device) => {
+            if (!device.image) {
+                return { ...device, image: esp }
+            }
             const image = await axios.get(`/device/image/${device.image}`,
                 { responseType: "blob" })
                 .then((res) => {

@@ -1,5 +1,5 @@
 import { Toggle } from "@carbon/react";
-import toggleImg from "../../images/toggle.png";
+import toggleImg from "../../Assets/toggle.png";
 
 const ToggleWidget = {
   element: (

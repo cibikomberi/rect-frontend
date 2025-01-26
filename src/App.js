@@ -27,6 +27,7 @@ import SharedDevicesList, { sharedDevicesLoader } from "./Devices/SharedDevicesL
 import SharedDashboardList, { sharedDashboardsLoader } from "./Dashboard/SharedDashboardList";
 import SharedTemplatesList, { sharedTemplatesLoader } from "./Templates/SharedTemplatesList";
 import VersionControl, { templateVersionsLoader } from "./Templates/VersionControl";
+import { DashboardContextProvider } from "./Layout/DashboardContext";
 
 function App() {
 	const routes = createBrowserRouter(
@@ -36,12 +37,6 @@ function App() {
 				<Route path="/register" element={<Register />} />
 				<Route path="/login-vs" element={<VSLogin />} />
 				<Route path="/" element={<MainLayout />} errorElement={<Error />}>
-
-					<Route path="dashboard">
-						<Route index element={<DashboardList />} loader={dashboardListLoader} />
-						<Route path=":id/view" element={<Dashboard />} loader={(a) => dashboardLoader(a.params.id)} />
-						<Route path=":id/edit" element={<Editor />} loader={(a) => dashboardEditorLoader(a.params.id)} />
-					</Route>
 					
 					<Route path="/home" />
 					<Route path="profile">
@@ -65,7 +60,11 @@ function App() {
 						<Route path=":id/dashboard" element={<Dashboard />} loader={(a) => dashboardEditorLoader(a.params.id)} />
 					</Route>
 
-					
+					<Route path="dashboard">
+						<Route index element={<DashboardList />} loader={dashboardListLoader} />
+						<Route path=":id/view" element={<Dashboard />} loader={(a) => dashboardLoader(a.params.id)} />
+						<Route path=":id/edit" element={<Editor />} loader={(a) => dashboardEditorLoader(a.params.id)} />
+					</Route>
 
 					<Route path="shared">
 						<Route path="dashboards" element={<SharedDashboardList />} loader={sharedDashboardsLoader}/>
@@ -82,7 +81,9 @@ function App() {
 	return (
 		<Theme theme="g90">
 			<code dir="auto" className="text-mono">
+				<DashboardContextProvider>
 					<RouterProvider router={routes} />
+				</DashboardContextProvider>
 			</code>
 		</Theme>
 	);
