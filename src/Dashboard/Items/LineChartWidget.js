@@ -1,36 +1,35 @@
 import { LineChart } from "@carbon/charts-react";
 import lineImg from "../../Assets/line.svg";
 
-const LineChartWidget = {
-  element: ({ id, label, xLabel, yLabel }, plotData, height, width) => {
-    console.log(plotData);
-
-    return (
-      <LineChart
-        id={id}
-        data={plotData ? plotData : []}
-        options={{
-          animations: false,
-          title: label,
-          axes: {
-            bottom: {
-              title: xLabel,
-              mapsTo: "dateTime",
-              scaleType: "time",
-            },
-            left: {
-              mapsTo: "value",
-              title: yLabel,
-              scaleType: "linear",
-            },
+const LineChartWidgetElement = ({ id, label, xLabel, yLabel }, plotData, height, width) => {
+  return (
+    <LineChart
+      id={id}
+      data={plotData ? plotData : []}
+      options={{
+        animations: false,
+        title: label,
+        axes: {
+          bottom: {
+            title: xLabel,
+            mapsTo: "dateTime",
+            scaleType: "time",
           },
-          height: { height },
-          theme: "g100",
-          width: { width },
-        }}
-      />
-    );
-  },
+          left: {
+            mapsTo: "value",
+            title: yLabel,
+            scaleType: "linear",
+          },
+        },
+        height: { height },
+        theme: "g100",
+        width: { width },
+      }}
+    />
+  );
+}
+const LineChartWidget = {
+  element: LineChartWidgetElement,
   image: lineImg,
   preDefinedSizes: {
     w: 12,

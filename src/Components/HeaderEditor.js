@@ -1,9 +1,9 @@
-import debounce from 'lodash.debounce'; // Install lodash.debounce using npm/yarn
-import React, { useState, useCallback, useEffect } from 'react';
+import { Save } from '@carbon/icons-react';
+import { Button, Dropdown } from '@carbon/react';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';
-import { Button, Dropdown, TextInput } from '@carbon/react';
-import { Save } from '@carbon/icons-react';
+import debounce from 'lodash.debounce'; // Install lodash.debounce using npm/yarn
+import React, { useCallback, useEffect, useState } from 'react';
 
 const options = {
     autoIndent: 'full',

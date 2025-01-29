@@ -85,8 +85,6 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 
 initializeAuth().then(() => {
   root.render(
-    <React.StrictMode>
       <App />
-    </React.StrictMode>
   );
 });

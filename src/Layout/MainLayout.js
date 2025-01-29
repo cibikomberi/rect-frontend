@@ -15,6 +15,7 @@ const MainLayout = () => {
   const navigation = useNavigation();
   let isEditPage = (location.pathname.includes("dashboard") && (location.pathname.includes("view") || location.pathname.includes("edit")));
   let isDashboardEditPage = (location.pathname.includes("dashboard") && location.pathname.includes("edit"));
+  let isDashboardPage = (location.pathname.includes("dashboard") && location.pathname.includes("view"));
   const currentPath = location.pathname.split("/")[1];
   const sharedPath = location.pathname.split("/")[2];
 
@@ -27,6 +28,9 @@ const MainLayout = () => {
         const image = await axios.get(`/profile/image/${profile.imageId}`, { responseType: "blob" }).then(res => res.data)
         setProfileImage(URL.createObjectURL(image));
       }).catch(err => {
+        if (isDashboardPage) {
+          return;
+        }
         if (err.status === 401 || err.status === 403) {
           navigate('/login');
         }

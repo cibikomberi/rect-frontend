@@ -1,40 +1,41 @@
 import { NumberInput } from "@carbon/react";
 import numInputImg from "../../Assets/num-input.svg";
 
-const NumberInputWidget = {
-  element: (
-    { id, min, max, value, label, args },
-    plotData,
-    height,
-    width,
-    sendMessage
-  ) => {
+const NumberInputWidgetElement = (
+  { id, min, max, value, label, args },
+  plotData,
+  height,
+  width,
+  sendMessage
+) => {
   let timer;
-    
-    return (
-      <NumberInput
-        id={id}
-        min={min}
-        max={max}
-        value={
-          plotData && plotData[plotData.length - 1]
-            ? plotData[plotData.length - 1].value
-            : 0
-        }
-        label={label}
-        onChange={(e, { value }) => {
-          console.log(e);
-          if (e.isTrusted) { 
+
+  return (
+    <NumberInput
+      id={id}
+      min={min}
+      max={max}
+      value={
+        plotData && plotData[plotData.length - 1]
+          ? plotData[plotData.length - 1].value
+          : 0
+      }
+      label={label}
+      onChange={(e, { value }) => {
+        console.log(e);
+        if (e.isTrusted) {
           clearTimeout(timer);
           timer = setTimeout(() => {
             sendMessage && sendMessage(id, value);
           }, 1000);
         }
-        }}
-        {...args}
-      />
-    );
-  },
+      }}
+      {...args}
+    />
+  );
+}
+const NumberInputWidget = {
+  element: NumberInputWidgetElement,
   image: numInputImg,
   preDefinedSizes: {
     w: 6,

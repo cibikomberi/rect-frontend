@@ -1,39 +1,40 @@
 import { Toggle } from "@carbon/react";
 import toggleImg from "../../Assets/toggle.png";
 
-const ToggleWidget = {
-  element: (
-    { id, label, onLabel, offLabel, onVal, offVal, args },
-    plotData,
-    height,
-    width,
-    sendMessage
-  ) => {
+const ToggleWidgetElement = (
+  { id, label, onLabel, offLabel, onVal, offVal, args },
+  plotData,
+  height,
+  width,
+  sendMessage
+) => {
   let timer;
-    
-    return (
-      <Toggle
-        id={id}
-        labelText={label}
-        labelA={offLabel}
-        labelB={onLabel}
-        value={plotData}
-        toggled={
-          parseInt(
-            plotData && plotData[0] && plotData[plotData.length - 1].value
-          ) === parseInt(onVal)
-        }
-        onToggle={(e) => {
-          clearTimeout(timer);
-          timer = setTimeout(() => {
-            sendMessage && sendMessage(id, e ? onVal : offVal);
-          }, 1000);
-        }}
-        // defaultToggled
-        {...args}
-      />
-    );
-  },
+
+  return (
+    <Toggle
+      id={id}
+      labelText={label}
+      labelA={offLabel}
+      labelB={onLabel}
+      value={plotData}
+      toggled={
+        parseInt(
+          plotData && plotData[0] && plotData[plotData.length - 1].value
+        ) === parseInt(onVal)
+      }
+      onToggle={(e) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          sendMessage && sendMessage(id, e ? onVal : offVal);
+        }, 1000);
+      }}
+      // defaultToggled
+      {...args}
+    />
+  );
+}
+const ToggleWidget = {
+  element: ToggleWidgetElement,
   image: toggleImg,
   preDefinedSizes: {
     w: 5,

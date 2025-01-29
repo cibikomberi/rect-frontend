@@ -10,7 +10,8 @@ export const DashboardContextProvider = ({ children }) => {
 
     const saveData = (days, dashboardId) => {
         console.log("save");
-
+        console.log(widgetData);
+        
         axios.put(`/dashboard/data/${dashboardId}`, {
             layout,
             widgetData,

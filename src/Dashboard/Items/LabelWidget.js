@@ -1,21 +1,22 @@
 import areaImg from "../../Assets/area.svg";
 
-const LabelWidget = {
-  element: ({ id, label }, plotData) => {
-    const value =
+const LabelWidgetElement = ({ id, label }, plotData) => {
+  const value =
 
     ((plotData && plotData[plotData.length - 1])
       ? plotData[plotData.length - 1].value
       : 0)
-    return (
-      <div>
-        <span className="cds--toggle__label-text" style={{margin:"0px"}} dir="auto">
-          {label}
-        </span>
-        <h1 id={id}>{value}</h1>
-      </div>
-    );
-  },
+  return (
+    <div>
+      <span className="cds--toggle__label-text" style={{ margin: "0px" }} dir="auto">
+        {label}
+      </span>
+      <h1 id={id}>{value}</h1>
+    </div>
+  );
+}
+const LabelWidget = {
+  element: LabelWidgetElement,
   image: areaImg,
   preDefinedSizes: {
     w: 5,

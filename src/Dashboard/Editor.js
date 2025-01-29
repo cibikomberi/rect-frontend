@@ -1,15 +1,15 @@
 import { Tile } from "@carbon/react";
 import axios from "axios";
-import React, { forwardRef, useContext, useEffect, useImperativeHandle, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { useLoaderData } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import { DashboardContext } from "../Layout/DashboardContext";
 import DashboardModal from "./DashboardModal";
 import GridItem from "./GridItem";
 import { WidgetsList } from "./WidgetsList";
-import { DashboardContext } from "../Layout/DashboardContext";
 
 const Editor = () => {
   const { layout, setLayout, widgetData, setWidgetData } = useContext(DashboardContext);

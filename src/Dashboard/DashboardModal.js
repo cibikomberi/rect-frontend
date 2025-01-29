@@ -19,6 +19,7 @@ const DashboardModal = ({
   datastreams,
   devices
 }) => {
+  
   const saveData = (saveAs, val) => {
     setWidgetData((data) => ({
       ...data,
@@ -81,7 +82,10 @@ const DashboardModal = ({
                   )}
                   itemToString={(item) => `[${item.deviceName}] ${item.name}`}
                   selectedItems={widgetData[activeWidget].datastream}
-                  onChange={(e) => saveData("datastream", e.selectedItems)}
+                  onChange={(e) => {
+                    console.log(e);
+                    
+                    saveData("datastream", e.selectedItems)}}
                   selectionFeedback="top-after-reopen"
                 />
               ) : (

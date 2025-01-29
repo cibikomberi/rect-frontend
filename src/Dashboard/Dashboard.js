@@ -6,6 +6,8 @@ import SockJS from "sockjs-client";
 import { useLoaderData, useParams } from "react-router-dom";
 import GridItem from "./GridItem";
 import { useMemo } from "react";
+import { debounce } from "lodash";
+import { useCallback } from "react";
 
 function filterData(array) {
   const flattened = array.flat(); // Flatten the nested array
@@ -26,7 +28,18 @@ const Dashboard = () => {
   const {
     dashboardData: { layout, widgetData, days },
   } = useLoaderData();
-  const [plot, setPlot] = useState({});
+  const [plot, setP] = useState({});
+
+  const setPlot = useCallback(
+    debounce((value) => {
+      console.log('Searching for:', value);
+      setP(value);
+      // Call API or update state
+    }, 500),
+    []
+  );
+
+
   const staticLayout = layout.map((item) => ({
     ...item,
     static: true,
@@ -42,10 +55,10 @@ const Dashboard = () => {
   const stompClientRef = useRef(null);
   useEffect(() => {
     datastreams.forEach((item) => {
-      axios.get(`dashboard-data/${item.deviceId}/${item.identifier}/${days}`)
+      axios.get(`dashboard-data/${dashboardId}/${item.deviceId}/${item.identifier}/${days}`)
         .then((res) => res.data)
         .then((data) => {
-          setPlot((existing) => ({
+          setP((existing) => ({
             ...existing,
             [`${item.deviceId}-${item.identifier}`]:
               data.data
@@ -54,7 +67,7 @@ const Dashboard = () => {
         })
     })
   }, [])
-
+  
   useEffect(() => {
     const cleanupInterval = setInterval(() => {
       const currentTime = new Date().getTime();
@@ -75,7 +88,7 @@ const Dashboard = () => {
 
         return updatedPlot;
       });
-    }, 60000); // Run cleanup every minute (adjust as needed)
+    }, 600000); // Run cleanup every minute (adjust as needed)
 
     return () => {
       clearInterval(cleanupInterval); // Clear interval on component unmount
@@ -176,7 +189,7 @@ const Dashboard = () => {
       }
     }
   };
-
+  
   return (
     <div
       style={{

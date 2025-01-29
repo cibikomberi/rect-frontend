@@ -1,36 +1,37 @@
 import { Slider } from "@carbon/react";
 import sliderImg from "../../Assets/slider.png";
 
-const SliderWidget = {
-  element: (
-    { id, min, max, label, step, args },
-    plotData,
-    height,
-    width,
-    sendMessage
-  ) => {
+const SliderWidgetElement = (
+  { id, min, max, label, step, args },
+  plotData,
+  height,
+  width,
+  sendMessage
+) => {
 
-    return (
-      <Slider
-        id={id}
-        min={min}
-        max={max}
-        value={
-          plotData && plotData[plotData.length - 1]
-            ? parseInt(plotData[plotData.length - 1].value)
-            : 0
-        }
-        labelText={label}
-        step={step}
-        onRelease={(e) => {
-            sendMessage && sendMessage(id, e.value);
-        }}         
-          
-        {...args}
-        noValidate
-      />
-    );
-  },
+  return (
+    <Slider
+      id={id}
+      min={min}
+      max={max}
+      value={
+        plotData && plotData[plotData.length - 1]
+          ? parseInt(plotData[plotData.length - 1].value)
+          : 0
+      }
+      labelText={label}
+      step={step}
+      onRelease={(e) => {
+        sendMessage && sendMessage(id, e.value);
+      }}
+
+      {...args}
+      noValidate
+    />
+  );
+}
+const SliderWidget = {
+  element: SliderWidgetElement,
   image: sliderImg,
   preDefinedSizes: {
     w: 12,
