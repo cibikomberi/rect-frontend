@@ -1,70 +1,56 @@
-# Getting Started with Create React App
+# Rect - IoT Device Management Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Table of Contents
+- [Overview](#overview)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [Implementation Details](#implementation-details)
+- [Backend Repository](#backend-repository)
+- [PlatformIO Library](#platformio-library)
+- [Contact](#contact)
 
-## Available Scripts
+## Overview
+Rect is the frontend for an IoT device management platform that allows users to control and monitor ESP32 and ESP8266 devices via MQTT. It provides an intuitive dashboard with real-time updates and device sharing capabilities. The UI is designed using **React.js** and **IBM’s Carbon Design System** for a modern and responsive experience.
 
-In the project directory, you can run:
+## Features
+- **Customizable Dashboard**: Users can monitor and control devices in real-time.
+- **Device Management**: Allows secure device registration and control.
+- **Real-time Communication**: Integrates with WebSockets for live updates.
+- **User Authentication**: Implements **JWT-based authentication** for secure access.
+- **Collaboration Features**: Enables device sharing with other users.
 
-### `npm start`
+## Technologies Used
+- **React.js** – Frontend framework
+- **IBM Carbon Design System** – UI/UX components
+- **WebSocket** – Real-time data updates
+- **Axios** – API communication
+- **React Router** – Client-side navigation
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Implementation Details
+### **UI/UX Design**
+- Built with **IBM’s Carbon Design System** for a consistent and modern user interface.
+- Uses **React hooks** for component-based state management.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### **Device Communication & Real-Time Updates**
+- WebSockets ensure real-time data synchronization with the backend.
+- MQTT messages are processed by the backend and reflected on the dashboard.
 
-### `npm test`
+### **Authentication & Authorization**
+- Users authenticate via **JWT tokens**, ensuring secure access control.
+- Role-based access restricts dashboard features accordingly.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Backend Repository
+The backend for this project is built using **Java Spring Boot**.
 
-### `npm run build`
+🔗 **Backend Repository:** [https://github.com/cibikomberi/rect-backend](https://github.com/cibikomberi/rect-backend)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## PlatformIO Library
+A dedicated **PlatformIO Library** is available for ESP32/ESP8266 devices to communicate with the Rect backend.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+🔗 **PlatformIO Library:** [https://github.com/cibikomberi/Rect](https://github.com/cibikomberi/Rect)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Contact
+For any queries or support, please contact [cibikomberi@gmail.com](mailto:cibikomberi@gmail.com).
 
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+*Thank you for using Rect Frontend!* 🚀
