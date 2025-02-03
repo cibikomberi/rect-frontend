@@ -39,12 +39,12 @@ const datastreams = [
     name: "String",
   },
 ]
-const DatastreamsList = ({ data, templateOrDeviceId, templateOrDevice, isLocked }) => {
+const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, templateOrDevice, isLocked }) => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [status, setStatus] = useState(false);
   const [isLoading, setIsLoading] = useState('');
-  const [dataStreams, setDatastreams] = useState(data);
+  // const [dataStreams, setDatastreams] = useState(data);
 
   const [datastreamId, setDatastreamId] = useState("");
   const [datastreamName, setDatastreamName] = useState("");

@@ -16,6 +16,7 @@ const DeviceConfigure = () => {
     const [inheritTemplate, setInheritTemplate] = useState(device.inheritTemplate);
     const [image, setImage] = useState(null);
     const [accessControls, setAccessControls] = useState(metadata.userAccess);
+    const [dataStreams, setDatastreams] = useState(metadata.datastreams);
 
     const updateDeviceInfo = () => {
         const data = new FormData();
@@ -34,8 +35,8 @@ const DeviceConfigure = () => {
                 <Tab>Info</Tab>
                 <Tab>Datastreams</Tab>
                 <Tab>Access Control</Tab>
-                <Tab>Device constants</Tab>
                 <Tab>Automations</Tab>
+                <Tab>Device constants</Tab>
                 <Tab>Delete data</Tab>
             </TabList>
             <TabPanels>
@@ -76,17 +77,17 @@ const DeviceConfigure = () => {
                 </TabPanel>
 
                 <TabPanel>
-                    <DatastreamsList data={metadata.datastreams} templateOrDevice={"device"} templateOrDeviceId={device.id} />
+                    <DatastreamsList dataStreams={dataStreams} setDatastreams={setDatastreams} templateOrDevice={"device"} templateOrDeviceId={device.id} />
                 </TabPanel>
 
                 <TabPanel>
                     <AccessControlList accessControls={accessControls} setAccessControls={setAccessControls} templateOrDevice={"device"} templateOrDeviceId={device.id} />
                 </TabPanel>
+                <TabPanel>
+                    <Automations automations={metadata.automations} datastreams={dataStreams} />
+                </TabPanel>
                 <TabPanel style={{ height: "80%" }}>
                     <HeaderEditor deviceId={device.id} templateId={device.templateId}/>
-                </TabPanel>
-                <TabPanel>
-                    <Automations />
                 </TabPanel>
                 <TabPanel>
                     <h6>Clear log data</h6>
@@ -105,8 +106,9 @@ export const deviceMetadataLoader = async (deviceId) => {
         .then((res) => res.data)
     const metadata = await axios.get(`/device/metadata/${deviceId}`)
         .then((res) => res.data)
-
-    return { device, metadata };
+    const devices = await axios.get('/devices').then((res) => res.data)
+    const sharedDevices = await axios.get('/devices/shared').then((res) => res.data)
+    return { device, metadata, deviceList: [...devices, ...sharedDevices] };
 }
 
 export default DeviceConfigure;

@@ -70,7 +70,6 @@ const DevicesList = () => {
         currentPage * pageSize
     );
 
-
     const handleSearch = (e) => {
         setSearchKeyword(e.target.value);
         setCurrentPage(1); // Reset to first page on search
@@ -124,7 +123,7 @@ const DevicesList = () => {
                                 <TableRow>
                                     {headers.map((header) => (
                                         <TableHeader
-                                            {...getHeaderProps({ header })}
+                                            key={header.key}
                                             isSortHeader={sortColumn === header.key}
                                             sortDirection={sortDirection}
                                             onClick={() => handleSort(header.key)}
@@ -165,6 +164,7 @@ const DevicesList = () => {
                 secondaryButtonText="Cancel"
             >
                 <Dropdown
+                    id='board-dropdown'
                     label="Board"
                     titleText="Board"
                     value={newBoard}
@@ -177,6 +177,7 @@ const DevicesList = () => {
                     }} />
 
                 <Dropdown
+                    id='template-dropdown'
                     label="Select Template"
                     titleText="Template"
                     value={newDevicetemplate}
@@ -189,6 +190,7 @@ const DevicesList = () => {
                         .map((val) => ({ label: val.name, name: val.name, id: val.id }))} />
 
                 <TextInput labelText="Device name"
+                    id='device-name-input'
                     value={newDeviceName}
                     onChange={(e) => { setNewDeviceName(e.target.value) }} />
                 <p style={{ color: "red", fontSize: "12px" }}>{errorMessage}</p>

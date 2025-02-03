@@ -5,67 +5,36 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import bg from "./../Assets/bg.jpeg";
 
-//  function getDeviceInfo() {
-//     const userAgent = navigator.userAgent;
-//     const platform = navigator.platform;
-//     const location = navigator.geolocation;
-//     if (navigator.userAgentData) {
-//         navigator.userAgentData.getHighEntropyValues(['platform', 'platformVersion'])
-//             .then(data => {
-//                 console.log("Platform:", data.platform);
-//                 console.log("Platform Version:", data.platformVersion);
-//             });
-//     } else {
-//         console.log("User-Agent:", navigator.userAgent);
-//     }
-
-//     return {
-//         userAgent: userAgent,
-//         platform: platform,
-//         location: location
-//     };
-// }
-// function getBrowserName() {
-//     const userAgent = navigator.userAgent;
-//     if (userAgent.includes("Firefox")) {
-//         return "Mozilla Firefox";
-//     } else if (userAgent.includes("Edg")) {
-//         return "Microsoft Edge";
-//     } else if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) {
-//         return "Google Chrome";
-//     } else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) {
-//         return "Apple Safari";
-//     } else if (userAgent.includes("Opera") || userAgent.includes("OPR")) {
-//         return "Opera";
-//     } else {
-//         return "Unknown Browser";
-//     }
-// }
-
-
-// function getUserLocation() {
-//     return new Promise((resolve, reject) => {
-//         if (navigator.geolocation) {
-//             navigator.geolocation.getCurrentPosition(
-//                 (position) => {
-//                     resolve({
-//                         latitude: position.coords.latitude,
-//                         longitude: position.coords.longitude
-//                     });
-//                 },
-//                 (error) => {
-//                     reject("Unable to fetch location.");
-//                 }
-//             );
-//         } else {
-//             reject("Geolocation not supported.");
-//         }
-//     });
-// }
+async function getPlatformInfo() {
+        const platform = await navigator.userAgentData.getHighEntropyValues(['platform', 'platformVersion'])
+            .then(data => {
+                console.log("Platform:", data.platform);
+                console.log("Platform Version:", data.platformVersion);
+                return data.platform;
+            });
+        return platform;
+}
+function getBrowserName() {
+    const userAgent = navigator.userAgent;
+    if (userAgent.includes("Firefox")) {
+        return "Mozilla Firefox";
+    } else if (userAgent.includes("Edg")) {
+        return "Microsoft Edge";
+    } else if (userAgent.includes("Chrome") && !userAgent.includes("Edg")) {
+        return "Google Chrome";
+    } else if (userAgent.includes("Safari") && !userAgent.includes("Chrome")) {
+        return "Apple Safari";
+    } else if (userAgent.includes("Opera") || userAgent.includes("OPR")) {
+        return "Opera";
+    } else {
+        return "Unknown Browser";
+    }
+}
 
 const Login = () => {
-    // console.log(getDeviceInfo());
-    // console.log("Browser:", getBrowserName());
+    const platform = getPlatformInfo().then(data => data);
+    console.log(platform);
+    console.log("Browser:", getBrowserName());
 
     axios.defaults.headers.common['Authorization'] = ``;
     const [email, setEmail] = useState("");
@@ -74,11 +43,16 @@ const Login = () => {
 
     const navigate = useNavigate();
 
-    const login = (e) => {
+    const login = async(e) => {
+        console.log(platform);
+
         e.preventDefault();
         setErrorMessage("")
         axios.post("/login", {
-            email, password
+            email, 
+            password,
+            client: getBrowserName(),
+            os: await getPlatformInfo()
         }).then((res) => {
             if (res.status === 200) {
                 axios.defaults.headers.common['Authorization'] = `Bearer ${res.data.jwt}`;
