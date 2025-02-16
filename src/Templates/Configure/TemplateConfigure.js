@@ -10,60 +10,12 @@ const TemplateConfigure = () => {
     const navigate = useNavigate();
     const { template, metadata } = useLoaderData();
 
+    const myAccess = template.myAccess;
     const [name, setName] = useState(template.name);
     const [description, setDescription] = useState(template.description);
     const [image, setImage] = useState(null);
+    const [dataStreams, setDatastreams] = useState(metadata.datastreams);
     const [accessControls, setAccessControls] = useState(metadata.userAccess);
-    // const reducer = (state, action) => {
-    //     console.log(state);
-    //     console.log(action);
-
-    //     switch (action.type) {
-    //         case 'setName':
-    //             return ({ ...state, name: action.payload })
-    //         case 'setDescription':
-    //             return ({ ...state, description: action.payload })
-    //         case 'setDatastreams':
-    //             return ({ ...state, description: action.payload })
-    //         case 'setTemplateAccessControls':
-    //             return ({ ...state, description: action.payload })
-    //         case 'openDataStreamModal':
-    //             return ({ ...state, isDatastreamModalOpen: true })
-    //         case 'openTemplateAccessControlModal':
-    //             return ({ ...state, isTemplateAccessControlModalOpen: true })
-    //         case 'closeDataStreamModal':
-    //             return ({ ...state, isDatastreamModalOpen: false })
-    //         case 'closeTemplateAccessControlModal':
-    //             return ({ ...state, isTemplateAccessControlModalOpen: false })
-    //         case 'setNewDatastreamId':
-    //             return ({ ...state, newDatastream: { ...state.newDatastream, identifier: action.payload } })
-    //         case 'setNewDatastreamName':
-    //             return ({ ...state, newDatastream: { ...state.newDatastream, name: action.payload } })
-    //         case 'setNewDatastreamType':
-    //             return ({ ...state, newDatastream: { ...state.newDatastream, type: action.payload } })
-    //         case 'setNewDatastreamUnit':
-    //             return ({ ...state, newDatastream: { ...state.newDatastream, unit: action.payload } })
-    //         case 'addDatastream':
-    //             return ({ ...state, datastreams: [ ...state.datastreams, JSON.parse(JSON.stringify(state.newDatastream)) ] })
-
-    //         default:
-    //             break;
-    //     }
-    //     return state;
-    // }
-    // const [state, dispatch] = useReducer(reducer, {
-    //     name,
-    //     description,
-    //     datastreams: metadata.datastreams,
-    //     templateAccessControls: metadata.templateAccessControls,
-    //     isDatastreamModalOpen: false,
-    //     isTemplateAccessControlModalOpen: false,
-    //     newDatastream: {},
-    //     newAccessControl: {}
-    // });
-
-
-    // console.log(state);
 
     const updateTemplateInfo = () => {
         const data = new FormData();
@@ -91,7 +43,7 @@ const TemplateConfigure = () => {
             </TabList>
             <TabPanels>
                 <TabPanel>
-                    <FileUploader
+                    {myAccess !== 'Viewer' && <FileUploader
                         name=""
                         labelTitle=""
                         labelDescription=""
@@ -101,31 +53,32 @@ const TemplateConfigure = () => {
                         filenameStatus="edit"
                         accept={['.jpg', '.png']}
                         multiple={false}
-                        disabled={false}
                         onChange={(e) => setImage(e.target.files[0])}
-                    />
+                    />}
                     <TextInput
                         id="input-name"
                         type="text"
                         labelText="Name"
                         value={name}
+                        disabled={myAccess === 'Viewer'}
                         onChange={(e) => setName(e.target.value)} />
                     <TextArea
                         id="input-description"
                         type="text"
                         labelText="Description"
-                        value={description}
+                        value={description || ''}
+                        disabled={myAccess === 'Viewer'}
                         onChange={(e) => setDescription(e.target.value)} />
-                    <Button renderIcon={Save} onClick={() => updateTemplateInfo()}>Save</Button>
+                    {myAccess !== 'Viewer' && <Button renderIcon={Save} onClick={() => updateTemplateInfo()}>Save</Button>}
 
                 </TabPanel>
 
                 <TabPanel>
-                    <DatastreamsList data={metadata.datastreams} templateOrDevice={"template"} templateOrDeviceId={template.id}/>
+                    <DatastreamsList isLocked={myAccess !== 'Viewer'} dataStreams={dataStreams} setDatastreams={setDatastreams} templateOrDevice={"template"} templateOrDeviceId={template.id}/>
                 </TabPanel>
 
                 <TabPanel>
-                    <AccessControlList accessControls={accessControls} setAccessControls={setAccessControls} templateOrDevice={"template"} templateOrDeviceId={template.id} />
+                    <AccessControlList isLocked={myAccess !== 'Viewer'} accessControls={accessControls} setAccessControls={setAccessControls} templateOrDevice={"template"} templateOrDeviceId={template.id} />
                 </TabPanel>
             </TabPanels>
         </Tabs>

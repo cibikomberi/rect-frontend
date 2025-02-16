@@ -3,6 +3,8 @@ import { Button, DataTable, Pagination, Table, TableBody, TableCell, TableContai
 import { useState } from "react";
 import { customSortRow } from "../Methods/Sort";
 import AutomationItem from "./AutomationItem";
+import axios from "axios";
+import { useLoaderData } from "react-router-dom";
 
 const automationHeaders = [
     {
@@ -14,9 +16,12 @@ const automationHeaders = [
         header: "Automation type",
     }]
 
-const Automations = ({ automations, datastreams }) => {
+const Automations = ({ automations, datastreams, isLocked }) => {
+        const { device } = useLoaderData();
+    
     const [automationsList, setAutomationsList] = useState(automations);
     const [createAutomation, setCreateAutomation] = useState(false);
+    const [editAutomation, setEditAutomation] = useState({});
 
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(5);
@@ -29,6 +34,7 @@ const Automations = ({ automations, datastreams }) => {
         .filter((val) => val.name.toLowerCase().includes(searchKeyword.toLowerCase()))
         .map((val) => ({
             ...val,
+            id: val.name
         }));
 
     const sortedRows = sortColumn
@@ -64,8 +70,16 @@ const Automations = ({ automations, datastreams }) => {
             setSortDirection('ASC');
         }
     };
+
+    const deleteAutomation = (name) => {
+        axios.delete(`device/automation/${device.id}`, {data: name})
+            .then((res) => {
+                if (res.status === 200) {
+                    setAutomationsList(automationsList.filter((automation) => automation.name !== name));
+                }});
+    }
     return (<>
-        {createAutomation && <AutomationItem setCreateAutomation={setCreateAutomation} automationsList={automationsList} setAutomationsList={setAutomationsList} datastreams={datastreams} />}
+        {isLocked && createAutomation && <AutomationItem setEditAutomation={setEditAutomation} editAutomation={editAutomation} setCreateAutomation={setCreateAutomation} automationsList={automationsList} setAutomationsList={setAutomationsList} datastreams={datastreams} />}
             {!createAutomation && 
                     <DataTable rows={paginatedRows} headers={automationHeaders} isSortable>
                         {() => (
@@ -73,7 +87,7 @@ const Automations = ({ automations, datastreams }) => {
                                 <TableToolbar>
                                     <TableToolbarContent>
                                         <TableToolbarSearch onChange={handleSearch} />
-                                        {<Button renderIcon={Add} onClick={() => setCreateAutomation(true)}>
+                                        {isLocked  && <Button renderIcon={Add} onClick={() => setCreateAutomation(true)}>
                                     New Automation
                                         </Button>}
                                     </TableToolbarContent>
@@ -83,6 +97,8 @@ const Automations = ({ automations, datastreams }) => {
                                         <TableRow>
                                             {automationHeaders.map((header) => (
                                                 <TableHeader
+                                                    key={header.header}
+
                                                     isSortHeader={sortColumn === header.key}
                                                     sortDirection={sortDirection}
                                                     onClick={() => handleSort(header.key)}
@@ -91,7 +107,7 @@ const Automations = ({ automations, datastreams }) => {
                                                 </TableHeader>
                                             ))}
                                             <TableHeader>Value</TableHeader>
-                                            <TableHeader>Actions</TableHeader>
+                                            {isLocked && <TableHeader>Actions</TableHeader>}
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -103,10 +119,11 @@ const Automations = ({ automations, datastreams }) => {
                                                 {row.type === 'state' && <TableCell>{`${row.datastream.name} => ${row.targetDevice.name} [${row.targetDatastream.name}]`}</TableCell>}
                                                 {row.type === 'email-status' && <TableCell>{`[${row.status[0]}, ...]`}</TableCell>}
                                                 {row.type === 'email-value' && <TableCell>{`${row.datastream.name}`}</TableCell>}
-                                                <TableCell>
+                                                {isLocked && <TableCell>
                                                     <Button
                                                         onClick={() => {
-
+                                                            setEditAutomation(row);
+                                                            setCreateAutomation(true);
                                                         }}
                                                         kind="ghost"
                                                         renderIcon={Edit}
@@ -114,12 +131,15 @@ const Automations = ({ automations, datastreams }) => {
                                                         hasIconOnly
                                                     />
                                                     <Button
+                                                        onClick={() => {
+                                                            deleteAutomation(row.name);
+                                                        }}
                                                         kind="ghost"
                                                         renderIcon={TrashCan}
                                                         iconDescription="Delete"
                                                         hasIconOnly
                                                     />
-                                                </TableCell>
+                                                </TableCell>}
                                             </TableRow>
                                         ))}
                                     </TableBody>

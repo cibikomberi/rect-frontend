@@ -167,7 +167,7 @@ const DevicesList = () => {
                     id='board-dropdown'
                     label="Board"
                     titleText="Board"
-                    value={newBoard}
+                    selectedItem={newBoard}
                     onChange={(e) => {
                         setNewDeviceTemplate('Select Template');
                         setNewBoard(e.selectedItem.name)

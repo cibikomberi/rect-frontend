@@ -15,7 +15,7 @@ import TemplateView, { templateDetailsLoader } from "./Templates/TemplateView";
 import TemplateConfigure, { templateMetadataLoader } from "./Templates/Configure/TemplateConfigure";
 import DeviceConfigure, { deviceMetadataLoader } from "./Devices/DeviceConfigure";
 import Editor, { dashboardEditorLoader } from "./Dashboard/Editor";
-import Dashboard, { dashboardLoader } from "./Dashboard/Dashboard";
+import Dashboard from "./Dashboard/Dashboard";
 import DashboardList, { dashboardListLoader } from "./Dashboard/DashboardList";
 import Login from "./Layout/Login";
 import Register from "./Layout/Register";
@@ -28,6 +28,7 @@ import SharedDashboardList, { sharedDashboardsLoader } from "./Dashboard/SharedD
 import SharedTemplatesList, { sharedTemplatesLoader } from "./Templates/SharedTemplatesList";
 import VersionControl, { templateVersionsLoader } from "./Templates/VersionControl";
 import { DashboardContextProvider } from "./Layout/DashboardContext";
+import Sessions, { sessionsLoader } from "./Profile/Sessions";
 
 function App() {
 	const routes = createBrowserRouter(
@@ -42,6 +43,7 @@ function App() {
 					<Route path="profile">
 						<Route index element={<ProfileView />} loader={myDetailsLoader} />
 						<Route path="configure" element={<ProfileUpdate />} loader={myDetailsLoader} />
+						<Route path="sessions" element={<Sessions />} loader={sessionsLoader} />
 					</Route>
 
 					<Route path="templates">
@@ -62,7 +64,7 @@ function App() {
 
 					<Route path="dashboard">
 						<Route index element={<DashboardList />} loader={dashboardListLoader} />
-						<Route path=":id/view" element={<Dashboard />} loader={(a) => dashboardLoader(a.params.id)} />
+						<Route path=":id/view" element={<Dashboard />} />
 						<Route path=":id/edit" element={<Editor />} loader={(a) => dashboardEditorLoader(a.params.id)} />
 					</Route>
 

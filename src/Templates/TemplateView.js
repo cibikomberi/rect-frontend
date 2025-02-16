@@ -21,7 +21,7 @@ const accessControlItems = [{
 }]
 
 const TemplateView = () => {
-    const { template: { id, name, description, image, productionVersion, devVersion } } = useLoaderData();
+    const { template: { id, name, description, image, productionVersion, devVersion, myAccess } } = useLoaderData();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [people, setPeople] = useState([]);
     const [user, setUser] = useState([]);
@@ -40,7 +40,7 @@ const TemplateView = () => {
             }
         })
     }
-    
+
 
     useEffect(() => {
         if (searchPeople.length > 2) {
@@ -81,12 +81,18 @@ const TemplateView = () => {
                         </div>
                     </div>
 
-                    <div style={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap" }}>
-                        <Button kind="ghost" iconDescription="Share this template" renderIcon={Share} hasIconOnly={true} onClick={() => setIsModalOpen(true)}></Button>
-                        {/* <Button kind="ghost" iconDescription='Edit flows' renderIcon={FlowData} hasIconOnly={true}></Button> */}
-                        <Button kind="ghost" iconDescription='Configure template' renderIcon={SettingsEdit} hasIconOnly={true} as={Link} to={'./../configure'} ></Button>
-                        <Button renderIcon={VersionMinor} as={Link} to={'./../version-control'} >Version Control</Button>
-                    </div>
+                    {myAccess !== 'Viewer' &&
+                        <div style={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap" }}>
+                            <Button kind="ghost" iconDescription="Share this template" renderIcon={Share} hasIconOnly={true} onClick={() => setIsModalOpen(true)}></Button>
+                            {/* <Button kind="ghost" iconDescription='Edit flows' renderIcon={FlowData} hasIconOnly={true}></Button> */}
+                            <Button kind="ghost" iconDescription='Configure template' renderIcon={SettingsEdit} hasIconOnly={true} as={Link} to={'./../configure'} ></Button>
+                            <Button renderIcon={VersionMinor} as={Link} to={'./../version-control'} >Version Control</Button>
+                        </div>}
+                        
+                    {myAccess === 'Viewer' &&
+                        <div style={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap" }}>
+                            <Button renderIcon={SettingsEdit} as={Link} to={'./../configure'} >Configure template</Button>
+                        </div>}
                 </div>
             </div>
 
@@ -127,7 +133,7 @@ const TemplateView = () => {
                     id="datastream-type-input"
                     label="Access"
                     titleText="Access"
-                    value={accessControlLevel}
+                    selectedItem={accessControlLevel}
                     onInput={e => console.log(e)}
                     onChange={(e) => setAccessControlLevel(e.selectedItem)}
                     items={accessControlItems}

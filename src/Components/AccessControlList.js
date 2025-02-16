@@ -34,7 +34,7 @@ const accessControlItems = [{
     label: 'None',
     name: 'None'
 }]
-const AccessControlList = ({ accessControls, setAccessControls, templateOrDeviceId, templateOrDevice }) => {
+const AccessControlList = ({ accessControls, setAccessControls, templateOrDeviceId, templateOrDevice, isLocked }) => {
     const [searchPeople, setSearchPeople] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -61,7 +61,7 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
             access: accessControlLevel.name
         }).then(res => {
             if (res.status === 200) {
-                setAccessControls((existing) => ({[user.id]: accessControlLevel.name, ...existing}))
+                setAccessControls((existing) => ({ ...existing, [user.id]: accessControlLevel.name }))
                 setIsModalOpen(false)
                 setAccessControlLevel('')
             }
@@ -70,12 +70,12 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
 
     const removeAccessControl = (userId) => {
         axios.delete(`/${templateOrDevice}/userAccess/${templateOrDeviceId}/${userId}`).then(res => {
-            setAccessControls((existing) => {                
+            setAccessControls((existing) => {
                 var newData = { ...existing };
                 delete newData[userId];
                 return newData;
             });
-            setA((existing) => existing.filter((item) => item.identifier !== userId))
+            setA((existing) => existing.filter((item) => item.id !== userId))
         })
     }
 
@@ -83,8 +83,8 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
         Object.keys(accessControls).forEach((key) => {
             axios.get(`/whoisthis/${key}`).then(function (res) {
                 setA(existing => {
-                    return [...existing.filter((item) => item.identifier !== key), {
-                        identifier: key,
+                    return [...existing.filter((item) => item.id !== key), {
+                        id: key,
                         name: res.data.name,
                         email: res.data.email,
                         access: accessControls[key]
@@ -94,7 +94,6 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
             });
         })
     }, [accessControls])
-    console.log(accessControls);
 
 
     useEffect(() => {
@@ -113,41 +112,41 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
     }, [searchPeople])
 
     const filteredRows = a
-              .filter((val) => val.name.toLowerCase().includes(searchKeyword.toLowerCase()))
-      
-          const sortedRows = sortColumn
-              ? [...filteredRows].sort((a, b) =>
-                  customSortRow(a[sortColumn], b[sortColumn], {
-                      sortDirection,
-                      sortStates: { ASC: 'ASC', DESC: 'DESC' },
-                      locale: navigator.language,
-                  })
-              )
-              : filteredRows;
-      
-          const paginatedRows = sortedRows.slice(
-              (currentPage - 1) * pageSize,
-              currentPage * pageSize
-          );
-    
-      const handlePaginationChange = ({ page, pageSize }) => {
+        .filter((val) => val.name.toLowerCase().includes(searchKeyword.toLowerCase()))
+
+    const sortedRows = sortColumn
+        ? [...filteredRows].sort((a, b) =>
+            customSortRow(a[sortColumn], b[sortColumn], {
+                sortDirection,
+                sortStates: { ASC: 'ASC', DESC: 'DESC' },
+                locale: navigator.language,
+            })
+        )
+        : filteredRows;
+
+    const paginatedRows = sortedRows.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
+
+    const handlePaginationChange = ({ page, pageSize }) => {
         setCurrentPage(page);
         setPageSize(pageSize);
-      };
-      const handleSearch = (e) => {
+    };
+    const handleSearch = (e) => {
         setSearchKeyword(e.target.value);
         setCurrentPage(1); // Reset to first page on search
-      };
-      const handleSort = (headerKey) => {
+    };
+    const handleSort = (headerKey) => {
         if (sortColumn === headerKey) {
-          setSortDirection((prev) =>
-            prev === 'ASC' ? 'DESC' : prev === 'DESC' ? 'NONE' : 'ASC'
-          );
+            setSortDirection((prev) =>
+                prev === 'ASC' ? 'DESC' : prev === 'DESC' ? 'NONE' : 'ASC'
+            );
         } else {
-          setSortColumn(headerKey);
-          setSortDirection('ASC');
+            setSortColumn(headerKey);
+            setSortDirection('ASC');
         }
-      };
+    };
     return (<>
         <DataTable rows={paginatedRows} headers={accessControlHeaders} isSortable>
             {({ getTableProps }) => (
@@ -155,33 +154,34 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
                     <TableToolbar>
                         <TableToolbarContent>
                             <TableToolbarSearch onChange={handleSearch} />
-                            <Button label="Remove Access" renderIcon={Share} onClick={() => setIsModalOpen(true)}>Share</Button>
-                        </TableToolbarContent>
+                            {isLocked && <Button label="Remove Access" renderIcon={Share} onClick={() => setIsModalOpen(true)}>Share</Button>}                        </TableToolbarContent>
                     </TableToolbar>
                     <Table {...getTableProps()}>
                         <TableHead>
                             <TableRow>
                                 {accessControlHeaders.map((header) => (
-                                                    <TableHeader
-                                                      isSortHeader={sortColumn === header.key}
-                                                      sortDirection={sortDirection}
-                                                      onClick={() => handleSort(header.key)}
-                                                      isSortable>
-                                                      {header.header}
-                                                    </TableHeader>
-                                                  ))}
-                                <TableHeader>Actions</TableHeader>
+                                    <TableHeader
+                                        key={header.header}
+
+                                        isSortHeader={sortColumn === header.key}
+                                        sortDirection={sortDirection}
+                                        onClick={() => handleSort(header.key)}
+                                        isSortable>
+                                        {header.header}
+                                    </TableHeader>
+                                ))}
+                                {isLocked && <TableHeader>Actions</TableHeader>}
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {a.map((row) => (
-                                <TableRow key={row.identifier}>
+                                <TableRow key={row.id}>
                                     <TableCell>{row.name}</TableCell>
                                     <TableCell>{row.email}</TableCell>
                                     <TableCell>{row.access}</TableCell>
-                                    <TableCell>
-                                        <Button kind="ghost" renderIcon={TrashCan} iconDescription="Remove access" hasIconOnly onClick={() => removeAccessControl(row.identifier)} />
-                                    </TableCell>
+                                    {isLocked && <TableCell>
+                                        <Button kind="ghost" renderIcon={TrashCan} iconDescription="Remove access" hasIconOnly onClick={() => removeAccessControl(row.id)} />
+                                    </TableCell>}
                                 </TableRow>
                             ))}
                         </TableBody>
@@ -236,7 +236,7 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
                 id="datastream-type-input"
                 label="Access"
                 titleText="Access"
-                value={accessControlLevel}
+                selectedItem={accessControlLevel}
                 onChange={(e) => setAccessControlLevel(e.selectedItem)}
                 items={accessControlItems}
                 style={{

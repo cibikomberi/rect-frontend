@@ -1,13 +1,12 @@
-import axios from "axios";
-import ReactGridLayout from "react-grid-layout";
-import { useEffect, useRef, useState } from "react";
 import { Client } from "@stomp/stompjs";
-import SockJS from "sockjs-client";
-import { useLoaderData, useParams } from "react-router-dom";
-import GridItem from "./GridItem";
-import { useMemo } from "react";
+import axios from "axios";
 import { debounce } from "lodash";
-import { useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import ReactGridLayout from "react-grid-layout";
+import { useMediaQuery } from "react-responsive";
+import { useParams } from "react-router-dom";
+import SockJS from "sockjs-client";
+import GridItem from "./GridItem";
 
 function filterData(array) {
   const flattened = array.flat(); // Flatten the nested array
@@ -24,12 +23,38 @@ function filterData(array) {
 }
 
 const Dashboard = () => {
-  const dashboardId = useParams().id;
-  const {
-    dashboardData: { layout, widgetData, days },
-  } = useLoaderData();
-  const [plot, setP] = useState({});
+  const isMobile = useMediaQuery({ query: '(min-width: 400px)' })
+  const isTablet = useMediaQuery({ query: '(min-width: 800px)' })
+  const isDesktop = useMediaQuery({ query: '(min-width: 1520px)' })
+  const isLarge = useMediaQuery({ query: '(min-width: 2100px)' })
 
+  const resolution = isLarge ? 'Large: 1440px' : isDesktop ? 'Desktop: 1024px' : isTablet ? 'Tablet: 768px' : isMobile ? 'Mobile: 600px' : 'Desktop: 1024px';
+  console.log(resolution);
+  
+  const dashboardId = useParams().id;
+  const [dashboardData, setDashboardData] = useState({ layout:[], widgetData:{}, days:1 });
+
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`/dashboard/data/${dashboardId}?type=${resolution}`);
+        const data = response.data.dashboardData;
+        setDashboardData(data);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      }
+    };
+    
+    fetchData();
+  }, [dashboardId, resolution]);
+  const { layout, widgetData, days } = dashboardData;
+    // const {
+      //   dashboardData: { layout, widgetData, days },
+      // } = useLoaderData();
+      const [plot, setP] = useState({});
+      
+      console.log(layout);
   const setPlot = useCallback(
     debounce((value) => {
       console.log('Searching for:', value);
@@ -66,7 +91,7 @@ const Dashboard = () => {
           }));
         })
     })
-  }, [])
+  }, [dashboardData])
   
   useEffect(() => {
     const cleanupInterval = setInterval(() => {
@@ -230,13 +255,13 @@ const Dashboard = () => {
   );
 };
 
-export const dashboardLoader = async (dashboardId) => {
-  const dashboard = await axios
-    .get(`/dashboard/data/${dashboardId}`)
-    .then((res) => {
-      return res.data;
-    });
+// export const dashboardLoader = async (dashboardId) => {
+//   const dashboard = await axios
+//     .get(`/dashboard/data/${dashboardId}`)
+//     .then((res) => {
+//       return res.data;
+//     });
 
-  return { dashboardData: dashboard.dashboardData };
-};
+//   return { dashboardData: dashboard.dashboardData };
+// };
 export default Dashboard;

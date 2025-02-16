@@ -89,7 +89,7 @@ const VersionControl = () => {
                 </Tile>
                 <Accordion>
                     {versions.map((item) =>
-                        <AccordionItem title={
+                        <AccordionItem key={item.version} title={
                             <>{item.version}
                                 {template.productionVersion === item.version &&
                                     <Tag className="some-class" type="cyan">

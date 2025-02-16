@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import bg from "./../Assets/bg.jpeg";
 
-async function getPlatformInfo() {
+export async function getPlatformInfo() {
         const platform = await navigator.userAgentData.getHighEntropyValues(['platform', 'platformVersion'])
             .then(data => {
                 console.log("Platform:", data.platform);
@@ -14,7 +14,7 @@ async function getPlatformInfo() {
             });
         return platform;
 }
-function getBrowserName() {
+export function getBrowserName() {
     const userAgent = navigator.userAgent;
     if (userAgent.includes("Firefox")) {
         return "Mozilla Firefox";
@@ -79,9 +79,6 @@ const Login = () => {
 
 
                 <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    {/* <Button kind="ghost">
-                    Button
-                </Button> */}
                     <div></div>
                     <Button type="submit" style={{ width: "50%" }} renderIcon={ArrowRight} onClick={login}>Log in</Button>
                 </div>

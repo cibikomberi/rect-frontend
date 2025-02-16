@@ -4,6 +4,7 @@ import axios from "axios";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import bg from "./../Assets/bg.jpeg";
+import { getBrowserName, getPlatformInfo } from "./Login";
 
 const VSLogin = () => {
     const [email, setEmail] = useState("");
@@ -12,12 +13,15 @@ const VSLogin = () => {
 
     const navigate = useNavigate();
 
-    const login = (e) => {
+    const login = async (e) => {
         e.preventDefault();
         setErrorMessage("")
         axios.defaults.headers.common['Authorization'] = '';
         axios.post("/login-vs", {
-            email, password
+            email, 
+            password, 
+            client: 'VS Code - ' + getBrowserName(),
+            os: await getPlatformInfo()
         }).then((res) => {
             if (res.status === 200) {
                 const vscodeCallbackUri = `vscode://cibikomberi.rect/auth-callback?token=${res.data.jwt}&authToken=${res.data.authToken}`;

@@ -135,6 +135,7 @@ const DashboardList = () => {
                 <TableRow>
                   {headers.map((header) => (
                     <TableHeader
+                      key={header.header}
                       isSortHeader={sortColumn === header.key}
                       sortDirection={sortDirection}
                       onClick={() => handleSort(header.key)}
@@ -220,7 +221,7 @@ const DashboardList = () => {
           id="access-dropdown"
           label="Access"
           titleText="Access"
-          value={newDashboardAccess}
+          selectedItem={newDashboardAccess}
           onChange={(e) => {
             setIsCreatingDashboard("");
             setNewDashboardAccess(e.selectedItem.name);

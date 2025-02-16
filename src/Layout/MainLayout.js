@@ -1,13 +1,13 @@
 import { Dashboard, IotConnect, Template, UserAvatarFilled, UserMultiple } from '@carbon/icons-react';
-import { Content, Header, HeaderGlobalAction, HeaderGlobalBar, HeaderMenuButton, HeaderName, Loading, MenuButton, MenuItem, SideNav, SideNavItems, SideNavLink, SideNavMenu, SideNavMenuItem, Theme } from '@carbon/react';
+import { Content, Dropdown, Header, HeaderGlobalAction, HeaderGlobalBar, HeaderMenuButton, HeaderName, Loading, MenuButton, MenuItem, SideNav, SideNavItems, SideNavLink, SideNavMenu, SideNavMenuItem, Theme } from '@carbon/react';
 import axios from 'axios';
 import { useContext, useEffect, useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate, useNavigation } from 'react-router-dom';
 import { DashboardContext } from './DashboardContext';
-import { FeatureFlags } from '@carbon/react/lib/components/FeatureFlags';
 
+const resolutions = ['Mobile: 600px', 'Tablet: 768px', 'Desktop: 1024px', 'Large: 1440px'];
 const MainLayout = () => {
-  const { saveData } = useContext(DashboardContext);
+  const { saveData, resolution, setResolution } = useContext(DashboardContext);
   const [isSideNavExpanded, setIsSideNavExpanded] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const location = useLocation();
@@ -66,7 +66,18 @@ const MainLayout = () => {
             {/* <HeaderGlobalAction aria-label="Search">
               <Search size={20} />
             </HeaderGlobalAction> */}
-            {isDashboardEditPage ? <div style={{display:'flex', alignItems:"center"}}><MenuButton label='Deploy' size='sm' style={{marginRight:"15px"}}>
+            {isDashboardEditPage ? <div style={{display:'flex', alignItems:"center"}}>
+              <Dropdown
+                autoAlign
+                type='inline'
+                id="datastream-type-input"
+                label="Screen Width"
+                titleText="Screen Width"
+                selectedItem={resolution}
+                onChange={(e) => setResolution(e.selectedItem)}
+                items={resolutions}
+/>
+              <MenuButton label='Deploy' size='sm' style={{marginRight:"15px"}}>
                 <MenuItem onClick={() => saveData(1, sharedPath)} label="1 Day" />
                 <MenuItem onClick={() => saveData(30, sharedPath)} label="1 Month" />
                 <MenuItem onClick={() => saveData(180, sharedPath)} label="6 Months" />

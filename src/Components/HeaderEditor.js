@@ -30,7 +30,7 @@ const options = {
 const HeaderEditor = ({ deviceId }) => {
     const [editorValue, setEditorValue] = useState("// some constants");
     const [version, setVersion] = useState("");
-    const [versionList, setVersionList] = useState("");
+    const [versionList, setVersionList] = useState([]);
 
     useEffect(() => {
         axios.get(`/device/versions/${deviceId}`)
@@ -60,7 +60,8 @@ const HeaderEditor = ({ deviceId }) => {
         axios.post(`/device/constants/${deviceId}/${version}`, editorValue, {
             headers: {
                 'Content-Type': 'text/plain', // Specify plain text content
-            }}).then((res) => console.log(res))
+            }
+        }).then((res) => console.log(res))
     }
 
     const handleEditorChange = (value) => {
@@ -69,8 +70,9 @@ const HeaderEditor = ({ deviceId }) => {
     return (<>
         <Dropdown
             id="text-input-version-name"
-            labelText="Version"
-            value={version}
+            label="Version"
+            titleText="Select Version"
+            selectedItem={version}
             items={versionList}
             onChange={(e) => {
                 setVersion(e.selectedItem);

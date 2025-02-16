@@ -42,7 +42,7 @@ const DashboardModal = ({
 
   return (
     <>
-      {activeWidget && (
+      {activeWidget && widgetData[activeWidget] && (
         <Modal
           open={open}
           passiveModal

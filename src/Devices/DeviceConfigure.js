@@ -11,6 +11,7 @@ import Automations from "../Components/Automations";
 const DeviceConfigure = () => {
     const { device, metadata } = useLoaderData();
 
+    const myAccess = device.myAccess;
     const [name, setName] = useState(device.name);
     const [description, setDescription] = useState(device.description);
     const [inheritTemplate, setInheritTemplate] = useState(device.inheritTemplate);
@@ -36,13 +37,13 @@ const DeviceConfigure = () => {
                 <Tab>Datastreams</Tab>
                 <Tab>Access Control</Tab>
                 <Tab>Automations</Tab>
-                <Tab>Device constants</Tab>
-                <Tab>Delete data</Tab>
+                {myAccess !== 'Viewer' && <Tab>Device constants</Tab>}
+                {myAccess !== 'Viewer' && <Tab>Delete data</Tab>}
             </TabList>
             <TabPanels>
                 <TabPanel>
                     {/* <FileUploader buttonLabel="Upload image" buttonKind="primary" size="md" filenameStatus="edit" accept={['.jpg', '.png']} multiple={false} disabled={false} name="" /> */}
-                    <FileUploader 
+                    {myAccess !== 'Viewer' && <FileUploader 
                         name="" 
                         labelTitle="" 
                         labelDescription="" 
@@ -54,47 +55,50 @@ const DeviceConfigure = () => {
                         multiple={false} 
                         disabled={false}
                         onChange={(e) => setImage(e.target.files[0])}
-                    />
+                    />}
                     <TextInput
                         id="input-name"
                         type="text"
                         labelText="Name"
                         value={name}
+                        disabled={myAccess === 'Viewer'}
                         onChange={(e) => setName(e.target.value)} />
                     <TextArea
                         id="input-description"
                         type="text"
                         labelText="Description"
                         value={description || ""}
+                        disabled={myAccess === 'Viewer'}
                         onChange={(e) => setDescription(e.target.value)} />
                     <Checkbox
                         id="checkbox-label-1"
                         labelText={`Apply changes from template`}
                         checked={inheritTemplate}
+                        disabled={myAccess === 'Viewer'}
                         onChange={(e) => setInheritTemplate(e.target.checked)}
                     />
-                    <Button renderIcon={Save} onClick={updateDeviceInfo}>Save</Button>
+                    {myAccess !== 'Viewer' && <Button renderIcon={Save} onClick={updateDeviceInfo}>Save</Button>}
                 </TabPanel>
 
                 <TabPanel>
-                    <DatastreamsList dataStreams={dataStreams} setDatastreams={setDatastreams} templateOrDevice={"device"} templateOrDeviceId={device.id} />
+                    <DatastreamsList isLocked={myAccess !== 'Viewer'} dataStreams={dataStreams} setDatastreams={setDatastreams} templateOrDevice={"device"} templateOrDeviceId={device.id} />
                 </TabPanel>
 
                 <TabPanel>
-                    <AccessControlList accessControls={accessControls} setAccessControls={setAccessControls} templateOrDevice={"device"} templateOrDeviceId={device.id} />
+                    <AccessControlList isLocked={myAccess !== 'Viewer'} accessControls={accessControls} setAccessControls={setAccessControls} templateOrDevice={"device"} templateOrDeviceId={device.id} />
                 </TabPanel>
                 <TabPanel>
-                    <Automations automations={metadata.automations} datastreams={dataStreams} />
+                    <Automations isLocked={myAccess !== 'Viewer'} automations={metadata.automations} datastreams={dataStreams} />
                 </TabPanel>
-                <TabPanel style={{ height: "80%" }}>
+                {myAccess !== 'Viewer' && <TabPanel style={{ height: "80%" }}>
                     <HeaderEditor deviceId={device.id} templateId={device.templateId}/>
-                </TabPanel>
-                <TabPanel>
+                </TabPanel>}
+                {myAccess !== 'Viewer' && <TabPanel>
                     <h6>Clear log data</h6>
                     <Button renderIcon={TrashCan} kind="danger">Clear</Button>
                     <h6>Delete device</h6>
                     <Button renderIcon={TrashCan} kind="danger">Delete</Button>
-                </TabPanel>
+                </TabPanel>}
             </TabPanels>
         </Tabs>
 

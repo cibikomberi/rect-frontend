@@ -4,15 +4,15 @@ import axios from 'axios';
 import { useEffect, useState } from "react";
 import { Link, useLoaderData } from 'react-router-dom';
 import esp from '../Assets/esp32-wroom-32.jpg';
-import {  timeDifference } from '../Methods/Time';
+import { timeDifference } from '../Methods/Time';
 import bg from "./../Assets/bg.jpeg";
 
 const DeviceView = () => {
-    const { device: { id, name, lastActiveTime, description, templateName, dashboardId, image, isUpToDate, status }, time } = useLoaderData();
+    const { device: { id, name, lastActiveTime, description, templateId, templateName, dashboardId, myAccess, image, isUpToDate, status }, time } = useLoaderData();
     const [isAccessModalOpen, setIsAccessModalOpen] = useState(false);
     const [isOTAModalOpen, setIsOTAModalOpen] = useState(false);
     const [otaFile, setOtaFile] = useState(undefined);
-    const [version, setVersion] = useState(undefined);
+    const [version, setVersion] = useState('');
 
     const [searchPeople, setSearchPeople] = useState('');
     const [people, setPeople] = useState([]);
@@ -23,7 +23,7 @@ const DeviceView = () => {
 
     useEffect(() => {
         if (searchPeople.length > 2) {
-            const ourRequest = axios.CancelToken.source() // <-- 1st step
+            const ourRequest = axios.CancelToken.source()
 
             axios.get(`/friends?param=${searchPeople}`, {
                 cancelToken: ourRequest.token,
@@ -78,7 +78,7 @@ const DeviceView = () => {
                     <div style={{ display: "flex", flexWrap: "wrap", border: "1px solid #262626" }}>
                         <Tile id="tile-1" style={{ flexGrow: "1", minWidth: "200px", border: "1px solid #262626" }}>
                             <h4>Template</h4>
-                            <p>{templateName}</p>
+                            <Link to={`/templates/${templateId}/view`}><p style={{ textDecoration: "unset" }}>{templateName}</p></Link>
                         </Tile>
                         <Tile id="tile-1" style={{ flexGrow: "1", minWidth: "200px", border: "1px solid #262626" }}>
                             <h4>Is Upto Date</h4>
@@ -88,11 +88,13 @@ const DeviceView = () => {
                 </div>
 
                 <div style={{ display: "flex", justifyContent: "flex-end", flexWrap: "wrap" }}>
-
-                    <Button kind="ghost" iconDescription="Share this device with others" renderIcon={Share} hasIconOnly={true} onClick={() => setIsAccessModalOpen(true)}></Button>
-                    <Button kind="ghost" iconDescription='OTA updates' renderIcon={Upload} hasIconOnly={true} onClick={() => setIsOTAModalOpen(true)}></Button>
+                    {myAccess !== 'Viewer' &&
+                        <>
+                            <Button kind="ghost" iconDescription="Share this device with others" renderIcon={Share} hasIconOnly={true} onClick={() => setIsAccessModalOpen(true)}></Button>
+                            <Button kind="ghost" iconDescription='OTA updates' renderIcon={Upload} hasIconOnly={true} onClick={() => setIsOTAModalOpen(true)}></Button>
+                        </>}
                     <Button kind="ghost" iconDescription='Configure device' renderIcon={SettingsEdit} hasIconOnly={true} as={Link} to={'./../configure'}></Button>
-                    <Button kind="ghost" iconDescription='Edit dashboard' renderIcon={Dashboard} hasIconOnly={true} as={Link} to={`/dashboard/${dashboardId}/edit`} target="_blank"></Button>
+                    {myAccess !== 'Viewer' && <Button kind="ghost" iconDescription='Edit dashboard' renderIcon={Dashboard} hasIconOnly={true} as={Link} to={`/dashboard/${dashboardId}/edit`} target="_blank"></Button>}
                     <Button renderIcon={ArrowUpRight} as={Link} to={`/dashboard/${dashboardId}/view`} target="_blank">View Dashboard</Button>
                 </div>
             </div>
@@ -136,7 +138,7 @@ const DeviceView = () => {
                     id="datastream-type-input"
                     label="Access"
                     titleText="Access"
-                    value={accessControlLevel}
+                    selectedItem={accessControlLevel}
                     onChange={(e) => setAccessControlLevel(e.selectedItem)}
                     items={[{
                         id: 'one',

@@ -24,24 +24,24 @@ const triggerEvents = [
     }
 ]
 
-const AutomationItem = ({ setCreateAutomation, automationsList, setAutomationsList, datastreams }) => {
+const AutomationItem = ({ editAutomation, setEditAutomation, setCreateAutomation, automationsList, setAutomationsList, datastreams }) => {
 
     const { device, deviceList } = useLoaderData();
     console.log(deviceList);
 
-    const [automationType, setAutomationType] = useState('');
-    const [automationName, setAutomationName] = useState('');
-    const [automationValue, setAutomationValue] = useState('');
-    const [automationTime, setAutomationTime] = useState('');
-    const [otherDevice, setOtherDevice] = useState('');
-    const [otherDeviceDatastream, setOtherDeviceDatastream] = useState('');
+    const [automationType, setAutomationType] = useState(editAutomation.type || '');
+    const [automationName, setAutomationName] = useState(editAutomation.name || '');
+    const [automationValue, setAutomationValue] = useState(editAutomation.value || '');
+    const [automationTime, setAutomationTime] = useState(editAutomation.time || '');
+    const [otherDevice, setOtherDevice] = useState(editAutomation.targetDevice || {});
+    const [otherDeviceDatastream, setOtherDeviceDatastream] = useState(editAutomation.targetDatastream || {});
     const [otherDeviceDatastreamList, setOtherDeviceDatastreamList] = useState([]);
-    const [datastream, setDatastream] = useState('');
+    const [datastream, setDatastream] = useState(editAutomation.datastream || {});
     const [email, setEmail] = useState('');
-    const [emailList, setEmailList] = useState([]);
+    const [emailList, setEmailList] = useState(editAutomation.emailList || []);
 
     useEffect(() => {
-        if (otherDevice) {
+        if (otherDevice.id) {
             axios.get(`/device/metadata/${otherDevice.id}`)
                 .then(res => res.data)
                 .then((device) => { setOtherDeviceDatastreamList(device.datastreams) })
@@ -58,17 +58,23 @@ const AutomationItem = ({ setCreateAutomation, automationsList, setAutomationsLi
             return;
         }
         if (automationsList.some(item => item.name === automationName)) return;
+        const method = editAutomation ? 'put' : 'post';
         if (automationType === 'state') {
-            axios.post(`device/automation/${device.id}`, {
-                type: automationType,
-                name: automationName,
-                datastream: datastream,
-                targetDevice: otherDevice,
-                targetDatastream: otherDeviceDatastream
+            axios.request({
+                url: `device/automation/${device.id}`,
+                method: method,
+                data: {
+                    type: automationType,
+                    name: automationName,
+                    datastream: datastream,
+                    targetDevice: otherDevice,
+                    targetDatastream: otherDeviceDatastream
+                }
             }).then(res => {
                 if (res.status === 200) {
                     setCreateAutomation(false);
                     setAutomationsList((existing) => {
+                        existing = existing.filter(item => item.name !== automationName);
                         return ([{
                             type: automationType,
                             name: automationName,
@@ -80,16 +86,21 @@ const AutomationItem = ({ setCreateAutomation, automationsList, setAutomationsLi
                 }
             })
         } else if (automationType === 'schedule') {
-            axios.post(`device/automation/${device.id}`, {
-                type: automationType,
-                name: automationName,
-                datastream: datastream,
-                value: automationValue,
-                time: automationTime
+            axios.request({
+                url: `device/automation/${device.id}`,
+                method: method,
+                data: {
+                    type: automationType,
+                    name: automationName,
+                    datastream: datastream,
+                    value: automationValue,
+                    time: automationTime
+                }
             }).then(res => {
                 if (res.status === 200) {
                     setCreateAutomation(false);
                     setAutomationsList((existing) => {
+                        existing = existing.filter(item => item.name !== automationName);
                         return ([{
                             type: automationType,
                             name: automationName,
@@ -100,16 +111,21 @@ const AutomationItem = ({ setCreateAutomation, automationsList, setAutomationsLi
                     })
                 }
             })
-            
+
         } else if (automationType === 'email-status') {
-            axios.post(`device/automation/${device.id}`, {
-                type: automationType,
-                name: automationName,
-                emailList: emailList
+            axios.request({
+                url: `device/automation/${device.id}`,
+                method: method,
+                data: {
+                    type: automationType,
+                    name: automationName,
+                    emailList: emailList
+                }
             }).then(res => {
                 if (res.status === 200) {
                     setCreateAutomation(false);
                     setAutomationsList((existing) => {
+                        existing = existing.filter(item => item.name !== automationName);
                         return ([{
                             type: automationType,
                             name: automationName,
@@ -119,15 +135,20 @@ const AutomationItem = ({ setCreateAutomation, automationsList, setAutomationsLi
                 }
             })
         } else if (automationType === 'email-value') {
-            axios.post(`device/automation/${device.id}`, {
-                type: automationType,
-                name: automationName,
-                datastream: datastream,
-                emailList: emailList
+            axios.request({
+                url: `device/automation/${device.id}`,
+                method: method,
+                data: {
+                    type: automationType,
+                    name: automationName,
+                    datastream: datastream,
+                    emailList: emailList
+                }
             }).then(res => {
                 if (res.status === 200) {
                     setCreateAutomation(false);
                     setAutomationsList((existing) => {
+                        existing = existing.filter(item => item.name !== automationName);
                         return ([{
                             type: automationType,
                             name: automationName,
@@ -140,21 +161,27 @@ const AutomationItem = ({ setCreateAutomation, automationsList, setAutomationsLi
         }
     }
     return (<Tile>
-        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: 'center' }}>
-            
-        <TextInput
-            id="automation-name"
-            labelText="Name"
-            value={automationName}
-            onChange={(e) => setAutomationName(e.target.value)}
-        />
-            <Button kind="ghost" onClick={() => setCreateAutomation(false)} iconDescription='Close' renderIcon={Close} hasIconOnly={true}></Button>
-        </div> 
+        <div style={{ display: "flex", justifyContent: "flex-end", alignItems: 'flex-end', gap: "1rem" }}>
+            <TextInput
+                id="automation-name"
+                labelText="Name"
+                value={automationName}
+                disabled={editAutomation.name}
+                onChange={(e) => setAutomationName(e.target.value)}
+            />
+            <Button kind="secondary" onClick={() => {
+                setCreateAutomation(false)
+                setEditAutomation({})
+            }}
+                iconDescription='Close'
+                renderIcon={Close}
+                hasIconOnly={true} />
+        </div>
         <Dropdown
             autoAlign
             id="Automations-type-input"
             titleText="Trigger Event"
-            value={automationType}
+            selectedItem={triggerEvents.filter((item) => item.type === automationType)[0]}
             onChange={(e) => setAutomationType(e.selectedItem.type)}
             itemToString={(item) => item.name}
             items={triggerEvents}
@@ -168,7 +195,7 @@ const AutomationItem = ({ setCreateAutomation, automationsList, setAutomationsLi
                 id="Automations-datastream"
                 label="Select Datastream"
                 titleText="Select Datastream"
-                value={datastream}
+                selectedItem={datastream}
                 onChange={(e) => setDatastream(e.selectedItem)}
                 itemToString={(item) => item.name}
                 items={datastreams}
@@ -179,7 +206,7 @@ const AutomationItem = ({ setCreateAutomation, automationsList, setAutomationsLi
                 id="Automations-device"
                 label="Select Device"
                 titleText="Select Device"
-                value={otherDevice}
+                selectedItem={otherDevice}
                 onChange={(e) => setOtherDevice(e.selectedItem)}
                 itemToString={(item) => item.name}
                 items={deviceList.filter((item) => item.id !== device.id)}
@@ -190,7 +217,7 @@ const AutomationItem = ({ setCreateAutomation, automationsList, setAutomationsLi
                 id="Automations-target-datastream"
                 label="Select Target Datastream"
                 titleText="Select Target Datastream"
-                value={otherDeviceDatastream}
+                selectedItem={otherDeviceDatastream}
                 onChange={(e) => setOtherDeviceDatastream(e.selectedItem)}
                 itemToString={(item) => item.name}
                 disabled={!otherDevice.id}
@@ -210,7 +237,7 @@ const AutomationItem = ({ setCreateAutomation, automationsList, setAutomationsLi
                 id="Automations-state"
                 label="Select Datastream"
                 titleText="Select Datastream"
-                value={datastream}
+                selectedItem={datastream}
                 onChange={(e) => setDatastream(e.selectedItem)}
                 itemToString={(item) => item.name}
                 items={datastreams}
@@ -224,9 +251,9 @@ const AutomationItem = ({ setCreateAutomation, automationsList, setAutomationsLi
             />
             <TimePicker
                 autoAlign
-                labelText="Select time" 
-                type="time" 
-                style={{ width: "100%" }} 
+                labelText="Select time"
+                type="time"
+                style={{ width: "100%" }}
                 value={automationTime}
                 onChange={(e) => setAutomationTime(e.target.value)}
             />
@@ -302,7 +329,7 @@ const AutomationItem = ({ setCreateAutomation, automationsList, setAutomationsLi
                     id="Automations-state"
                     label="Select Datastream"
                     titleText="Select Datastream"
-                    value={datastream}
+                    selectedItem={datastream}
                     onChange={(e) => setDatastream(e.selectedItem)}
                     itemToString={(item) => item.name}
                     items={datastreams}
@@ -317,7 +344,7 @@ const AutomationItem = ({ setCreateAutomation, automationsList, setAutomationsLi
                 {emailList.map((item) => <ContainedListItem action={<Button kind="ghost" onClick={() => removeEmail(item)} iconDescription="Remove" hasIconOnly renderIcon={Close} aria-label="Dismiss" />}>{item}</ContainedListItem>)}
             </ContainedList>
         </div>}
-
+        <span className="cds--toggle__label-text" dir="auto" style={{marginBottom:'0'}}> *Automation values are not logged to database </span>
     </Tile>);
 }
 

@@ -120,8 +120,10 @@ const TemplatesList = () => {
             </TableToolbar>
             <Table>
               <TableHead>
+                <TableRow>
                 {headers.map((header) => (
                                     <TableHeader
+                                    key={header.header}
                                       isSortHeader={sortColumn === header.key}
                                       sortDirection={sortDirection}
                                       onClick={() => handleSort(header.key)}
@@ -129,6 +131,7 @@ const TemplatesList = () => {
                                       {header.header}
                                     </TableHeader>
                                   ))}
+              </TableRow>
               </TableHead>
               <TableBody>
                 {paginatedRows.map((row) => {console.log(row)
@@ -163,7 +166,7 @@ const TemplatesList = () => {
         id="dropdown-board"
           label="Board"
           titleText="Board"
-          value={newBoard}
+          selectedItem={newBoard}
           onChange={(e) => {
             setNewBoard(e.selectedItem.name);
           }}

@@ -4,31 +4,44 @@ import React, { useContext, useEffect, useState } from "react";
 import GridLayout from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
-import { useLoaderData } from "react-router-dom";
+import { useLoaderData, useParams } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { DashboardContext } from "../Layout/DashboardContext";
 import DashboardModal from "./DashboardModal";
 import GridItem from "./GridItem";
 import { WidgetsList } from "./WidgetsList";
 
+const resToWidth = {
+  'Mobile: 600px': ['400px', 12, 400],
+  'Tablet: 768px': ['800px', 23, 800],
+  'Desktop: 1024px': ['1520px', 47, 1500],
+  'Large: 1440px': ['2100px', 64, 2100],
+}
 const Editor = () => {
-  const { layout, setLayout, widgetData, setWidgetData } = useContext(DashboardContext);
-  const { dashboard, datastreams, devices } = useLoaderData();
-
-
+  const { resolution, layout, setLayout, widgetData, setWidgetData } = useContext(DashboardContext);
+  const { datastreams, devices } = useLoaderData();
+  const { id }  = useParams();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [activeWidget, setActiveWidget] = useState("");
   const [droppingItem, setDroppingItem] = useState();
-useEffect(() => {
-  setLayout(dashboard.dashboardData.layout);
-  setWidgetData(dashboard.dashboardData.widgetData);
 
-  return () => {
-    setLayout([]);
-    setWidgetData({});
+  const updateDashboardData = async() => {
+    const dashboard = await axios.get(`/dashboard/data/${id}?type=${resolution}`).then((res) => res.data);
+    setLayout(dashboard.dashboardData.layout);
+    setWidgetData(dashboard.dashboardData.widgetData);
   }
-}, [setLayout, setWidgetData])
+
+  useEffect(() => {
+    updateDashboardData();
+  }, [resolution])
+  useEffect(() => {
+
+    return () => {
+      setLayout([]);
+      setWidgetData({});
+    }
+  }, [setLayout, setWidgetData])
 
   const onDragStart = (item) => {
     setDroppingItem(item);
@@ -88,12 +101,12 @@ useEffect(() => {
           display: "flex",
           justifyContent: "center",
           flexWrap: "wrap",
-          msOverflowStyle: "none" /* IE and Edge */,
+          msOverflowStyle: "none",
           scrollbarWidth: "none",
         }}
       >
         {/* <button onClick={() => saveData(1)}>save</button> */}
-        
+
         {Object.keys(WidgetsList).map((key) => {
           return (
             <Tile
@@ -145,13 +158,13 @@ useEffect(() => {
           onDrop={onDrop}
           onRemove={onRemoveItem}
           isDroppable={true}
-          // maxRows={"Infinity"}
-          cols={56}
+          maxRows={"Infinity"}
+          cols={resToWidth[resolution][1]}
           rowHeight={40}
-          width={2000}
+          width={resToWidth[resolution][2]}
           preventCollision={true}
           compactType={null}
-          style={{ minHeight: "100%" , width: "100%"}}
+          style={{ minHeight: "100%", width: resToWidth[resolution][0] }}
           draggableCancel=".no-drag"
         >
           {layout.map((item) => (
@@ -182,10 +195,9 @@ useEffect(() => {
 }
 
 export const dashboardEditorLoader = async (dashboardId) => {
-  const dashboard  = await axios.get(`/dashboard/data/${dashboardId}`).then((res) => res.data);
   const datastreams = await axios.get(`/dashboard/datastreams/${dashboardId}`).then((res) => res.data);
   const devices = await axios.get(`/dashboard/devices/${dashboardId}`).then((res) => res.data);
 
-  return { dashboard, datastreams, devices };
+  return { datastreams, devices };
 };
 export default Editor;

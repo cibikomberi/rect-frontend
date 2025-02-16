@@ -24,11 +24,6 @@ const datastreamHeaders = [
 ];
 const datastreams = [
   {
-    id: "one",
-    label: "Integer",
-    name: "Integer",
-  },
-  {
     id: "two",
     label: "Float",
     name: "Float",
@@ -48,7 +43,7 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
 
   const [datastreamId, setDatastreamId] = useState("");
   const [datastreamName, setDatastreamName] = useState("");
-  const [datastreamType, setDatastreamType] = useState("");
+  const [datastreamType, setDatastreamType] = useState(datastreams[0]);
   const [datastreamUnit, setDatastreamUnit] = useState("");
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -58,10 +53,13 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
   const [sortColumn, setSortColumn] = useState(null); // Track sort column
   const [sortDirection, setSortDirection] = useState('NONE'); // Track sort direction
 
+  console.log(dataStreams);
+  
   const filteredRows = dataStreams
     .filter((val) => val.name.toLowerCase().includes(searchKeyword.toLowerCase()))
     .map((val) => ({
       ...val,
+      id: val.identifier
     }));
 
   const sortedRows = sortColumn
@@ -115,6 +113,10 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
         setStatus(res.data)
         setIsLoading('error')
       }
+    }).catch(() => {
+      setStatus('')
+      setIsLoading('error')
+      
     })
   }
 
@@ -134,6 +136,10 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
         setStatus(res.data)
         setIsLoading('error')
       }
+    }).catch(() => {
+      setStatus('')
+      setIsLoading('error')
+      
     })
   }
 
@@ -146,7 +152,6 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
       })
   }
 
-
   return (
     <>
       <DataTable rows={paginatedRows} headers={datastreamHeaders} isSortable>
@@ -155,7 +160,7 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
             <TableToolbar>
               <TableToolbarContent>
                 <TableToolbarSearch onChange={handleSearch} />
-                {!isLocked && <Button renderIcon={Add} onClick={() => {
+                {isLocked && <Button renderIcon={Add} onClick={() => {
                   setIsModalOpen('new')
                   setDatastreamId('')
                   setDatastreamName('')
@@ -171,6 +176,7 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
                 <TableRow>
                   {datastreamHeaders.map((header) => (
                     <TableHeader
+                    key={header.header}
                       isSortHeader={sortColumn === header.key}
                       sortDirection={sortDirection}
                       onClick={() => handleSort(header.key)}
@@ -178,7 +184,7 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
                       {header.header}
                     </TableHeader>
                   ))}
-                  {!isLocked && <TableHeader>Actions</TableHeader>}
+                  {isLocked && <TableHeader>Actions</TableHeader>}
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -188,7 +194,7 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.type}</TableCell>
                     <TableCell>{row.unit}</TableCell>
-                    {!isLocked && <TableCell>
+                    {isLocked && <TableCell>
                       <Button
                         onClick={() => {
                           setIsModalOpen(row.identifier)
@@ -231,14 +237,14 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
         onRequestSubmit={() => isModalOpen === "new" ? createDatastream({
           identifier: datastreamId,
           name: datastreamName,
-          type: datastreamType,
+          type: datastreamType.name,
           unit: datastreamUnit,
-        }, setStatus) : updateDatastream(isModalOpen, {
+        }) : updateDatastream(isModalOpen, {
           identifier: datastreamId,
           name: datastreamName,
-          type: datastreamType,
+          type: datastreamType.name,
           unit: datastreamUnit,
-        }, setStatus)}
+        })}
         modalHeading={isModalOpen === "new" ? "Create new datastream" : "Edit datastream"}
         primaryButtonDisabled={isLoading ? true : false}
         primaryButtonText={
@@ -266,6 +272,8 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
           id="datastream-id-input"
           labelText="Datastream id"
           value={datastreamId}
+          invalid={isModalOpen === "new" && dataStreams.some(item => item.identifier === datastreamId)}
+          invalidText={'Id already exists'}
           onChange={(e) => {
             setIsLoading('')
             setDatastreamId(e.target.value)
@@ -284,10 +292,10 @@ const DatastreamsList = ({ dataStreams, setDatastreams, templateOrDeviceId, temp
           id="datastream-type-input"
           label="Data type"
           titleText="Data type"
-          value={datastreams.filter((item) => item.name === datastreamType)}
+          selectedItem={datastreamType}
           onChange={(e) => {
             setIsLoading('')
-            setDatastreamType(e.selectedItem.name)
+            setDatastreamType(e.selectedItem)
           }}
           items={datastreams}
           style={{
