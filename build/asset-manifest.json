@@ -1,9 +1,9 @@
 {
   "files": {
-    "main.css": "/static/css/main.21e7ad13.css",
-    "main.js": "/static/js/main.1b067226.js",
+    "main.css": "/static/css/main.8861dca2.css",
+    "main.js": "/static/js/main.ea28b181.js",
     "static/media/bg.jpeg": "/static/media/bg.aa99a7deba34c82c1e42.jpeg",
-    "static/media/esp32-wroom-32.jpg": "/static/media/esp32-wroom-32.e28f9df19bc1bd0c33d2.jpg",
+    "static/media/esp32-wroom-32.jpg": "/static/media/esp32-wroom-32.ce6a20e1844829f2a554.jpg",
     "static/media/gauge.png": "/static/media/gauge.f2625fca7411f20c3c27.png",
     "static/media/circular-gauge.png": "/static/media/circular-gauge.ecf82b7af7cccb3a072a.png",
     "static/media/IBMPlexSerif-SemiBoldItalic-Cyrillic.woff2": "/static/media/IBMPlexSerif-SemiBoldItalic-Cyrillic.2861a6629748147a32ea.woff2",
@@ -102,11 +102,11 @@
     "static/media/area.svg": "/static/media/area.45180d97efc16db51a8147ff9c73b69c.svg",
     "static/media/num-input.svg": "/static/media/num-input.87d790eb32ef638006e9f1392500af5c.svg",
     "index.html": "/index.html",
-    "main.21e7ad13.css.map": "/static/css/main.21e7ad13.css.map",
-    "main.1b067226.js.map": "/static/js/main.1b067226.js.map"
+    "main.8861dca2.css.map": "/static/css/main.8861dca2.css.map",
+    "main.ea28b181.js.map": "/static/js/main.ea28b181.js.map"
   },
   "entrypoints": [
-    "static/css/main.21e7ad13.css",
-    "static/js/main.1b067226.js"
+    "static/css/main.8861dca2.css",
+    "static/js/main.ea28b181.js"
   ]
 }

@@ -52,17 +52,16 @@ const Dashboard = () => {
     // const {
       //   dashboardData: { layout, widgetData, days },
       // } = useLoaderData();
-      const [plot, setP] = useState({});
+  const [plot, setPlot] = useState({});
       
-      console.log(layout);
-  const setPlot = useCallback(
-    debounce((value) => {
-      console.log('Searching for:', value);
-      setP(value);
-      // Call API or update state
-    }, 500),
-    []
-  );
+  // const setPlot = useCallback(
+  //   debounce((value) => {
+  //     console.log('Searching for:', value);
+  //     setP(value);
+  //     // Call API or update state
+  //   }, 500),
+  //   []
+  // );
 
 
   const staticLayout = layout.map((item) => ({
@@ -83,7 +82,7 @@ const Dashboard = () => {
       axios.get(`dashboard-data/${dashboardId}/${item.deviceId}/${item.identifier}/${days}`)
         .then((res) => res.data)
         .then((data) => {
-          setP((existing) => ({
+          setPlot((existing) => ({
             ...existing,
             [`${item.deviceId}-${item.identifier}`]:
               data.data
@@ -121,6 +120,7 @@ const Dashboard = () => {
   }, [days]);
 
   const memoizedDatastreams = useMemo(() => datastreams, [datastreams]);
+  // console.log(datastreams);
 
   useEffect(() => {
     const connectWebSocket = () => {
@@ -134,7 +134,9 @@ const Dashboard = () => {
         onConnect: () => {
           console.log("Connected");
           reconnectAttempts.current = 0; // Reset reconnection attempts
-          memoizedDatastreams.forEach((item) => {
+          datastreams.forEach((item) => {
+            console.log(item);
+                        
             stompClient.subscribe(
               `/topic/data/${item.deviceId}/${item.identifier}`,
               (message) => {
