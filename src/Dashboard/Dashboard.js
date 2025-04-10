@@ -113,7 +113,7 @@ const Dashboard = () => {
     if (isConnectedRef.current) return;
 
     const connectWebSocket = () => {
-      const socket = new SockJS(`https://rect-zmzt.onrender.com//websocket?token=${localStorage.getItem("token")}&dashboard=${dashboardId}`);
+      const socket = new SockJS(`https://rect-zmzt.onrender.com/websocket?token=${localStorage.getItem("token")}&dashboard=${dashboardId}`);
 
       const stompClient = new Client({
         webSocketFactory: () => socket,
