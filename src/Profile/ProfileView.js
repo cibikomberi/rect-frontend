@@ -52,6 +52,9 @@ const ProfileView = () => {
 export const myDetailsLoader = async () => {
     const profile = await axios.get('/whoami').then(res => res.data)
         .then(async (profile) => {
+            if (profile.imageUrl) {
+                return { ...profile, image: profile.imageUrl };
+            }
             if (profile.imageId === null) {
                 return { ...profile, image: null };
             }

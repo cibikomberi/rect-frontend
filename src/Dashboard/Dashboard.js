@@ -110,7 +110,7 @@ const Dashboard = () => {
     if (isConnectedRef.current) return;
 
     const connectWebSocket = () => {
-      const socket = new SockJS(`http://localhost:8080/websocket?token=${localStorage.getItem("token")}&dashboard=${dashboardId}`);
+      const socket = new SockJS(`${process.env.REACT_APP_BACKEND_URL}/websocket?token=${localStorage.getItem("token")}&dashboard=${dashboardId}`);
 
       const stompClient = new Client({
         webSocketFactory: () => socket,

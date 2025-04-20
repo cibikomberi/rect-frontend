@@ -22,6 +22,10 @@ const MainLayout = () => {
   useEffect(() => {
     axios.get('/whoami').then(res => res.data)
       .then(async (profile) => {
+        if (profile.imageUrl) {
+          setProfileImage(profile.imageUrl);
+          return;
+        }
         if (profile.imageId === null) {
           return;
         }
@@ -31,10 +35,7 @@ const MainLayout = () => {
         if (isDashboardPage) {
           return;
         }
-        if (err.status === 401 || err.status === 403) {
-          navigate('/login');
-        }
-
+        navigate('/login');
       });
   }, []);
 
@@ -66,7 +67,7 @@ const MainLayout = () => {
             {/* <HeaderGlobalAction aria-label="Search">
               <Search size={20} />
             </HeaderGlobalAction> */}
-            {isDashboardEditPage ? <div style={{display:'flex', alignItems:"center"}}>
+            {isDashboardEditPage ? <div style={{ display: 'flex', alignItems: "center" }}>
               <Dropdown
                 autoAlign
                 type='inline'
@@ -76,16 +77,16 @@ const MainLayout = () => {
                 selectedItem={resolution}
                 onChange={(e) => setResolution(e.selectedItem)}
                 items={resolutions}
-/>
-              <MenuButton label='Deploy' size='sm' style={{marginRight:"15px"}}>
+              />
+              <MenuButton label='Deploy' size='sm' style={{ marginRight: "15px" }}>
                 <MenuItem onClick={() => saveData(1, sharedPath)} label="1 Day" />
                 <MenuItem onClick={() => saveData(30, sharedPath)} label="1 Month" />
                 <MenuItem onClick={() => saveData(180, sharedPath)} label="6 Months" />
-            </MenuButton></div> :
-            <HeaderGlobalAction aria-label="Profile" as={Link} to="/profile">
-              {profileImage ? <img src={profileImage} alt='profile-image' className='img-view' style={{ width: "36px", height: "36px", margin: "0px" }} /> : <UserAvatarFilled size={20} />}
-            </HeaderGlobalAction>
-              }
+              </MenuButton></div> :
+              <HeaderGlobalAction aria-label="Profile" as={Link} to="/profile">
+                {profileImage ? <img src={profileImage} alt='profile-image' className='img-view' style={{ width: "36px", height: "36px", margin: "0px" }} /> : <UserAvatarFilled size={20} />}
+              </HeaderGlobalAction>
+            }
           </HeaderGlobalBar>
 
           <SideNav

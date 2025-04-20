@@ -122,7 +122,7 @@ const DeviceView = () => {
                     }}
                     itemToElement={(item) =>
                         <div style={{ height: "60px", display: "flex", flexDirection: "row", alignItems: "center" }}>
-                            <img src={item.imageId ? `http://localhost:8080/profile/image/${item.imageId}` : bg} style={{ height: "50px", width: "50px", borderRadius: "50%", objectFit: "cover", marginRight: "15px" }} alt="profile pic" />
+                            <img src={item.imageId ? `${process.env.REACT_APP_BACKEND_URL}/profile/image/${item.imageId}` : bg} style={{ height: "50px", width: "50px", borderRadius: "50%", objectFit: "cover", marginRight: "15px" }} alt="profile pic" />
                             {item.name} <br />
                             {item.email}
                         </div>

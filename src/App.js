@@ -29,6 +29,7 @@ import SharedTemplatesList, { sharedTemplatesLoader } from "./Templates/SharedTe
 import TemplatesList, { templateListLoader } from "./Templates/TemplatesList";
 import TemplateView, { templateDetailsLoader } from "./Templates/TemplateView";
 import VersionControl, { templateVersionsLoader } from "./Templates/VersionControl";
+import OauthSuccess from "./Layout/OauthSuccess";
 
 function App() {
   const routes = createBrowserRouter(
@@ -37,6 +38,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login-vs" element={<VSLogin />} />
+        <Route path="/oauth/success" element={<OauthSuccess />} />
         <Route path="/" element={<MainLayout />} errorElement={<Error />}>
 
           <Route path="/home" />
