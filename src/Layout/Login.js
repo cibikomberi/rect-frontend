@@ -48,13 +48,13 @@ const Login = () => {
                     <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "5px" }}>
                         <Button type="submit" style={{ width: "100%", flexGrow: "1", maxWidth: "unset" }} as="div" renderIcon={ArrowRight} onClick={login}>Log in</Button>
 
-                        <div style={{ display: "flex", gap: "5px", width: "100%", justifyContent: "space-between" }}>
-                            <Button kind="tertiary" style={{ minWidth: "48%", flexGrow: "1" }} renderIcon={GoogleLogo} onClick={() => {
+                        <div style={{ display: "flex", gap: "5px", width: "100%", flexWrap: "wrap", justifyContent: "space-between" }}>
+                            <Button kind="tertiary" style={{ minWidth: "48%", flexGrow: "1", flexBasis: "225px", maxWidth: "100%" }} renderIcon={GoogleLogo} onClick={() => {
                                 const redirectUrl = encodeURIComponent(`${window.location.origin}/oauth/success`);
                                 window.location.href = `${process.env.REACT_APP_BACKEND_URL}/oauth2/authorization/google?redirectUrl=${redirectUrl}`;
                             }}>Google Log in</Button>
                             
-                            <Button kind="tertiary" style={{ minWidth: "48%", flexGrow: "1" }} renderIcon={GithubLogo} onClick={() => {
+                            <Button kind="tertiary" style={{ minWidth: "48%", flexGrow: "1", flexBasis: "225px", maxWidth: "100%" }} renderIcon={GithubLogo} onClick={() => {
                                 const redirectUrl = encodeURIComponent(`${window.location.origin}/oauth/success`);
                                 window.location.href = `${process.env.REACT_APP_BACKEND_URL}/oauth2/authorization/github?redirectUrl=${redirectUrl}`;
                             }}>Github Log in</Button>
