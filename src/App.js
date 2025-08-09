@@ -30,6 +30,7 @@ import TemplatesList, { templateListLoader } from "./Templates/TemplatesList";
 import TemplateView, { templateDetailsLoader } from "./Templates/TemplateView";
 import VersionControl, { templateVersionsLoader } from "./Templates/VersionControl";
 import OauthSuccess from "./Layout/OauthSuccess";
+import Home, { statsLoader } from "./Layout/Home";
 
 function App() {
   const routes = createBrowserRouter(
@@ -41,7 +42,8 @@ function App() {
         <Route path="/oauth/success" element={<OauthSuccess />} />
         <Route path="/" element={<MainLayout />} errorElement={<Error />}>
 
-          <Route path="/home" />
+          <Route index element={<Home />} loader={statsLoader} />
+          <Route path="/home" element={<Home />} loader={statsLoader} />
           <Route path="profile">
             <Route index element={<ProfileView />} loader={myDetailsLoader} />
             <Route path="configure" element={<ProfileUpdate />} loader={myDetailsLoader} />

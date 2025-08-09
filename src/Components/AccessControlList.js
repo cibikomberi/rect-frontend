@@ -1,8 +1,8 @@
-import { Share, TrashCan } from "@carbon/icons-react";
+import { Share, TrashCan, UserAvatarFilled } from "@carbon/icons-react";
 import { Button, ComboBox, DataTable, Dropdown, Modal, Pagination, Table, TableBody, TableCell, TableContainer, TableHead, TableHeader, TableRow, TableToolbar, TableToolbarContent, TableToolbarSearch } from "@carbon/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import bg from "./../Assets/bg.jpeg";
+import bg from "./../Assets/user.jpg";
 import { customSortRow } from '../Methods/Sort';
 
 
@@ -219,7 +219,7 @@ const AccessControlList = ({ accessControls, setAccessControls, templateOrDevice
                 }}
                 itemToElement={(item) =>
                     <div style={{ height: "60px", display: "flex", flexDirection: "row", alignItems: "center" }}>
-                        <img src={item.imageId ? `${process.env.REACT_APP_BACKEND_URL}/profile/image/${item.imageId}` : bg} style={{ height: "50px", width: "50px", borderRadius: "50%", objectFit: "cover", marginRight: "15px" }} alt="profile pic" />
+                        {item.imageId ?<img src={item.imageId ? `${process.env.REACT_APP_BACKEND_URL}/profile/image/${item.imageId}` : bg} style={{ height: "50px", width: "50px", borderRadius: "50%", objectFit: "cover", marginRight: "15px" }} alt="profile pic" /> : <UserAvatarFilled size={40} />}
                         {item.name} <br />
                         {item.email}
                     </div>
