@@ -1,4 +1,3 @@
-import { Wifi } from "@carbon/icons-react";
 import { Tile } from "@carbon/react";
 import axios from "axios";
 import { useLoaderData } from "react-router-dom";
@@ -25,9 +24,9 @@ function Home() {
             }}
         >
             {/* Top row: Device tiles */}
-            <div style={{ display: "flex", gap: "1rem" }}>
+            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center", width: "100%", maxWidth: "900px" }}>
                 {/* Online Devices Tile */}
-                <Tile style={{ width: "400px", textAlign: "center", padding: "3rem 2rem", position: "relative" }}>
+                <Tile style={{ minWidth: "260px", width: "400px", textAlign: "center", padding: "3rem 2rem", position: "relative", flex: "1 1 260px" }}>
                     {/* Blinking indicator */}
                     <div style={{
                         position: "absolute",
@@ -65,7 +64,7 @@ function Home() {
                 </Tile>
 
                 {/* Up-to-date Devices Tile */}
-                <Tile style={{ width: "400px", textAlign: "center", padding: "3rem 2rem", position: "relative" }}>
+                <Tile style={{ minWidth: "260px", width: "400px", textAlign: "center", padding: "3rem 2rem", position: "relative", flex: "1 1 260px" }}>
                     {/* Blinking indicator */}
                     <div style={{
                         position: "absolute",
@@ -104,9 +103,9 @@ function Home() {
             </div>
 
             {/* Bottom row: Templates and Dashboards */}
-            <div style={{ display: "flex", gap: "1rem" }}>
+            <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", justifyContent: "center", width: "100%", maxWidth: "900px" }}>
                 {/* Templates Tile */}
-                <Tile style={{ width: "400px", textAlign: "center", padding: "2rem" }}>
+                <Tile style={{ minWidth: "260px", width: "400px", textAlign: "center", padding: "2rem", flex: "1 1 260px" }}>
                     <div style={{ fontSize: "5rem" }}>
                         {templatesCount}
                     </div>
@@ -116,7 +115,7 @@ function Home() {
                 </Tile>
 
                 {/* Dashboards Tile */}
-                <Tile style={{ width: "400px", textAlign: "center", padding: "2rem" }}>
+                <Tile style={{ minWidth: "260px", width: "400px", textAlign: "center", padding: "2rem", flex: "1 1 260px" }}>
                     <div style={{ fontSize: "5rem" }}>
                         {dashboardsCount}
                     </div>

@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Navigate, useParams, useSearchParams } from "react-router-dom";
+import { Navigate, useSearchParams } from "react-router-dom";
 
 const OauthSuccess = () => {
     const [searchParams] = useSearchParams();
