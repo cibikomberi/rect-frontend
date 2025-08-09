@@ -148,7 +148,7 @@ function Home() {
     );
 }
 export const statsLoader = async () => {
-    const deviceStats = await axios.get('device/stats')
+    const deviceStats = await axios.get('devices/stats')
         .then(res => res.data)
     const templatesStats = await axios.get('templates/stats')
         .then(res => res.data)
