@@ -42,7 +42,7 @@ console.log()
             data-ad-slot={process.env.REACT_APP_ADGEIST_AD_SLOT}
             data-slot-type="banner"
             data-responsive="false"
-            data-allowed-formats="jpg,jpeg,png,gif"
+            data-allowed-formats="jpg,jpeg,png,gif,mp4"
         />
     );
 }
