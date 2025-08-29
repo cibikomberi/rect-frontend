@@ -8,7 +8,6 @@ export default function AdgeistBanner() {
         const script = document.createElement("script");
         script.src = "https://d2cfeg6k9cklz9.cloudfront.net/creativebyadgeist.js";
         script.async = true;
-        script.crossOrigin = "anonymous";
         script.setAttribute("data-env", process.env.NODE_ENV);
         document.body.appendChild(script);
 
