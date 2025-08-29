@@ -6,7 +6,7 @@ export default function AdgeistBanner() {
     useEffect(() => {
         // Load script only once
         const script = document.createElement("script");
-        script.src = "https://d2cfeg6k9cklz9.cloudfront.net/creativebyadgeist-qa.js";
+        script.src = "https://d2cfeg6k9cklz9.cloudfront.net/creativebyadgeist.js";
         script.async = true;
         script.crossOrigin = "anonymous";
         script.setAttribute("data-env", process.env.NODE_ENV);
