@@ -40,7 +40,7 @@ console.log()
             data-publisher-id={process.env.REACT_APP_ADGEIST_PUBLISHER_ID}
             data-api-key={process.env.REACT_APP_ADGEIST_API_KEY}
             data-ad-slot={process.env.REACT_APP_ADGEIST_AD_SLOT}
-            data-slot-type="video"
+            data-slot-type="banner"
             data-responsive="false"
             data-allowed-formats="jpg,jpeg,png,gif,mp4"
         />
